@@ -748,7 +748,7 @@ static void vk_setup(void) {
     SDL_Vulkan_GetInstanceExtensions(g_win, &n, ie);
     uint32_t iv = VK_API_VERSION_1_1;
     vkEnumerateInstanceVersion(&iv);
-    VkApplicationInfo app = {VK_STRUCTURE_TYPE_APPLICATION_INFO, NULL, "sonicriders", 1, "sonicriders", 1,
+    VkApplicationInfo app = {VK_STRUCTURE_TYPE_APPLICATION_INFO, NULL, "sonicheroes", 1, "sonicheroes", 1,
                              iv >= VK_API_VERSION_1_3 ? VK_API_VERSION_1_3 : VK_API_VERSION_1_1};
     VkInstanceCreateInfo ici = {VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO, NULL, 0, &app, 0, NULL, n, ie};
     VKC(vkCreateInstance(&ici, NULL, &g_inst));
@@ -2219,9 +2219,9 @@ static int render_thread(void* arg) {
 #ifdef SR_IOS
     /* full pixel size (e.g. 2622 x 1206 on an iPhone 17 Pro); without the flag the screen image is in points
      * (874 x 402) and iOS stretches it 3x: jagged touch controls and a soft picture */
-    g_win = SDL_CreateWindow("Sonic Riders", 0, 0, 0, 0, SDL_WINDOW_VULKAN | SDL_WINDOW_FULLSCREEN | SDL_WINDOW_ALLOW_HIGHDPI);
+    g_win = SDL_CreateWindow("Sonic Heroes", 0, 0, 0, 0, SDL_WINDOW_VULKAN | SDL_WINDOW_FULLSCREEN | SDL_WINDOW_ALLOW_HIGHDPI);
 #else
-    g_win = SDL_CreateWindow("Sonic Riders", 0, 0, 0, 0, SDL_WINDOW_VULKAN | SDL_WINDOW_FULLSCREEN);
+    g_win = SDL_CreateWindow("Sonic Heroes", 0, 0, 0, 0, SDL_WINDOW_VULKAN | SDL_WINDOW_FULLSCREEN);
 #endif
     if (!g_win) rt_fatal("SDL_CreateWindow: %s", SDL_GetError());
 #ifdef SR_IOS

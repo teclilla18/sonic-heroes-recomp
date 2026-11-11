@@ -1,5 +1,8 @@
 # Debug variables (SR_*) and recompiler switches (RECOMP_*)
 
+> **Inherited from the Sonic Riders port** (forked 2026-11-11). File and folder names are updated for Sonic Heroes;
+> facts, numbers, addresses and test results are still Sonic Riders' until this page is revised for Heroes.
+
 **Reference.** Moved from docs/REFERENCE.md on 2026-11-03 (content unchanged). Index: [REFERENCE.md](../REFERENCE.md).
 
 Legend: **[confirmed]** = verified directly; **[likely]** = strong evidence, not proven; **[uncertain]** = guess / needs work.
@@ -79,9 +82,9 @@ Environment variables read by `tools/recomp/gcrecomp.py` when generating code (a
 - `RECOMP_CALLEE_SAVED=0`: don't keep callee-saved registers in locals across calls.
 - `RECOMP_SINGLE=0`: no single-precision tracking (singleflow.py); `RECOMP_SINGLE_CHECK=1`: checking build.
 - `RECOMP_STACKRAM=0`: r1/r13-based accesses keep the device test.
-- `RECOMP_HOT=0`: don't emit `config/GXEE8P/hot_functions.txt` functions first.
+- `RECOMP_HOT=0`: don't emit `config/G9SE8P/hot_functions.txt` functions first.
 - `RECOMP_SUMMARY=0`: no register summaries at calls; `RECOMP_SUMMARY_CHECK=1`: checking build.
 - `RECOMP_FLOAT=1` (off by default) / `RECOMP_FLOAT_CHECK=1`: single-precision ops computed in float (no gain).
 - `configure.py --no-base-reg`: Switch without the x28 guest-memory base register.
-- After editing `config/GXEE8P/patches.txt`, run `python tools/recomp/gcrecomp.py config/GXEE8P baserom build/gen`
+- After editing `config/G9SE8P/patches.txt`, run `python tools/recomp/gcrecomp.py config/G9SE8P baserom build/gen`
   if ninja says there is nothing to do [uncertain].

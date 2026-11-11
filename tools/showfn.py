@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Print the disassembly of functions from dtk's asm output (build/GXEE8P/asm).
+"""Print the disassembly of functions from dtk's asm output (build/G9SE8P/asm).
 
 usage: showfn.py ADDR|NAME [...] [--max N]   (prints at most N lines per function, default 60)
 """
@@ -14,7 +14,7 @@ mx = 60
 if "--max" in sys.argv:
     mx = int(sys.argv[sys.argv.index("--max") + 1])
     args = [a for a in args if a != str(mx)]
-files = glob.glob(os.path.join(ROOT, "build/GXEE8P/asm/*.s")) + glob.glob(os.path.join(ROOT, "build/GXEE8P/_Main/asm/*.s"))
+files = glob.glob(os.path.join(ROOT, "build/G9SE8P/asm/*.s")) + glob.glob(os.path.join(ROOT, "build/G9SE8P/_Main/asm/*.s"))
 text = {f: open(f).read() for f in files}
 for want in args:
     pat = ("fn_%s" % want.upper()) if re.fullmatch(r"[0-9A-Fa-f]{8}", want) else re.escape(want)

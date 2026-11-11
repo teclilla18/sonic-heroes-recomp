@@ -10,7 +10,7 @@
  *   - draw cost: 7,000 small draws a frame, each with its own uniform range, a pipeline/blend change
  *     every 8 draws (like a busy race view), in GLES and in Vulkan: CPU ms to issue a frame.
  * Output: logcat tag "srprobe" and probe.log in the app's files folder
- * (/sdcard/Android/data/<package>/files/). Launch arguments (SonicRidersActivity "args"):
+ * (/sdcard/Android/data/<package>/files/). Launch arguments (SonicHeroesActivity "args"):
  * PROBE_DRAWS=<n> (default 7000), PROBE_FRAMES=<n> measured frames per API (default 180). */
 #define _GNU_SOURCE  /* cpu_set_t, sched_getcpu */
 #include <SDL.h>
@@ -643,7 +643,7 @@ out:
 }
 
 int main(int argc, char** argv) {
-    /* KEY=VALUE launch arguments become environment variables (SonicRidersActivity "args") */
+    /* KEY=VALUE launch arguments become environment variables (SonicHeroesActivity "args") */
     for (int i = 1; i < argc; i++) {
         char* eq = strchr(argv[i], '=');
         if (eq) {

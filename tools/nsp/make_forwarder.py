@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Sonic Riders HOME-screen icon for the Switch: a forwarder NSP, built on the player's PC.
+"""Sonic Heroes HOME-screen icon for the Switch: a forwarder NSP, built on the player's PC.
 
     python tools/nsp/make_forwarder.py --devkitpro DIR --cc CC --keys prod.keys [--icon PICTURE] [--out FILE]
 
-The NSP holds only a loader (nx-hbloader, patched to start sdmc:/switch/sonicriders/sonicriders.nro and to close
-when the game returns), the name "Sonic Riders" and an icon. No game code or data. Opening it from the HOME
+The NSP holds only a loader (nx-hbloader, patched to start sdmc:/switch/sonicheroes/sonicheroes.nro and to close
+when the game returns), the name "Sonic Heroes" and an icon. No game code or data. Opening it from the HOME
 screen starts the .nro as an application (full memory, no need to hold R over a game).
 
 - Your console's prod.keys (dumped with Lockpick_RCM) are needed to pack an NSP. They are read where they are by
@@ -35,8 +35,8 @@ ROOT = os.path.dirname(os.path.dirname(HERE))
 sys.path.insert(0, os.path.dirname(HERE))
 import android_icon  # noqa: E402  (.png/.ico/save icon loader, resampling)
 
-TITLE_ID = "010053520d9a0000"   # the same id as the forwarder of 2026-10-18 (tools/nsp/sonicriders.json)
-NRO_PATH = "sdmc:/switch/sonicriders/sonicriders.nro"
+TITLE_ID = "010053520d9a0000"   # the same id as the forwarder of 2026-10-18 (tools/nsp/sonicheroes.json)
+NRO_PATH = "sdmc:/switch/sonicheroes/sonicheroes.nro"
 SOURCES = {
     "nx-hbloader": ("switchbrew/nx-hbloader", "82b95122c5ae8dc059bf23893ba7623c72c86773",
                     "804481d74027c090bab9a64491257988966da69c5a3fee7234880161810b17a8"),
@@ -70,7 +70,7 @@ def fetch(work, name, print_hash=False):
         return dst
     url = "https://codeload.github.com/%s/tar.gz/%s" % (repo, rev)
     log("  downloading %s" % url)
-    req = urllib.request.Request(url, headers={"User-Agent": "sonicriders-forwarder"})
+    req = urllib.request.Request(url, headers={"User-Agent": "sonicheroes-forwarder"})
     data = urllib.request.urlopen(req, timeout=180).read()
     files = []
     with tarfile.open(fileobj=io.BytesIO(data), mode="r:gz") as t:
@@ -150,7 +150,7 @@ def build_hbloader(work, dkp):
     nso = os.path.join(out, "main")
     npdm = os.path.join(out, "main.npdm")
     run([os.path.join(tools, "elf2nso" + exe), elf, nso])
-    run([os.path.join(tools, "npdmtool" + exe), os.path.join(HERE, "sonicriders.json"), npdm])
+    run([os.path.join(tools, "npdmtool" + exe), os.path.join(HERE, "sonicheroes.json"), npdm])
     return nso, npdm
 
 
@@ -175,7 +175,7 @@ def build_hacbrewpack(work, cc):
 # ------------------------------------------------------------------ title info and icon
 def make_nacp(dkp, path):
     exe = ".exe" if os.name == "nt" else ""
-    run([os.path.join(dkp, "tools", "bin", "nacptool" + exe), "--create", "Sonic Riders",
+    run([os.path.join(dkp, "tools", "bin", "nacptool" + exe), "--create", "Sonic Heroes",
          "SEGA (native port by fans)", "1.0.0", path, "--titleid=" + TITLE_ID])
 
 
@@ -331,7 +331,7 @@ def main():
     ap.add_argument("--cc", default="", help="host C compiler command for hacBrewPack (e.g. a clang path)")
     ap.add_argument("--keys", default="", help="your console's prod.keys")
     ap.add_argument("--icon", default="", help="your picture (.png/.ico); default: setup/icon.png")
-    ap.add_argument("--out", default=os.path.join(ROOT, "build", "nsp", "SonicRiders.nsp"))
+    ap.add_argument("--out", default=os.path.join(ROOT, "build", "nsp", "SonicHeroes.nsp"))
     ap.add_argument("--work", default=os.path.join(ROOT, "build", "nsp", "work"))
     ap.add_argument("--icon-only", metavar="JPG", help="only write the icon JPEG (to check a picture)")
     ap.add_argument("--print-hashes", action="store_true", help="(maintainers) print the sources' tree hashes")
@@ -340,7 +340,7 @@ def main():
         icon_src = a.icon or os.path.join(ROOT, "setup", "icon.png")
         if not os.path.isfile(icon_src):
             raise Error("icon picture not found: %s" % icon_src)
-        log("Icon: %s" % (a.icon or "the Sonic Riders fan icon (setup/icon.png)"))
+        log("Icon: %s" % (a.icon or "the Sonic Heroes fan icon (setup/icon.png)"))
         jpg = jpeg(icon_pixels(icon_src))
         if a.icon_only:
             open(a.icon_only, "wb").write(jpg)

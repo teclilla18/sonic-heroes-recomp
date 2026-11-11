@@ -1,0 +1,104 @@
+# decomp-toolkit analysis config for Sonic Heroes (USA, G9SE8P, rev 0).
+# Used only for analysis (function boundaries, jump tables, relocations, SDK/runtime
+# identification) that feeds the static recompiler. Not a matching-decomp build.
+# Phase 0: first dtk run not done yet; detect_strings is off as in the Riders port until checked here.
+name: main
+object: baserom/main.dol
+hash: 9214426b8a3fb1d6fe3dcff09bcc1a959e1e04a8
+symbols: config/G9SE8P/symbols.txt
+splits: config/G9SE8P/splits.txt
+detect_objects: true
+detect_strings: false
+write_asm: true
+
+modules:
+- object: baserom/advertiseD.rel
+  hash: 0b28051533603c5f330b1af7e1959be8e73856ea
+  name: advertiseD
+  symbols: config/G9SE8P/advertiseD/symbols.txt
+  splits: config/G9SE8P/advertiseD/splits.txt
+- object: baserom/autosaveD.rel
+  hash: 120e89d6ca861f63ecf9c8f2d282bab5b500ab17
+  name: autosaveD
+  symbols: config/G9SE8P/autosaveD/symbols.txt
+  splits: config/G9SE8P/autosaveD/splits.txt
+- object: baserom/movieD.rel
+  hash: 6e2773a99ec5b05d5634d09521246e3e28bd6de9
+  name: movieD
+  symbols: config/G9SE8P/movieD/symbols.txt
+  splits: config/G9SE8P/movieD/splits.txt
+- object: baserom/stage00D.rel
+  hash: 3ef757fe69b177792cf6c3ee9fd54fb275df01ba
+  name: stage00D
+  symbols: config/G9SE8P/stage00D/symbols.txt
+  splits: config/G9SE8P/stage00D/splits.txt
+- object: baserom/stage01D.rel
+  hash: 7c61a97a347c714cd72bdf6cab204b0749e946f2
+  name: stage01D
+  symbols: config/G9SE8P/stage01D/symbols.txt
+  splits: config/G9SE8P/stage01D/splits.txt
+- object: baserom/stage03D.rel
+  hash: 9e1c377aa780e2bee876a14325263a6b2b541934
+  name: stage03D
+  symbols: config/G9SE8P/stage03D/symbols.txt
+  splits: config/G9SE8P/stage03D/splits.txt
+- object: baserom/stage05D.rel
+  hash: 76a08d21162462b8c75b124aee8bb213db292bee
+  name: stage05D
+  symbols: config/G9SE8P/stage05D/symbols.txt
+  splits: config/G9SE8P/stage05D/splits.txt
+- object: baserom/stage07D.rel
+  hash: 89b6ee655fa9bb07ca8ef9d30dc00befcc9295f2
+  name: stage07D
+  symbols: config/G9SE8P/stage07D/symbols.txt
+  splits: config/G9SE8P/stage07D/splits.txt
+- object: baserom/stage09D.rel
+  hash: 836d0accf611530095e01d5f87c43d35bc87bc3c
+  name: stage09D
+  symbols: config/G9SE8P/stage09D/symbols.txt
+  splits: config/G9SE8P/stage09D/splits.txt
+- object: baserom/stage11D.rel
+  hash: 79a86badbc61416b3efc14802c536eeaef6cf0aa
+  name: stage11D
+  symbols: config/G9SE8P/stage11D/symbols.txt
+  splits: config/G9SE8P/stage11D/splits.txt
+- object: baserom/stage13D.rel
+  hash: c86851d0e26cfb3b9c639c33babfc7768868fab4
+  name: stage13D
+  symbols: config/G9SE8P/stage13D/symbols.txt
+  splits: config/G9SE8P/stage13D/splits.txt
+- object: baserom/stage26D.rel
+  hash: e5585aec40ebb843bbd5c9a2d947abeda4acc048
+  name: stage26D
+  symbols: config/G9SE8P/stage26D/symbols.txt
+  splits: config/G9SE8P/stage26D/splits.txt
+- object: baserom/stage27D.rel
+  hash: 06e4b2926228a64dd7ae81007c75fd9194c402c2
+  name: stage27D
+  symbols: config/G9SE8P/stage27D/symbols.txt
+  splits: config/G9SE8P/stage27D/splits.txt
+- object: baserom/stage28D.rel
+  hash: 93b0dd05156fa2dee32a64930d354c9e985d7e4a
+  name: stage28D
+  symbols: config/G9SE8P/stage28D/symbols.txt
+  splits: config/G9SE8P/stage28D/splits.txt
+- object: baserom/stage31D.rel
+  hash: 4c052149e2df1c88c29038dd20e7a53c863c1d09
+  name: stage31D
+  symbols: config/G9SE8P/stage31D/symbols.txt
+  splits: config/G9SE8P/stage31D/splits.txt
+- object: baserom/stage32D.rel
+  hash: 27d8092da77c4fdb3b53381849966e91d9672e68
+  name: stage32D
+  symbols: config/G9SE8P/stage32D/symbols.txt
+  splits: config/G9SE8P/stage32D/splits.txt
+- object: baserom/stage33D.rel
+  hash: 8456fb201666c6ea3bf200fcf2fe8dfd2e05ca50
+  name: stage33D
+  symbols: config/G9SE8P/stage33D/symbols.txt
+  splits: config/G9SE8P/stage33D/splits.txt
+- object: baserom/stage40D.rel
+  hash: efc22e14f102354f27547b3d68c1df6b5e63fce6
+  name: stage40D
+  symbols: config/G9SE8P/stage40D/symbols.txt
+  splits: config/G9SE8P/stage40D/splits.txt

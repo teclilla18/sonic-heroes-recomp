@@ -1,5 +1,8 @@
 # PS Vita port: research (2026-11-03)
 
+> **Inherited from the Sonic Riders port** (forked 2026-11-11). File and folder names are updated for Sonic Heroes;
+> facts, numbers, addresses and test results are still Sonic Riders' until this page is revised for Heroes.
+
 **Investigation.** Is a PS Vita port of the Sonic Riders recomp realistic? From public guides, GitHub pages and
 news, read 2026-11-03; nothing here was tested by us. Estimates are marked [uncertain]. The user owns a modded
 PCH-2000 (Slim); its firmware and installed plugins are not known yet. Index: [REFERENCE.md](../REFERENCE.md).

@@ -1,5 +1,8 @@
 # Reference projects (other recompilations we borrow ideas from)
 
+> **Inherited from the Sonic Riders port** (forked 2026-11-11). File and folder names are updated for Sonic Heroes;
+> facts, numbers, addresses and test results are still Sonic Riders' until this page is revised for Heroes.
+
 Kind: Reference. Ideas only: check each project's license before reusing any code (ours is MPL-2.0). What was
 adopted, with dates: grep the project name in `docs/HISTORY.md`, `docs/archive/` and `docs/notes/plans-2026-11.md`.
 

@@ -431,7 +431,7 @@ class GcRecompiler:
         self.summary_count = 0
         if NONLEAF and leaflocal.USE_SUMMARY:
             self.compute_summaries()
-        # hot functions first, in the list's order (config/GXEE8P/hot_functions.txt, tools/hot_functions.py):
+        # hot functions first, in the list's order (config/G9SE8P/hot_functions.txt, tools/hot_functions.py):
         # the code a race runs then sits together in the program. RECOMP_HOT=0 keeps address order.
         hot = []
         hot_path = os.path.join(self.config_dir, "hot_functions.txt")
@@ -473,9 +473,9 @@ class GcRecompiler:
         for e in self.sorted_entries:
             lines.append("void f_%08X(Cpu* __restrict c);" % e)
         if self.patch_decls:
-            lines.append("\n/* runtime state used by code patches (config/GXEE8P/patches.txt) */")
+            lines.append("\n/* runtime state used by code patches (config/G9SE8P/patches.txt) */")
             lines += self.patch_decls
-        lines.append("\n/* native replacements (config/GXEE8P/hle.txt) */")
+        lines.append("\n/* native replacements (config/G9SE8P/hle.txt) */")
         for a, name in sorted(self.hooks.items()):
             lines.append("void f_%08X_orig(Cpu* __restrict c);\nvoid hle_%s(Cpu* c);" % (a, name))
         open(os.path.join(outdir, "funcs.h"), "w").write("\n".join(lines) + "\n")

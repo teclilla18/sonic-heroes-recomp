@@ -1,4 +1,4 @@
-/* Sonic Riders launcher (Windows): a small window in front of the native port.
+/* Sonic Heroes launcher (Windows): a small window in front of the native port.
  *
  * It holds no game code and no game data, so it can ship ready-made in the release zip. It lives in the
  * port's root folder (next to setup\, build\, baserom\, saves\, mods\) and:
@@ -6,8 +6,8 @@
  *   - "Install and play" the first time: asks for the disc image and runs setup\setup.ps1 for the PC build,
  *     with its steps as a progress bar,
  *   - edits saves\settings.ini (the in-game F1 menu's settings) and mods\mods.ini (order and on/off),
- *   - starts and stops build\host-mingw\sonicriders.exe.
- * As "Install Sonic Riders (Switch|Android).exe" it is the installer for those builds (installer mode below).
+ *   - starts and stops build\host-mingw\sonicheroes.exe.
+ * As "Install Sonic Heroes (Switch|Android).exe" it is the installer for those builds (installer mode below).
  * Banner: launcher\banner.jpg, public fan art chosen by the project owner (not from the game).
  * Win32 + Direct3D 11 + Dear ImGui, linked statically (tools/build_launcher.py). */
 #define WIN32_LEAN_AND_MEAN
@@ -203,7 +203,7 @@ void mods_load() {
     }
 }
 void mods_save() {
-    std::string s = "# Sonic Riders mods, applied top to bottom: when two mods replace the same file, the\n"
+    std::string s = "# Sonic Heroes mods, applied top to bottom: when two mods replace the same file, the\n"
                     "# lower one wins. \"#\" in front of a folder name turns that mod off. (Saved by the launcher.)\n";
     for (const Mod& m : g_mods) s += (m.on ? "" : "# ") + m.folder + "\n";
     CreateDirectoryW(path(L"mods").c_str(), nullptr);
@@ -310,7 +310,7 @@ std::wstring pick_disc(HWND owner) {
     ofn.lpstrFilter = L"GameCube disc image (*.iso;*.gcm)\0*.iso;*.gcm\0All files (*.*)\0*.*\0";
     ofn.lpstrFile = file;
     ofn.nMaxFile = MAX_PATH;
-    ofn.lpstrTitle = L"Select your Sonic Riders (USA) disc image (GXEE8P)";
+    ofn.lpstrTitle = L"Select your Sonic Heroes (USA) disc image (G9SE8P)";
     ofn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_NOCHANGEDIR;
     return GetOpenFileNameW(&ofn) ? std::wstring(file) : L"";
 }
@@ -624,7 +624,7 @@ struct Ready {
     std::wstring disc_path;
 } g_ready;
 void refresh_ready() {
-    g_ready.built = exists(path(L"build\\host-mingw\\sonicriders.exe"));
+    g_ready.built = exists(path(L"build\\host-mingw\\sonicheroes.exe"));
     g_ready.disc_path = find_disc();
     g_ready.disc = !g_ready.disc_path.empty();
     g_ready.saves = exists(path(L"saves\\card_a.raw"));
@@ -652,7 +652,7 @@ void quick_settings(float w) {
 
 /* ---------------------------------------------------------------- installer mode (Switch, Android)
  *
- * The same program, named "Install Sonic Riders (Switch).exe" or "Install Sonic Riders (Android).exe" in those
+ * The same program, named "Install Sonic Heroes (Switch).exe" or "Install Sonic Heroes (Android).exe" in those
  * release zips (or SR_INSTALLER=switch|android), is a window in front of setup\setup.ps1 for that target: it asks
  * the questions the console setup asks (disc image, SD card, own icon, HOME-screen icon, Android licence and
  * install), then runs the setup unattended (-Yes plus the answers) with its steps as a progress bar. */
@@ -797,15 +797,15 @@ void installer_next_steps() {
     section("NEXT");
     if (g_mode == M_SWITCH) {
         if (g_ic.sd.empty())
-            ImGui::TextWrapped("Copy build\\switch\\sonicriders.nro and your disc image to /switch/sonicriders/ on the "
+            ImGui::TextWrapped("Copy build\\switch\\sonicheroes.nro and your disc image to /switch/sonicheroes/ on the "
                                "SD card.");
         ImGui::TextWrapped("1. Eject the SD card and put it in the Switch.");
-        ImGui::TextWrapped("2. Hold R while starting any game to open the Homebrew Menu, then start Sonic Riders.");
+        ImGui::TextWrapped("2. Hold R while starting any game to open the Homebrew Menu, then start Sonic Heroes.");
         if (g_ic.home_icon)
-            ImGui::TextWrapped("3. HOME-screen icon: install NSP\\SonicRiders-HOME-icon.nsp with DBI or Goldleaf.");
+            ImGui::TextWrapped("3. HOME-screen icon: install NSP\\SonicHeroes-HOME-icon.nsp with DBI or Goldleaf.");
         note("In game: hold Minus for the settings menu.");
     } else {
-        ImGui::TextWrapped(g_ic.phone_install ? "Start Sonic Riders from the phone's app list (if the log above says "
+        ImGui::TextWrapped(g_ic.phone_install ? "Start Sonic Heroes from the phone's app list (if the log above says "
                                                 "it was installed)."
                                               : "Install the APK from build\\android\\ with adb, or run this again with "
                                                 "the phone connected.");
@@ -822,7 +822,7 @@ void page_installer(float w) {
         install_progress(col, "BUILDING");
     } else {
         section("1. YOUR DISC IMAGE");
-        ImGui::TextWrapped("Sonic Riders (USA), GXEE8P (.iso). The game is built on this PC from it: 10-40 minutes the "
+        ImGui::TextWrapped("Sonic Heroes (USA), G9SE8P (.iso). The game is built on this PC from it: 10-40 minutes the "
                            "first time.");
         if (ImGui::Button("Select disc...")) {
             std::wstring d = pick_disc(GetActiveWindow());
@@ -833,7 +833,7 @@ void page_installer(float w) {
         ImGui::Spacing();
         if (g_mode == M_SWITCH) {
             section("2. SD CARD");
-            ImGui::TextWrapped("Put your Switch's SD card in this PC. The game goes to /switch/sonicriders/.");
+            ImGui::TextWrapped("Put your Switch's SD card in this PC. The game goes to /switch/sonicheroes/.");
             std::string cur = g_ic.sd.empty() ? "Don't copy (keep it in build\\switch\\)" : narrow(g_ic.sd);
             const ImGuiStyle& st = ImGui::GetStyle();
             float btns = ImGui::CalcTextSize("Refresh").x + ImGui::CalcTextSize("Other...").x + 4 * st.FramePadding.x +
@@ -853,7 +853,7 @@ void page_installer(float w) {
                 if (!f.empty()) {
                     if (exists(f + L"\\atmosphere") || exists(f + L"\\switch")) g_ic.sd = f;
                     else MessageBoxW(GetActiveWindow(), L"That folder has no 'switch' or 'atmosphere' folder. Pick the SD "
-                                     L"card's top folder.", L"Sonic Riders", MB_ICONWARNING);
+                                     L"card's top folder.", L"Sonic Heroes", MB_ICONWARNING);
                 }
             }
             if (g_ic.sd_found.empty() && g_ic.sd.empty())
@@ -933,7 +933,7 @@ void page_play(float w) {
         install_progress(col, "INSTALLING");
     } else if (!g_ready.built) {
         section("FIRST TIME");
-        ImGui::TextWrapped("The game is built on this PC from your own disc image: Sonic Riders (USA), GXEE8P. "
+        ImGui::TextWrapped("The game is built on this PC from your own disc image: Sonic Heroes (USA), G9SE8P. "
                            "This takes 10-30 minutes once and downloads the build tools (about 300 MB).");
         ImGui::Spacing();
         if (ImGui::Button("Select disc...")) {
@@ -954,7 +954,7 @@ void page_play(float w) {
             ImGui::Spacing();
         }
         section("READY CHECK");
-        check_line(true, "Game built (build\\host-mingw\\sonicriders.exe)");
+        check_line(true, "Game built (build\\host-mingw\\sonicheroes.exe)");
         check_line(g_ready.disc, g_ready.disc ? "Disc image: " + short_path(g_ready.disc_path, 40)
                                               : std::string("No disc image in baserom\\ (run the install again)"));
         check_line(true, g_ready.saves ? "Saves found (saves\\card_a.raw)" : "No saves yet (made when you first save)");
@@ -1303,7 +1303,7 @@ void start_update_check() {
     g_update_done = false;
     std::thread([]() {
         char fmt[64];
-        snprintf(fmt, sizeof fmt, "SonicRiders-%s-Setup-%%s.zip", zip_flavour());
+        snprintf(fmt, sizeof fmt, "SonicHeroes-%s-Setup-%%s.zip", zip_flavour());
         UpdateInfo info;
         if (update_fetch_info(&info, fmt) == 0 && update_is_newer(info.tag, g_version.c_str())) {
             std::lock_guard<std::mutex> lk(g_update_mx);
@@ -1474,7 +1474,7 @@ void page_update(float w) {
 }
 void page_about(float w) {
     (void)w;
-    section("SONIC RIDERS NATIVE PORT");
+    section("SONIC HEROES NATIVE PORT");
     ImGui::Text("Version: %s", g_version.empty() ? "development build" : g_version.c_str());
     std::string upd = update_tag();
     if (!upd.empty()) {
@@ -1486,12 +1486,12 @@ void page_about(float w) {
                        "This launcher contains no game code or data.");
     ImGui::Spacing();
     section("HELP");
-    if (ImGui::Button("Project page")) ShellExecuteW(nullptr, L"open", L"https://github.com/teclilla18/sonic-riders-recomp", nullptr, nullptr, SW_SHOWNORMAL);
+    if (ImGui::Button("Project page")) ShellExecuteW(nullptr, L"open", L"https://github.com/teclilla18/sonic-heroes-recomp", nullptr, nullptr, SW_SHOWNORMAL);
     ImGui::SameLine();
-    if (ImGui::Button("Report a problem")) ShellExecuteW(nullptr, L"open", L"https://github.com/teclilla18/sonic-riders-recomp/issues", nullptr, nullptr, SW_SHOWNORMAL);
+    if (ImGui::Button("Report a problem")) ShellExecuteW(nullptr, L"open", L"https://github.com/teclilla18/sonic-heroes-recomp/issues", nullptr, nullptr, SW_SHOWNORMAL);
     ImGui::SameLine();
     if (ImGui::Button("Open the game folder")) open_in_explorer(g_root);
-    note("For a bug report, attach sonicriders.log from the game folder (or use F1 > About > Save a bug report in "
+    note("For a bug report, attach sonicheroes.log from the game folder (or use F1 > About > Save a bug report in "
          "the game).");
     ImGui::Spacing();
     section("REBUILD");
@@ -1514,7 +1514,7 @@ void play() {
     if (g_set_dirty) settings_save();
     if (g_mods_dirty) mods_save();
     if (g_ctl_dirty) controls_save();
-    std::wstring cmd = L"\"" + path(L"build\\host-mingw\\sonicriders.exe") + L"\"";
+    std::wstring cmd = L"\"" + path(L"build\\host-mingw\\sonicheroes.exe") + L"\"";
     if (start_child(g_game, cmd, {}, false, false, nullptr)) g_status = "Running";
     else g_status = "Could not start the game.";
 }
@@ -1539,7 +1539,7 @@ void draw_ui(float W, float H) {
     ImGui::TextColored(kDim, "Sonic");
     ImGui::SetCursorPos(ImVec2(26 * s, 50 * s));
     ImGui::PushFont(g_font_title, kSizeLogo * g_dpi);
-    ImGui::TextColored(kGoldV, "RIDERS");
+    ImGui::TextColored(kGoldV, "HEROES");
     ImGui::PopFont();
     ImGui::SetCursorPos(ImVec2(26 * s, 84 * s));
     ImGui::PushFont(g_font_bold, kSize * g_dpi);
@@ -1595,13 +1595,13 @@ void draw_ui(float W, float H) {
     dl->AddLine(ImVec2(bx, banner), ImVec2(W, banner), kGold, 2 * s);
     ImGui::SetCursorPos(ImVec2(bx + 30 * s, banner - 98 * s));
     ImGui::PushFont(g_font_title, kSizeTitle * g_dpi);
-    ImGui::TextUnformatted("Sonic Riders");
+    ImGui::TextUnformatted("Sonic Heroes");
     ImGui::PopFont();
     ImGui::SetCursorPos(ImVec2(bx + 30 * s, banner - 46 * s));
     ImGui::PushFont(g_font_small, kSizeSmall * g_dpi);
-    ImGui::TextColored(kGoldV, "%s", g_mode == M_SWITCH ? "Static recompilation for Nintendo Switch  \xC2\xB7  GXEE8P"
-                                     : g_mode == M_ANDROID ? "Static recompilation for Android  \xC2\xB7  GXEE8P"
-                                                           : "Static recompilation for PC  \xC2\xB7  GXEE8P");
+    ImGui::TextColored(kGoldV, "%s", g_mode == M_SWITCH ? "Static recompilation for Nintendo Switch  \xC2\xB7  G9SE8P"
+                                     : g_mode == M_ANDROID ? "Static recompilation for Android  \xC2\xB7  G9SE8P"
+                                                           : "Static recompilation for PC  \xC2\xB7  G9SE8P");
     ImGui::PopFont();
 
     /* page */
@@ -1881,7 +1881,7 @@ int WINAPI wWinMain(HINSTANCE inst, HINSTANCE, PWSTR, int show) {
     SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
     std::string v = read_text(path(L"VERSION"));
     g_version = v.substr(0, v.find_first_of("\r\n"));
-    {  /* installer mode: by the program's name ("Install Sonic Riders (Switch).exe"), or SR_INSTALLER for tests */
+    {  /* installer mode: by the program's name ("Install Sonic Heroes (Switch).exe"), or SR_INSTALLER for tests */
         wchar_t me[MAX_PATH];
         GetModuleFileNameW(nullptr, me, MAX_PATH);
         std::string name = narrow(me);
@@ -1896,7 +1896,7 @@ int WINAPI wWinMain(HINSTANCE inst, HINSTANCE, PWSTR, int show) {
     DeleteFileW((self_exe() + L".old").c_str());  /* left by an update (the exe that ran it) */
 
     WNDCLASSEXW wc = {sizeof wc, CS_CLASSDC, wndproc, 0, 0, inst, LoadIconW(inst, L"APPICON"), LoadCursorW(nullptr, IDC_ARROW),
-                      nullptr, nullptr, L"SonicRidersLauncher", nullptr};
+                      nullptr, nullptr, L"SonicHeroesLauncher", nullptr};
     RegisterClassExW(&wc);
     float dpi = GetDpiForSystem() / 96.0f;
     g_dpi = dpi;
@@ -1906,14 +1906,14 @@ int WINAPI wWinMain(HINSTANCE inst, HINSTANCE, PWSTR, int show) {
         ww = std::min(ww, (int)(work.right - work.left));
         wh = std::min(wh, (int)(work.bottom - work.top));
     }
-    const wchar_t* title = g_mode == M_SWITCH ? L"Sonic Riders - Switch installer"
-                           : g_mode == M_ANDROID ? L"Sonic Riders - Android installer" : L"Sonic Riders";
+    const wchar_t* title = g_mode == M_SWITCH ? L"Sonic Heroes - Switch installer"
+                           : g_mode == M_ANDROID ? L"Sonic Heroes - Android installer" : L"Sonic Heroes";
     HWND hwnd = CreateWindowW(wc.lpszClassName, title, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, ww, wh,
                               nullptr, nullptr, inst, nullptr);
     BOOL dark = TRUE;  /* dark title bar (Windows 10 2004+ / 11) */
     DwmSetWindowAttribute(hwnd, 20 /* DWMWA_USE_IMMERSIVE_DARK_MODE */, &dark, sizeof dark);
     if (!create_device(hwnd)) {
-        MessageBoxW(hwnd, L"Could not start Direct3D 11.", L"Sonic Riders", MB_ICONERROR);
+        MessageBoxW(hwnd, L"Could not start Direct3D 11.", L"Sonic Heroes", MB_ICONERROR);
         return 1;
     }
     g_shot_file = getenv("SR_LAUNCHER_SHOT");  /* testing: save the window's picture and quit */

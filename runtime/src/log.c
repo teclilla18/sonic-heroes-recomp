@@ -17,13 +17,13 @@ void rt_log(const char* fmt, ...) {
     va_list ap;
     va_start(ap, fmt);
 #ifdef __ANDROID__
-    {   /* also to logcat (tag "sonicriders"): adb logcat follows the game live */
+    {   /* also to logcat (tag "sonicheroes"): adb logcat follows the game live */
         char buf[1024];
         va_list ap2;
         va_copy(ap2, ap);
         vsnprintf(buf, sizeof buf, fmt, ap2);
         va_end(ap2);
-        __android_log_write(ANDROID_LOG_INFO, "sonicriders", buf);
+        __android_log_write(ANDROID_LOG_INFO, "sonicheroes", buf);
     }
 #elif defined(SR_IOS)
     {   /* stderr is the log file in Documents (platform_host.c); stdout reaches the Mac live
@@ -61,7 +61,7 @@ _Noreturn void rt_fatal(const char* fmt, ...) {
         va_copy(ap2, ap);
         vsnprintf(buf, sizeof buf, fmt, ap2);
         va_end(ap2);
-        __android_log_print(ANDROID_LOG_FATAL, "sonicriders", "FATAL: %s", buf);
+        __android_log_print(ANDROID_LOG_FATAL, "sonicheroes", "FATAL: %s", buf);
     }
 #endif
 #ifdef SR_IOS

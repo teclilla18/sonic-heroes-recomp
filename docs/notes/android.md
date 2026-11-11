@@ -1,5 +1,8 @@
 # Android port
 
+> **Inherited from the Sonic Riders port** (forked 2026-11-11). File and folder names are updated for Sonic Heroes;
+> facts, numbers, addresses and test results are still Sonic Riders' until this page is revised for Heroes.
+
 **Reference.** Moved from docs/REFERENCE.md on 2026-11-03 (content unchanged). Index: [REFERENCE.md](../REFERENCE.md).
 
 Legend: **[confirmed]** = verified directly; **[likely]** = strong evidence, not proven; **[uncertain]** = guess / needs work.
@@ -9,24 +12,24 @@ Legend: **[confirmed]** = verified directly; **[likely]** = strong evidence, not
 - Plan and milestones: docs/ANDROID_PLAN.md. Tools (setup `-Target android -AcceptAndroidSdkLicense`, pins in
   `setup/toolchain.json` "android"): `<tools>/android-sdk/{ndk/27.3.13750724, build-tools/35.0.0,
   platforms/android-35, platform-tools}`, `<tools>/jdk17`, `<tools>/sdl2-src`; signing key
-  `<tools>/android/sonicriders-local.keystore` (keep it: another key cannot update the installed app, and
+  `<tools>/android/sonicheroes-local.keystore` (keep it: another key cannot update the installed app, and
   uninstalling deletes the app folder).
 - `python configure.py --target android --android-sdk <tools>/android-sdk --jdk <tools>/jdk17 --sdl-src
-  <tools>/sdl2-src --abi arm64-v8a|x86_64 --keystore <key>`, then `ninja` → `build/android/sonicriders-<abi>.apk`
+  <tools>/sdl2-src --abi arm64-v8a|x86_64 --keystore <key>`, then `ninja` → `build/android/sonicheroes-<abi>.apk`
   (objects in `build/android-<abi>/`, unstripped `libmain.so` there; the APK gets stripped copies, ~26 MB).
   `--android-app probe [--abi both]` builds the milestone 1 probe (`tools/android/probe/`) instead. build.ninja holds one target at a time: reconfigure before
   building host/switch again. Steps (no Gradle): `tools/android_build.py` (ndk-build SDL2 + libc++_shared,
   javac + d8, aapt2, zipalign -P 16, apksigner); `.so` stored uncompressed, 16 KB segments.
-- Java: `android/java/net/srnative/sonicriders/SonicRidersActivity.java` (SDLActivity; intent extra `args`:
+- Java: `android/java/net/srnative/sonicheroes/SonicRidersActivity.java` (SDLActivity; intent extra `args`:
   space-separated words to argv, KEY=VALUE become environment variables). Manifest template
   `android/AndroidManifest.xml.in` (minSdk 30, targetSdk 35, sensorLandscape, profileable).
 - Test run: `python tools/android_run.py --apk <apk> --package <pkg> --wait <regex> --pull <file> [--args ".."]
   [--serial S]`: install, start, logcat of the app's pid only, files from `/sdcard/Android/data/<pkg>/files`,
-  results in `build/android/run/`. Packages: game `net.srnative.sonicriders`, probe `net.srnative.sonicriders.probe`.
+  results in `build/android/run/`. Packages: game `net.srnative.sonicheroes`, probe `net.srnative.sonicheroes.probe`.
 - Game on Android (milestone 2): platform = `platform/host` (POSIX branch of platform_host.c, audio_sdl.c, input_sdl.c)
   + `platform/android/render_android.c` (frames recycled, SDL events pumped; no picture until milestone 3). The app
-  folder `/sdcard/Android/data/net.srnative.sonicriders/files` is the working directory: `baserom/*.iso`, `saves/`,
-  `env.txt`, `sonicriders.log` (also logcat tag `sonicriders`), `build/` for `SR_RAMDUMPAT` dumps (make it first).
+  folder `/sdcard/Android/data/net.srnative.sonicheroes/files` is the working directory: `baserom/*.iso`, `saves/`,
+  `env.txt`, `sonicheroes.log` (also logcat tag `sonicheroes`), `build/` for `SR_RAMDUMPAT` dumps (make it first).
   Disc image: `adb push <iso> <folder>/baserom/SonicRiders.iso` (35 s over USB 3; works on Android 17). From Git Bash
   set `MSYS_NO_PATHCONV=1` or device paths get rewritten. Renderer: `platform/android/render_vk.c` (SPIR-V from
   `tools/embed_shaders.py spv`, prelude PRELUDE_VK: set 0 = UBOs binding 0/1 with dynamic offsets, set 1 = 8 textures;
@@ -55,7 +58,7 @@ Legend: **[confirmed]** = verified directly; **[likely]** = strong evidence, not
   `CrashReport.collect` (before `super.onCreate`, so before the log is rotated) reads the newest
   `ApplicationExitInfo` (CRASH, CRASH_NATIVE, ANR, INITIALIZATION_FAILURE, EXIT_SELF with status != 0; newest
   timestamp kept in prefs `crashreport/exit_seen`) or a `crash.txt`, and writes header + crash.txt + log (first
-  256 KB + last 768 KB) to `crash-report.txt` and via MediaStore to `Download/SonicRiders/sonicriders-crash-<time>.txt`,
+  256 KB + last 768 KB) to `crash-report.txt` and via MediaStore to `Download/SonicRiders/sonicheroes-crash-<time>.txt`,
   then a dialog with Share report (ACTION_SEND of the MediaStore Uri). Summary line: last `FATAL:` of the log, else
   crash.txt's first line. Java exceptions also go to crash.txt. Test on the emulator: launch args `missing.iso`
   (rt_fatal -> abort) or `adb root` + `adb shell kill -SEGV <pid>`, then start it again. A missing disc image
@@ -80,11 +83,11 @@ Legend: **[confirmed]** = verified directly; **[likely]** = strong evidence, not
 
 - As on the Switch: `tools/gen_shaders.py --vk` compiles one SPIR-V fragment shader per recorded state key (TEV
   setup folded into constants) with the NDK's glslc into `build/android-<abi>/gen/gx_spec_spv.h`; keys come from
-  `config/GXEE8P/shader_keys.txt` (tracked since v0.5.2) plus local extras in `build/shaderkeys/*.txt`.
+  `config/G9SE8P/shader_keys.txt` (tracked since v0.5.2) plus local extras in `build/shaderkeys/*.txt`.
 - render_vk.c: `spec_bits()` per state change (binary search by key hash) → pipeline key bits 36-59 (low 24 bits
   of the hash) + bit 60; `gx_pipe_make` picks the module. A key from an older table that no longer matches keeps the
   ubershader. Misses go to `shader_keys.txt` in the app folder: pull it (`--pull shader_keys.txt`) into
-  `build/shaderkeys/android_<date>.txt`, rebuild, and merge new keys into `config/GXEE8P/shader_keys.txt`. `SR_NOSPEC=1`: ubershader only (A/B).
+  `build/shaderkeys/android_<date>.txt`, rebuild, and merge new keys into `config/G9SE8P/shader_keys.txt`. `SR_NOSPEC=1`: ubershader only (A/B).
 - Log: `[vk] ... specialized shaders for N of M states` every 300 frames.
 - A/B on the S23 Ultra (Android 17), same build, `SR_PERFTEST=1 SR_DETCLOCK=1 SR_FRAMERATE=0`: 1P demo 55.1 → 59.3
   fps, 2P demo 58.4 → 59.8 fps; GPU per frame: title 9-11 → 1.6-1.8 ms, 1P race 13.7-18.2 → 11.9-13.2 ms (first

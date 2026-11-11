@@ -28,7 +28,7 @@
 #define NSCENES 2
 
 #ifdef __SWITCH__
-#define OUT_DEFAULT "sdmc:/switch/sonicriders/perftest.json"
+#define OUT_DEFAULT "sdmc:/switch/sonicheroes/perftest.json"
 #define PLATFORM "switch"
 #else
 #define OUT_DEFAULT "build/perftest.json"

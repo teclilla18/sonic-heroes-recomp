@@ -1,5 +1,8 @@
 # iOS port: research and plan (2026-11-07)
 
+> **Inherited from the Sonic Riders port** (forked 2026-11-11). File and folder names are updated for Sonic Heroes;
+> facts, numbers, addresses and test results are still Sonic Riders' until this page is revised for Heroes.
+
 Status (2026-11-07): **first boot done**: iPhone 17 Pro, iOS 27.0, free account: intro movie and title screen at
 60 fps, sound mixing, log and screenshots pulled [confirmed, scripted START]. Not yet: touch/pad play, a race,
 background/resume, iPad, the 7-day reinstall. Build/test commands and first-boot findings: end of this note.
@@ -34,7 +37,7 @@ a macOS arm64 build), so only the disc image has to come from elsewhere, never `
 | Threads | pthreads + C11 `<threads.h>`; fast cores + nice (#14) | pthreads; **the iOS SDK has no `<threads.h>`** [checked: 14 runtime files use it] → small header shim on pthreads; QoS classes instead of affinity |
 | Guest memory | `mmap` 512 MiB reserve + `mprotect` | the same code (`memory.c` non-Windows path); 512 MiB of reserved address space is fine on iOS |
 | Data folder | `SDL_AndroidGetExternalStoragePath()`, `chdir` | `$HOME/Documents`, `chdir` (visible in the Files app, see below) |
-| Logs | file + logcat | file `Documents/sonicriders.log` + stderr/os_log (seen by `devicectl --console` and Console.app) |
+| Logs | file + logcat | file `Documents/sonicheroes.log` + stderr/os_log (seen by `devicectl --console` and Console.app) |
 | Crash report | signal handler → crash.txt (`crash_signal`) | the same handler (signals and `dladdr` work); iOS's own crash logs too |
 | Background | `SDL_APP_WILLENTERBACKGROUND` in `render_vk.c` | the same events; iOS forbids GPU work in the background, so the pause must be complete |
 | Packaging | `tools/android_build.py` (APK without Gradle) | ninja builds the program; a generated Xcode project only links, bundles and signs (below) |
@@ -74,7 +77,7 @@ into C, so the app is ordinary native code. The runtime has no `PROT_EXEC`, `for
   developer under Settings → General → VPN & Device Management.
 - Free teams cannot use most capabilities (iCloud, push, app groups, increased memory limit). None are needed:
   the game uses tens of MB of guest RAM plus textures.
-- Plan: ninja builds `libsonicriders.a` (runtime + recompiled code) with `xcrun -sdk iphoneos clang`; configure.py
+- Plan: ninja builds `libsonicheroes.a` (runtime + recompiled code) with `xcrun -sdk iphoneos clang`; configure.py
   writes a tiny Xcode project in `build/ios/` that links it with SDL2 and MoltenVK and lets Xcode do the free-team
   provisioning: `xcodebuild -allowProvisioningUpdates DEVELOPMENT_TEAM=<team>`. Install and run with
   `xcrun devicectl device install app` / `device process launch --console` (the iOS version of `adb`).
@@ -88,7 +91,7 @@ into C, so the app is ordinary native code. The runtime has no `PROT_EXEC`, `for
 - The disc image goes into Documents once (~1.4 GB): from the Mac with Finder, or
   `xcrun devicectl device copy to --domain-type appDataContainer --domain-identifier <bundle id>`. Not inside the
   app bundle (every reinstall would copy 1.4 GB, and it would be in the signed bundle).
-- Saves (`saves/`), settings, shader keys, pipeline cache and `sonicriders.log` live next to it, as on Android.
+- Saves (`saves/`), settings, shader keys, pipeline cache and `sonicheroes.log` live next to it, as on Android.
   `devicectl device copy from` pulls the log back; the player can share it from the Files app.
 - Later: a document picker (open the image where it is, e.g. iCloud Drive) via `UIDocumentPickerViewController`
   and a security-scoped bookmark. Not for the first build.
@@ -127,19 +130,19 @@ thread affinity on iOS; the game, render and audio threads get `QOS_CLASS_USER_I
 ## Build and test on the Mac (2026-11-07)
 
 - Setup by hand (no Mac setup script yet): copy the disc image to `baserom/` (a copy, never a link),
-  `python3 -I tools/extract_iso.py baserom/<image>.iso baserom`, `build/ext/dtk/dtk dol split config/GXEE8P/config.yml
+  `python3 -I tools/extract_iso.py baserom/<image>.iso baserom`, `build/ext/dtk/dtk dol split config/G9SE8P/config.yml
   build/GXEE8P`; `configure.py --target ios` recompiles into build/gen when it is empty.
 - Signing: a free account has no certificate until a team is picked once: open `build/ios/xcode/SonicRiders.xcodeproj`,
   Signing & Capabilities, Team = Personal Team; then configure finds the team itself. First launch: unlock the phone,
   Settings > General > VPN & Device Management > Trust.
 - `python3 configure.py --target ios [--icon <square.png>]`, `ninja`, `tools/ios_run.py install`, `push-iso` (once),
-  `run SR_INPUT=1500:START,1510:-START SR_SCREENSHOT=2200` (title screen), `pull sonicriders.log shot_2200.bmp`.
-- Every `ninja` also makes `build/ios/SonicRiders.ipa` and copies it to `~/Desktop/Sonic Riders iOS/SonicRiders.ipa`
-  (previous build: `SonicRiders-prev.ipa`; `--ipa-dir <dir>` or `none`). Reinstall with Sideloadly/AltStore when the
+  `run SR_INPUT=1500:START,1510:-START SR_SCREENSHOT=2200` (title screen), `pull sonicheroes.log shot_2200.bmp`.
+- Every `ninja` also makes `build/ios/SonicHeroes.ipa` and copies it to `~/Desktop/Sonic Riders iOS/SonicHeroes.ipa`
+  (previous build: `SonicHeroes-prev.ipa`; `--ipa-dir <dir>` or `none`). Reinstall with Sideloadly/AltStore when the
   7-day signature runs out. Sideloadly re-signs it; if it changes the bundle ID, the app gets a new Documents folder
   (copy the disc image again). Never share the .ipa (recompiled game code); `.ipa` is in .gitignore and the guard.
 - A crash before the log opens: `xcrun devicectl device info files --device <id> --domain-type systemCrashLogs`,
-  then `device copy from ... --domain-type systemCrashLogs --source SonicRiders-<date>.ips`.
+  then `device copy from ... --domain-type systemCrashLogs --source SonicHeroes-<date>.ips`.
 
 First-boot findings [confirmed on the iPhone]:
 - iOS 27 kills an app without the UIScene life cycle at launch (SIGTRAP in
@@ -165,7 +168,7 @@ First-boot findings [confirmed on the iPhone]:
 - v0.7.4 (2026-11-10, tag 039bd81) is the first release with the pad fix (keyboard ignored while a controller is
   open) and the stable app IDs ("App IDs" below). v0.7.0-v0.7.3 have no iOS zip listed on GitHub.
 
-- Players: `SonicRiders-iOS-Setup-<ver>.zip` (`tools/make_release.py --flavor ios`): "Install Sonic Riders
+- Players: `SonicHeroes-iOS-Setup-<ver>.zip` (`tools/make_release.py --flavor ios`): "Install Sonic Riders
   (iOS).command" runs `tools/setup_mac.py` (7 steps: disc check, Xcode + Metal Toolchain + Homebrew ninja/shaderc
   + Apple ID, pinned downloads from setup/toolchain.json "mac", extract, dtk, configure + ninja, install).
   Apple silicon only; the folder path must have no spaces. Docs: INSTALL.md "Install on iPhone / iPad".
@@ -189,14 +192,14 @@ First-boot findings [confirmed on the iPhone]:
 - App IDs (a different ID = a second app with an empty Documents). Sideloadly's default ("Use automatic bundle ID"
   ticked) ALWAYS appends ".<team ID>" to the .ipa's ID, even when it already ends with it (2026-11-09, iPad Pro:
   `<base>.<team>` became `<base>.<team>.<team>` [confirmed]); unticked, it keeps the .ipa's ID (2026-11-08, iPad Pro
-  [confirmed]). So (base = `ios_build.BASE_ID` = net.srnative.sonicriders):
+  [confirmed]). So (base = `ios_build.BASE_ID` = net.srnative.sonicheroes):
   - signed (Mac) builds default to `<base>.<team>`; `ios_build.ipa_bundle_id` writes `<base>` into the .ipa
     (make_ipa, plutil on the copy; Sideloadly/AltStore re-sign), so a Sideloadly renewal with default settings lands
     on the Mac-installed app (2026-11-09, iPad Pro: devicectl install of `<base>.<team>`, then Sideloadly default
     with the `<base>` .ipa: still one test app [confirmed]). Any other ID goes into the .ipa unchanged (untick).
   - unsigned builds: `<base>`; the first Sideloadly install makes `<base>.<team>`.
   - setup_mac.py asks for the device BEFORE building: `ios_run.installed_ids` (devicectl apps) -> an installed
-    net.srnative.sonicriders* app's ID is passed as --bundle-id (prefers `.<team>`); no device -> the last build's
+    net.srnative.sonicheroes* app's ID is passed as --bundle-id (prefers `.<team>`); no device -> the last build's
     ID. Older Mac installs (`<base>.t<sha1(team)[:8]>`, before 2026-11-09) keep their ID; renew notes then say
     untick. setup_mac.py writes "How to renew (every 7 days).txt" next to the .ipa with the matching Sideloadly
     wording; a re-run asks separately about copying the disc image.
@@ -228,7 +231,7 @@ First-boot findings [confirmed on the iPhone]:
   picker with the real converted preview, signed / unsigned; runs `setup_mac.py --yes --install no --iso --icon
   --ipa-dir [--unsigned]`, progress from `== N/7` and ninja `[a/b]` lines), Install (Sideloadly in 7 steps, or
   from the Mac via ios_run.py install / push-iso), Renew (install date in UserDefaults
-  `net.srnative.sonicriders.launcher`, expiry, .ics Calendar reminder 6 days on), About.
+  `net.srnative.sonicheroes.launcher`, expiry, .ics Calendar reminder 6 days on), About.
 - Root: the nearest folder above the app with tools/setup_mac.py; a quarantined app runs translocated, so
   `SecTranslocateCreateOriginalPathForURL` (dlsym) gives the real path. At start it removes the quarantine flag
   from the whole folder (nothing else asks Gatekeeper).

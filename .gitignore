@@ -23,7 +23,7 @@ game/
 *.map
 *.MAP
 
-# Extracted / converted game assets (Sonic Riders uses these on disc)
+# Extracted / converted game assets (Sonic Heroes uses these on disc)
 *.adx
 *.ADX
 *.sfd
@@ -92,7 +92,7 @@ compile_commands.json
 objdiff.json
 
 # decomp-toolkit analysis output (addresses/labels derived from the binary; regenerate with
-# build/tools/dtk.exe dol split config/GXEE8P/config.yml build/GXEE8P)
+# build/tools/dtk.exe dol split config/G9SE8P/config.yml build/G9SE8P)
 config/*/symbols.txt
 config/*/splits.txt
 config/*/_Main/
@@ -122,10 +122,13 @@ VERSION
 .claude/settings.local.json
 
 # PC version files created by the setup / the game
-Sonic Riders.lnk
-sonicriders.log
-sonicriders.prev.log
-sonicriders.prev[2-4].log
+Sonic Heroes.lnk
+sonicheroes.log
+sonicheroes.prev.log
+sonicheroes.prev[2-4].log
 
 # local mods (contain files derived from the game)
 /mods/
+
+# Local agent notes (machine paths)
+CLAUDE.local.md

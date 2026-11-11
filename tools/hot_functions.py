@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Make config/GXEE8P/hot_functions.txt: the recompiled game functions that run most, hottest first.
+"""Make config/G9SE8P/hot_functions.txt: the recompiled game functions that run most, hottest first.
 
 The recompiler (tools/recomp/gcrecomp.py) emits these first, in this order, into the first generated
 files, so the code that runs during a race sits together in the program instead of being spread over
@@ -8,7 +8,7 @@ files, so the code that runs during a race sits together in the program instead 
 usage: hot_functions.py [--pc PROFILE.txt MAP]... [--switch LOG]... [--max N] [-o OUT]
 
   --pc      a desktop profile (SR_PROFILE=1, optionally SR_PROFILE_WINDOW / SR_PROFILE_OUT) and the
-            linker map of the build that made it (build/host-mingw/sonicriders.map)
+            linker map of the build that made it (build/host-mingw/sonicheroes.map)
   --switch  a Switch log with SR_PROFILE=1 "[profile]" reports (function and its caller per line)
 
 Each source counts as the share of its own busy samples (idle-loop and runtime entries left out),
@@ -66,7 +66,7 @@ def switch_log(path):
 
 def main():
     args = sys.argv[1:]
-    out, mx, sources = "config/GXEE8P/hot_functions.txt", 3000, []
+    out, mx, sources = "config/G9SE8P/hot_functions.txt", 3000, []
     i = 0
     while i < len(args):
         if args[i] == "--pc":

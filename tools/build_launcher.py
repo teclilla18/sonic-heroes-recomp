@@ -1,4 +1,4 @@
-"""Builds the Windows launcher (launcher/launcher.cpp) into build/launcher/SonicRidersLauncher.exe.
+"""Builds the Windows launcher (launcher/launcher.cpp) into build/launcher/SonicHeroesLauncher.exe.
 
     python tools/build_launcher.py [--llvm-mingw <dir>] [--imgui <dir>] [--root-copy]
 
@@ -13,7 +13,7 @@ import subprocess
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-TOOLS = os.path.join(os.environ.get("LOCALAPPDATA", ""), "SonicRidersSetup", "tools")
+TOOLS = os.path.join(os.environ.get("LOCALAPPDATA", ""), "SonicHeroesSetup", "tools")
 
 
 MANIFEST = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -58,7 +58,7 @@ def main():
     srcs += [os.path.join(im, "backends", f) for f in ("imgui_impl_win32.cpp", "imgui_impl_dx11.cpp")]
     out_dir = os.path.join(ROOT, "build", "launcher")
     os.makedirs(out_dir, exist_ok=True)
-    out = os.path.join(out_dir, "SonicRidersLauncher.exe")
+    out = os.path.join(out_dir, "SonicHeroesLauncher.exe")
     # the program icon as resource APPICON: launcher/icon_256.png + icon_32.png (Super Sonic art the user made with
     # ChatGPT, 2026-11-09; the small one a tighter face crop) as PNG entries of an .ico, else the gold ring
     # tools/launcher_icon.py draws
@@ -92,7 +92,7 @@ def main():
         return r.returncode
     print("build_launcher: %s (%d KB)" % (out, os.path.getsize(out) // 1024))
     if a.root_copy:
-        shutil.copy2(out, os.path.join(ROOT, "SonicRidersLauncher.exe"))
+        shutil.copy2(out, os.path.join(ROOT, "SonicHeroesLauncher.exe"))
         print("build_launcher: copied to the repository root")
     return 0
 

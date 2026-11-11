@@ -1,5 +1,5 @@
 # Forked from ZeldaWWHDRecomp tools/recomp/crlive.py (commit f10b566), MPL-2.0 (see third_party/LICENSE-MPL-2.0).
-# Modified for GameCube (Gekko) DOL/REL recompilation by the Sonic Riders port; see NOTES.md.
+# Modified for GameCube (Gekko) DOL/REL recompilation by the Sonic Heroes port; see NOTES.md.
 """Condition-register liveness for one recompiled function chunk.
 
 Every PowerPC compare (and record form) writes four CR bits (lt, gt, eq, so), and ppc2c turns each

@@ -1,22 +1,25 @@
 # Build, test and tools
 
+> **Inherited from the Sonic Riders port** (forked 2026-11-11). File and folder names are updated for Sonic Heroes;
+> facts, numbers, addresses and test results are still Sonic Riders' until this page is revised for Heroes.
+
 **Reference.** Moved from docs/REFERENCE.md on 2026-11-03 (content unchanged). Index: [REFERENCE.md](../REFERENCE.md).
 
 Legend: **[confirmed]** = verified directly; **[likely]** = strong evidence, not proven; **[uncertain]** = guess / needs work.
 
-## Quick commands (copy-paste; `<tools>` = %LOCALAPPDATA%/SonicRidersSetup/tools)
+## Quick commands (copy-paste; `<tools>` = %LOCALAPPDATA%/SonicHeroesSetup/tools)
 
 build.ninja holds one target at a time: configure, then ninja. From Git Bash use `<tools>/ninja/ninja.exe` (the
-`ninja` on PATH is devkitPro's), `T=$(cygpath -m "$LOCALAPPDATA/SonicRidersSetup/tools")`.
+`ninja` on PATH is devkitPro's), `T=$(cygpath -m "$LOCALAPPDATA/SonicHeroesSetup/tools")`.
 - Android: `python configure.py --target android --android-sdk $T/android-sdk --jdk $T/jdk17 --sdl-src $T/sdl2-src
-  --abi arm64-v8a --keystore $T/android/sonicriders-local.keystore [--icon <file>]` → `build/android/sonicriders-arm64-v8a.apk`.
+  --abi arm64-v8a --keystore $T/android/sonicheroes-local.keystore [--icon <file>]` → `build/android/sonicheroes-arm64-v8a.apk`.
 - Switch: `DEVKITPRO=$T/devkitpro python configure.py --target switch --devkitpro $T/devkitpro --imgui $T/imgui`
-  (keep `DEVKITPRO` exported for ninja) → `build/switch/sonicriders.nro`.
+  (keep `DEVKITPRO` exported for ninja) → `build/switch/sonicheroes.nro`.
 - PC: `python configure.py --target host --toolchain mingw --llvm-mingw build/ext/llvm-mingw-20261006-ucrt-x86_64
-  --sdl build/ext/SDL2-2.32.10-mingw` → `build/host-mingw/sonicriders.exe`. A PC run logs to **stdout** (redirect
-  it); `sonicriders.log` in the root is not written by test runs started this way.
-- Phone run: `MSYS_NO_PATHCONV=1 python tools/android_run.py --apk build/android/sonicriders-arm64-v8a.apk --package
-  net.srnative.sonicriders --args "SR_..." --wait "<regex>" --pull <file> --out C:/.../build/android/run/<name>
+  --sdl build/ext/SDL2-2.32.10-mingw` → `build/host-mingw/sonicheroes.exe`. A PC run logs to **stdout** (redirect
+  it); `sonicheroes.log` in the root is not written by test runs started this way.
+- Phone run: `MSYS_NO_PATHCONV=1 python tools/android_run.py --apk build/android/sonicheroes-arm64-v8a.apk --package
+  net.srnative.sonicheroes --args "SR_..." --wait "<regex>" --pull <file> --out C:/.../build/android/run/<name>
   [--keep-running] > build/android/run/<name>.txt` (Windows paths as `C:/...` with MSYS_NO_PATHCONV). Screen
   3088x1440; touch layout in units of H = 1440; the menu's 16:9 rect is x 264-2824 (overlay px x2 + 264).
 - Synthetic touch on the phone: `adb shell input tap X Y` / `input swipe X0 Y0 X1 Y1 MS`; menu button (202, 122).
@@ -39,11 +42,11 @@ Older manual steps (the setup tool and `configure.py --target switch --devkitpro
   python configure.py --target switch
   ninja
   ```
-  The result is `build/switch/sonicriders.nro`. It contains recompiled game code: never share or commit it.
-- SD card layout (`sdmc:/switch/sonicriders/`):
-  - `sonicriders.nro`
+  The result is `build/switch/sonicheroes.nro`. It contains recompiled game code: never share or commit it.
+- SD card layout (`sdmc:/switch/sonicheroes/`):
+  - `sonicheroes.nro`
   - a **copy** of the user's disc image (any `*.iso`, GXEE8P rev 0)
-  - created at runtime: `saves/card_a.raw` (memory card) and `sonicriders.log`
+  - created at runtime: `saves/card_a.raw` (memory card) and `sonicheroes.log`
 - Launch from the Homebrew Menu **in title mode** (hold R while starting any installed game). The guest memory window prefers `svcMapProcessCodeMemory`; without it, it falls back to `svcMapMemory`, and the log's `[mem]` line says which was used. Applet mode is untested and has much less memory.
 - Controls: A B X Y = A B X Y, + = START, ZL/ZR = L/R, R = Z, sticks = main/C, D-pad. HOME exits. Hold − (Minus) for the settings menu.
 - The log's `[perf]` lines give fps every 120 frames, plus a ms/frame breakdown. `[deko3d]` lines give render-thread and GPU ms/frame. `shot_<frame>.bmp` files (frames 300 … 7200) are self-captures. `env.txt` sets debug variables.
@@ -54,22 +57,22 @@ Original clang + MSVC method (the setup's llvm-mingw build is the current way, s
 
 **How to build/run (host, Windows):**
 ```
-build/tools/dtk.exe dol split config/GXEE8P/config.yml build/GXEE8P   # once (analysis; writes config/GXEE8P/*symbols.txt)
-python tools/recomp/gcrecomp.py config/GXEE8P baserom build/gen        # recompile (also run by ninja)
+build/tools/dtk.exe dol split config/G9SE8P/config.yml build/GXEE8P   # once (analysis; writes config/G9SE8P/*symbols.txt)
+python tools/recomp/gcrecomp.py config/G9SE8P baserom build/gen        # recompile (also run by ninja)
 . tools/host/env.ps1                                                   # PowerShell: clang + MSVC/SDK paths (vcvars64.bat fails on this PATH)
 python configure.py ; ninja                                            # ninja: %APPDATA%\Python\Python312\Scripts\ninja.exe
-build/host/sonicriders.exe "baserom/Sonic Riders (USA) (En,Ja,Fr,De,Es,It).iso"
+build/host/sonicheroes.exe "baserom/Sonic Riders (USA) (En,Ja,Fr,De,Es,It).iso"
 ```
 After a fresh clone, run `git config core.hooksPath tools/git-hooks` (the game-data guard).
 
 ## Host (Linux / Steam Deck): build, WSL test loop (2026-11-06)
 
 - Build: `python3 configure.py --target host --toolchain linux [--cc "zig cc" --cxx "zig c++"] [--sdl DIR]; ninja`
-  -> `build/host-linux/sonicriders`. Links the runtime `libSDL2-2.0.so.0` and `libGL.so.1` by full path (no -dev
+  -> `build/host-linux/sonicheroes`. Links the runtime `libSDL2-2.0.so.0` and `libGL.so.1` by full path (no -dev
   package needed; SteamOS has none); GL 1.1 calls are linked, the rest via `SDL_GL_GetProcAddress`. Static
   libstdc++/libgcc, `rpath $ORIGIN`. On Linux the log goes to stderr; `Sonic Riders.sh` (written by the setup)
-  sends it to `sonicriders.log` unless stderr is a terminal.
-- Setup: `SonicRidersSetup.sh` -> `tools/setup_linux.py` (6 steps; tools in `~/.local/share/SonicRidersSetup/tools`,
+  sends it to `sonicheroes.log` unless stderr is a terminal.
+- Setup: `SonicHeroesSetup.sh` -> `tools/setup_linux.py` (6 steps; tools in `~/.local/share/SonicHeroesSetup/tools`,
   pinned in `setup/toolchain.json` "linux": dtk, ninja, zig 0.17.1, SDL2 headers; per `uname -m`). Release:
   `make_release.py --flavor linux` (`.sh` mode 0755 in the zip).
 - WSL test loop on this PC (Ubuntu 24.04; clang 18, libsdl2-dev, gdb, bubblewrap, unzip installed): mirror the
@@ -84,7 +87,7 @@ After a fresh clone, run `git config core.hooksPath tools/git-hooks` (the game-d
 
 ## Setup tool, releases, PC icon
 
-**Setup tool and releases (2026-10-22):** `SonicRidersSetup.bat` → `setup/setup.ps1` builds everything from the user's disc image with a SHA-256-pinned toolchain (`setup/toolchain.json`; downloads through Windows' `curl.exe`, since devkitPro's server refuses .NET's web client even with the pacman user agent). PC builds from it use llvm-mingw (`configure.py --toolchain mingw`, output `build/host-mingw/`). `tools/make_release.py --version X` zips the files tracked at HEAD (guard-checked) plus a `VERSION` file; the port logs `[build] <version or git describe>` first (`build/<target>/gen/version.c`, written by `tools/write_version.py` at configure time and again before every ninja build). Hardware performance so far is with an overclock (CPU 1785 / GPU 1152 / MEM 2133); stock clocks run poorly.
+**Setup tool and releases (2026-10-22):** `SonicHeroesSetup.bat` → `setup/setup.ps1` builds everything from the user's disc image with a SHA-256-pinned toolchain (`setup/toolchain.json`; downloads through Windows' `curl.exe`, since devkitPro's server refuses .NET's web client even with the pacman user agent). PC builds from it use llvm-mingw (`configure.py --toolchain mingw`, output `build/host-mingw/`). `tools/make_release.py --version X` zips the files tracked at HEAD (guard-checked) plus a `VERSION` file; the port logs `[build] <version or git describe>` first (`build/<target>/gen/version.c`, written by `tools/write_version.py` at configure time and again before every ninja build). Hardware performance so far is with an overclock (CPU 1785 / GPU 1152 / MEM 2133); stock clocks run poorly.
 
 **Clean-install release test in Windows Sandbox (2026-11-04)** [confirmed: PC and Android pass, cold]. Run it for PC
 and Android before every release, from the zips users download (not from the repo):
@@ -100,7 +103,7 @@ and Android before every release, from the zips users download (not from the rep
    -NoSd -Yes` (Android adds `-AcceptAndroidSdkLicense -Install no`; the .bat adds `-Target`). `SR_NOPAUSE=1`
    skips the .bat's pause; the .bat returns setup's exit code. `--space` installs a second time into
    `C:\Sonic Riders Test` (tools are then already downloaded).
-4. PASS = exit code 0 and `build\host-mingw\sonicriders.exe` / `build\android\sonicriders-arm64-v8a.apk`. Results:
+4. PASS = exit code 0 and `build\host-mingw\sonicheroes.exe` / `build\android\sonicheroes-arm64-v8a.apk`. Results:
    `RESULT.txt` (always written), `progress.txt`, `setup-N.log` (copied every 30 s); nothing built or from the disc.
    The sandbox closes itself (`--keep-open` to look inside). Watch `progress.txt` with Monitor.
 - `--launch` starts it minimized without focus (the user can keep using the PC); the VM's priority cannot be
@@ -118,7 +121,7 @@ and Android before every release, from the zips users download (not from the rep
 
 ## GitHub and pushing
 
-**GitHub:** https://github.com/teclilla18/sonic-riders-recomp (public). Push at the end of every work session, after `python tools/check_no_game_data.py` passes.
+**GitHub:** https://github.com/teclilla18/sonic-heroes-recomp (public). Push at the end of every work session, after `python tools/check_no_game_data.py` passes.
 - **Push at the end of every work session.**
 - Before pushing, check `git status --ignored`: no ISO, DOL, REL, assets, disassembly, recompiled output or dtk symbol files.
 - If anything questionable would be included, stop and ask the user.

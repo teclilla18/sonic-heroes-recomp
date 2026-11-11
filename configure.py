@@ -4,16 +4,16 @@
 usage: python configure.py [--target host|switch|android]
 
 Pipeline (everything under build/ is derived from the game and never committed):
-  1. dtk analysis       baserom/main.dol + _Main.rel -> config/GXEE8P/{,_Main/}symbols.txt
-                        (run once by hand: build/tools/dtk.exe dol split config/GXEE8P/config.yml build/GXEE8P)
+  1. dtk analysis       baserom/main.dol + _Main.rel -> config/G9SE8P/{,_Main/}symbols.txt
+                        (run once by hand: build/tools/dtk.exe dol split config/G9SE8P/config.yml build/G9SE8P)
   2. recompile          tools/recomp/gcrecomp.py -> build/gen/*.c
-  3. compile + link     build/gen/*.c + runtime/src/* -> build/<target>/sonicriders(.exe|.nro)
+  3. compile + link     build/gen/*.c + runtime/src/* -> build/<target>/sonicheroes(.exe|.nro)
 
 host: --toolchain msvc (default): clang with the MSVC/SDK headers (run `. tools/host/env.ps1` first)
       --toolchain mingw: llvm-mingw (--llvm-mingw DIR) with SDL2's MinGW build (--sdl DIR); the setup
       tool (setup/setup.ps1) uses this one
-      --toolchain linux: Linux / Steam Deck -> build/host-linux/sonicriders; compiler from --cc/--cxx, $CC/$CXX,
-      clang or gcc (SonicRidersSetup.sh passes "zig cc" where there is none); SDL2 headers from sdl2-config
+      --toolchain linux: Linux / Steam Deck -> build/host-linux/sonicheroes; compiler from --cc/--cxx, $CC/$CXX,
+      clang or gcc (SonicHeroesSetup.sh passes "zig cc" where there is none); SDL2 headers from sdl2-config
       or --sdl DIR (include/SDL2); links against the system's libSDL2-2.0.so.0, so no -dev package is needed
 switch: devkitA64 + libnx + deko3d (devkitPro: $DEVKITPRO, --devkitpro DIR, or C:/devkitPro)
 android: NDK + SDK build-tools + JDK 17 + SDL2 source (the setup downloads them); written by
@@ -44,11 +44,11 @@ ap.add_argument("--ndk", default="", help="android: NDK folder (default: the new
 ap.add_argument("--jdk", default="", help="android: JDK 17+ folder (default $JAVA_HOME)")
 ap.add_argument("--sdl-src", default="", help="android: SDL2 2.32.10 source folder")
 ap.add_argument("--team", default="", help="ios: Apple Team ID (default: the Mac's Apple Development certificate, else the Apple ID in Xcode > Settings > Accounts); none = an unsigned .ipa for Sideloadly / AltStore")
-ap.add_argument("--ipa-dir", default="~/Desktop/Sonic Riders iOS",
-                help="ios: after each build copy SonicRiders.ipa here for Sideloadly/AltStore (default: a folder on the "
-                "Desktop; the copy before it is kept as SonicRiders-prev.ipa; 'none' = only build/ios/SonicRiders.ipa). "
+ap.add_argument("--ipa-dir", default="~/Desktop/Sonic Heroes iOS",
+                help="ios: after each build copy SonicHeroes.ipa here for Sideloadly/AltStore (default: a folder on the "
+                "Desktop; the copy before it is kept as SonicHeroes-prev.ipa; 'none' = only build/ios/SonicHeroes.ipa). "
                 "It holds recompiled game code: never share it")
-ap.add_argument("--bundle-id", default="", help="ios: app bundle ID (default: net.srnative.sonicriders.t<hash of the team>)")
+ap.add_argument("--bundle-id", default="", help="ios: app bundle ID (default: net.srnative.sonicheroes.t<hash of the team>)")
 ap.add_argument("--moltenvk", default="", help="ios: MoltenVK folder holding include/ and static/ (default build/ext/MoltenVK/MoltenVK)")
 ap.add_argument("--abi", choices=["arm64-v8a", "x86_64", "both"], default="arm64-v8a", help="android: phone (arm64-v8a) or emulator (x86_64)")
 ap.add_argument("--keystore", default="", help="android: local signing key (made if missing; default next to the SDK)")
@@ -82,7 +82,7 @@ if not gen_c:
     # the list of generated files is needed to write build.ninja: recompile once now
     import subprocess
     print("build/gen is empty: recompiling first", flush=True)
-    subprocess.check_call([sys.executable, "tools/recomp/gcrecomp.py", "config/GXEE8P", "baserom", GEN], cwd=ROOT)
+    subprocess.check_call([sys.executable, "tools/recomp/gcrecomp.py", "config/G9SE8P", "baserom", GEN], cwd=ROOT)
     gen_c = sorted(glob.glob(os.path.join(ROOT, GEN, "code_*.c")))
 gen_c = [os.path.relpath(p, ROOT).replace("\\", "/") for p in gen_c] + [GEN + "/table.c"]
 rt_c = sorted(os.path.relpath(p, ROOT).replace("\\", "/") for p in glob.glob(os.path.join(ROOT, "runtime/src/*.c")))
@@ -129,9 +129,9 @@ inc = "-Iruntime/include -Iruntime/src -I%s -DIMGUI_DISABLE_DEMO_WINDOWS -DIMGUI
 gen_flags = "-O2 -ffp-contract=off -fno-strict-aliasing -fwrapv -w"
 
 def shader_key_files():
-    """the specialized-shader keys: the shipped list (config/GXEE8P/shader_keys.txt) plus any local extras
+    """the specialized-shader keys: the shipped list (config/G9SE8P/shader_keys.txt) plus any local extras
     (build/shaderkeys/*.txt, e.g. keys a console reported that the list lacks)"""
-    files = ["config/GXEE8P/shader_keys.txt"] if os.path.exists(os.path.join(ROOT, "config/GXEE8P/shader_keys.txt")) else []
+    files = ["config/G9SE8P/shader_keys.txt"] if os.path.exists(os.path.join(ROOT, "config/G9SE8P/shader_keys.txt")) else []
     return files + sorted(os.path.relpath(p, ROOT).replace("\\", "/") for p in glob.glob(os.path.join(ROOT, "build/shaderkeys/*.txt")))
 
 
@@ -227,7 +227,7 @@ with open(os.path.join(ROOT, "build.ninja"), "w") as f:
             # zig's linker takes no -Map (and links its own libc++ statically anyway)
             is_zig = "zig" in os.path.basename(cxx.split()[0]) or cxx.split()[0] == "zig"
             n.variable("ldflags", "-g -pthread %s -ldl -lm -Wl,-rpath,'$$ORIGIN' %s" % (sdl_lib, "" if is_zig else
-                       "-static-libstdc++ -static-libgcc -Wl,-Map=%s/sonicriders.map" % OUT))
+                       "-static-libstdc++ -static-libgcc -Wl,-Map=%s/sonicheroes.map" % OUT))
             sdl_dll = ""
         elif args.toolchain == "mingw":
             lm = args.llvm_mingw.replace("\\", "/")
@@ -245,8 +245,8 @@ with open(os.path.join(ROOT, "build.ninja"), "w") as f:
             hostinc = "%s -Iruntime/include/compat -I%s/include/SDL2 -DSDL_MAIN_HANDLED -D_WIN32_WINNT=0x0A00" % (inc, sdl)
             n.variable("cflags", "-std=gnu11 -g " + hostinc)
             n.variable("cxxflags", "-std=c++20 -g " + hostinc)
-            # a windowed program (no console window); the log goes to sonicriders.log then (platform_host.c)
-            n.variable("ldflags", "-g -static-libstdc++ -static-libgcc -L%s/lib -lSDL2 -lopengl32 -lwinmm -lws2_32 -lwinhttp -Wl,--subsystem,windows -Wl,-Map=%s/sonicriders.map" % (sdl, OUT))
+            # a windowed program (no console window); the log goes to sonicheroes.log then (platform_host.c)
+            n.variable("ldflags", "-g -static-libstdc++ -static-libgcc -L%s/lib -lSDL2 -lopengl32 -lwinmm -lws2_32 -lwinhttp -Wl,--subsystem,windows -Wl,-Map=%s/sonicheroes.map" % (sdl, OUT))
             sdl_dll = sdl + "/bin/SDL2.dll"
         else:
             sdl = args.sdl or pick_sdl(lambda d: os.path.isdir(os.path.join(d, "lib", "x64")))
@@ -257,9 +257,9 @@ with open(os.path.join(ROOT, "build.ninja"), "w") as f:
             n.variable("cxx", "clang++")
             n.variable("cflags", "-std=gnu11 -g %s -I%s/include -DSDL_MAIN_HANDLED -D_CRT_SECURE_NO_WARNINGS" % (inc, sdl))
             n.variable("cxxflags", "-std=c++20 -g %s -I%s/include -DSDL_MAIN_HANDLED -D_CRT_SECURE_NO_WARNINGS" % (inc, sdl))
-            n.variable("ldflags", "-g -fuse-ld=lld -L%s/lib/x64 -lSDL2 -lopengl32 -lwinmm -lws2_32 -lwinhttp -Wl,/MAP:%s/sonicriders.map" % (sdl, OUT))
+            n.variable("ldflags", "-g -fuse-ld=lld -L%s/lib/x64 -lSDL2 -lopengl32 -lwinmm -lws2_32 -lwinhttp -Wl,/MAP:%s/sonicheroes.map" % (sdl, OUT))
             sdl_dll = sdl + "/lib/x64/SDL2.dll"
-        exe = OUT + ("/sonicriders" if args.toolchain == "linux" else "/sonicriders.exe")
+        exe = OUT + ("/sonicheroes" if args.toolchain == "linux" else "/sonicheroes.exe")
     elif args.target == "android":
         t = atools
         sdl_inc, sdl_link = android_build.sdl_flags(t, args.abi)
@@ -270,7 +270,7 @@ with open(os.path.join(ROOT, "build.ninja"), "w") as f:
         n.variable("cflags", "-std=gnu11 -g " + andinc)
         n.variable("cxxflags", "-std=c++20 -g -fno-exceptions -fno-rtti " + andinc)
         n.variable("ldflags", "-shared -g -Wl,-soname,libmain.so -Wl,--no-undefined -Wl,-z,max-page-size=16384 "
-                   "-Wl,--build-id=sha1 -Wl,--gc-sections -Wl,-Map=%s/sonicriders.map %s -lvulkan -landroid -llog -ldl -lm" % (OUT, sdl_link))
+                   "-Wl,--build-id=sha1 -Wl,--gc-sections -Wl,-Map=%s/sonicheroes.map %s -lvulkan -landroid -llog -ldl -lm" % (OUT, sdl_link))
         exe = OUT + "/libmain.so"
     elif args.target == "ios":
         t = itools
@@ -298,16 +298,16 @@ with open(os.path.join(ROOT, "build.ninja"), "w") as f:
         n.variable("cxx", dkp + "/devkitA64/bin/aarch64-none-elf-g++")
         n.variable("cflags", "-std=gnu11 -g %s %s -D__SWITCH__ -I%s/libnx/include -ffunction-sections" % (arch, inc, dkp))
         n.variable("cxxflags", "-std=gnu++20 -g %s %s -D__SWITCH__ -I%s/libnx/include -ffunction-sections -fno-rtti -fno-exceptions" % (arch, inc, dkp))
-        n.variable("ldflags", "-specs=%s/libnx/switch.specs -g %s -L%s/libnx/lib -Wl,-Map,%s/sonicriders.map -ldeko3d -lnx -lm"
+        n.variable("ldflags", "-specs=%s/libnx/switch.specs -g %s -L%s/libnx/lib -Wl,-Map,%s/sonicheroes.map -ldeko3d -lnx -lm"
                    % (dkp, arch, dkp, OUT))
-        exe = OUT + "/sonicriders.elf"
+        exe = OUT + "/sonicheroes.elf"
 
     n.rule("cc", "$cc -MMD -MF $out.d $cflags $extra -c $in -o $out", depfile="$out.d", deps="gcc",
            description="CC $in")
     n.rule("cxx", "$cxx -MMD -MF $out.d $cxxflags $extra -c $in -o $out", depfile="$out.d", deps="gcc",
            description="CXX $in")
     n.rule("link", "$cxx $in -o $out $ldflags", description="LINK $out")
-    n.rule("recomp", "%s tools/recomp/gcrecomp.py config/GXEE8P baserom %s" % (py, GEN),
+    n.rule("recomp", "%s tools/recomp/gcrecomp.py config/G9SE8P baserom %s" % (py, GEN),
            description="RECOMP", restat=True, pool="console",
            generator=True)  # no ninja log yet (first build) must not mean "recompile again": mtimes decide
 
@@ -317,8 +317,8 @@ with open(os.path.join(ROOT, "build.ninja"), "w") as f:
     n.build(version_c, "version", implicit=["version_always"])
 
     recomp_inputs = ["tools/recomp/gcrecomp.py", "tools/recomp/ppc2c.py", "tools/recomp/crlive.py",
-                     "tools/recomp/leaflocal.py", "tools/recomp/singleflow.py", "tools/gcbin.py", "config/GXEE8P/symbols.txt",
-                     "config/GXEE8P/_Main/symbols.txt"] + [p for p in ("config/GXEE8P/hle.txt", "config/GXEE8P/patches.txt", "config/GXEE8P/hot_functions.txt")
+                     "tools/recomp/leaflocal.py", "tools/recomp/singleflow.py", "tools/gcbin.py", "config/G9SE8P/symbols.txt",
+                     "config/G9SE8P/_Main/symbols.txt"] + [p for p in ("config/G9SE8P/hle.txt", "config/G9SE8P/patches.txt", "config/G9SE8P/hot_functions.txt")
                                                            if os.path.exists(os.path.join(ROOT, p))]
     n.build(gen_c + [GEN + "/funcs.h"], "recomp", recomp_inputs)
 
@@ -353,7 +353,7 @@ with open(os.path.join(ROOT, "build.ninja"), "w") as f:
     if shader_h:
         n.build(shader_h, "shaders", shader_src)
     if args.target == "switch":
-        # specialized fragment shaders from config/GXEE8P/shader_keys.txt (+ local extras in build/shaderkeys/)
+        # specialized fragment shaders from config/G9SE8P/shader_keys.txt (+ local extras in build/shaderkeys/)
         key_files = shader_key_files()
         spec_h = OUT + "/gen/gx_spec_dksh.h"
         n.rule("specshaders", "%s tools/gen_shaders.py $out %s/tools/bin/uam.exe %s/spec $in_keys" % (py, dkp, OUT),
@@ -363,7 +363,7 @@ with open(os.path.join(ROOT, "build.ninja"), "w") as f:
                 variables={"in_keys": " ".join(key_files)})
         shader_h = [shader_h, spec_h]
     elif args.target in ("android", "ios"):
-        # the same specialized fragment shaders as SPIR-V (keys: config/GXEE8P/shader_keys.txt + build/shaderkeys/)
+        # the same specialized fragment shaders as SPIR-V (keys: config/G9SE8P/shader_keys.txt + build/shaderkeys/)
         key_files = shader_key_files()
         spec_h = OUT + "/gen/gx_spec_spv.h"
         n.rule("specshaders", "%s tools/gen_shaders.py --vk $out %s %s/spec $in_keys" % (py, glslc, OUT),
@@ -410,33 +410,33 @@ with open(os.path.join(ROOT, "build.ninja"), "w") as f:
         objs.append(OUT + "/obj/icon.res.o")
     # Android: libSDL2.so comes from the SDL2 step; without the dependency a fresh build could link first
     if args.target == "ios":
-        exe = ios_build.add_build(n, itools, objs, OUT, py)  # libsonicriders.a, SDL2, the signed .app
+        exe = ios_build.add_build(n, itools, objs, OUT, py)  # libsonicheroes.a, SDL2, the signed .app
     else:
         n.build(exe, "link", objs, implicit=[android_build.sdl_lib(args.abi)] if args.target == "android" else None)
     if args.target == "switch":
-        n.rule("nacp", "%s/tools/bin/nacptool.exe --create \"Sonic Riders\" \"native port (own disc image required)\" 0.1.0 $out" % dkp,
+        n.rule("nacp", "%s/tools/bin/nacptool.exe --create \"Sonic Heroes\" \"native port (own disc image required)\" 0.1.0 $out" % dkp,
                description="NACP $out")
-        n.build(OUT + "/sonicriders.nacp", "nacp")
+        n.build(OUT + "/sonicheroes.nacp", "nacp")
         # the Homebrew Menu icon: setup/icon_256.jpg (256 x 256 JPEG; the fan-made icon by cedry2kio, README credits)
         nro_icon = "setup/icon_256.jpg" if os.path.isfile(os.path.join(ROOT, "setup/icon_256.jpg")) else ""
-        n.rule("nro", "%s/tools/bin/elf2nro.exe $in $out --nacp=%s/sonicriders.nacp%s" % (dkp, OUT, " --icon=" + nro_icon if nro_icon else ""),
+        n.rule("nro", "%s/tools/bin/elf2nro.exe $in $out --nacp=%s/sonicheroes.nacp%s" % (dkp, OUT, " --icon=" + nro_icon if nro_icon else ""),
                description="NRO $out")
-        n.build(OUT + "/sonicriders.nro", "nro", exe, implicit=[OUT + "/sonicriders.nacp"] + ([nro_icon] if nro_icon else []))
-        n.default(OUT + "/sonicriders.nro")
+        n.build(OUT + "/sonicheroes.nro", "nro", exe, implicit=[OUT + "/sonicheroes.nacp"] + ([nro_icon] if nro_icon else []))
+        n.default(OUT + "/sonicheroes.nro")
     if args.target == "host" and sdl_dll:
         n.rule("copy", "%s -c \"import shutil,sys; shutil.copy(sys.argv[1], sys.argv[2])\" $in $out" % py, description="COPY $out")
         n.build(OUT + "/SDL2.dll", "copy", sdl_dll)
         n.default(OUT + "/SDL2.dll")
     if args.target == "android":
         dex, sdl_libs = android_build.add_common(n, atools, py, ROOT, [args.abi])
-        apk = "build/android/sonicriders-%s.apk" % args.abi
+        apk = "build/android/sonicheroes-%s.apk" % args.abi
         # the app icon: your own (--icon), else the fan-made icon in setup/icon.png
         app_icon = os.path.abspath(args.icon).replace("\\", "/") if args.icon else "setup/icon.png"
         if not os.path.isfile(os.path.join(ROOT, app_icon)):
             print("configure: no app icon (%s not found); the APK gets Android's default icon" % app_icon)
             app_icon = ""
-        android_build.add_apk(n, atools, args.abi, apk, exe, sdl_libs[args.abi], dex, "net.srnative.sonicriders",
-                              "Sonic Riders", "1", build_version()[:40], icon=app_icon)
+        android_build.add_apk(n, atools, args.abi, apk, exe, sdl_libs[args.abi], dex, "net.srnative.sonicheroes",
+                              "Sonic Heroes", "1", build_version()[:40], icon=app_icon)
         n.default(apk)
     n.build("gen_objs", "phony", objs[:len(gen_c)])
     n.default(exe)
@@ -445,6 +445,6 @@ with open(os.path.join(ROOT, "build.ninja"), encoding="utf-8", errors="replace")
 if bad:
     os.remove(os.path.join(ROOT, "build.ninja"))
     sys.exit("configure: a path in the build has letters outside English, which the build tools can't use:\n  %s\n"
-             "Move the folder (and the tools folder) to a path with only English letters and digits, e.g. C:\\SonicRiders."
+             "Move the folder (and the tools folder) to a path with only English letters and digits, e.g. C:\\SonicHeroes."
              % bad[0])
 print("wrote build.ninja (%s): %d generated + %d runtime sources" % (args.target, len(gen_c), len(rt_c) + len(rt_cpp)))

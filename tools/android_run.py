@@ -3,7 +3,7 @@
 capture the app's own log until a line appears (or the app exits / times out), pull files from the app's
 folder.
 
-  python tools/android_run.py --apk build/android/probe-arm64-v8a.apk --package net.srnative.sonicriders.probe \
+  python tools/android_run.py --apk build/android/probe-arm64-v8a.apk --package net.srnative.sonicheroes.probe \
       --wait "\\[probe\\] done" --pull probe.log --pull probe_gles.bmp [--args "PROBE_DRAWS=7000"] [--serial S]
 
 Privacy: only this app's process is logged (logcat --pid) plus crash reports that name the package, and
@@ -20,12 +20,12 @@ import threading
 import time
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-ACTIVITY = "net.srnative.sonicriders.SonicRidersActivity"
+ACTIVITY = "net.srnative.sonicheroes.SonicHeroesActivity"
 
 
 def default_adb():
     base = os.environ.get("LOCALAPPDATA", os.path.expanduser("~"))
-    p = os.path.join(base, "SonicRidersSetup", "tools", "android-sdk", "platform-tools", "adb.exe" if os.name == "nt" else "adb")
+    p = os.path.join(base, "SonicHeroesSetup", "tools", "android-sdk", "platform-tools", "adb.exe" if os.name == "nt" else "adb")
     return p if os.path.isfile(p) else "adb"
 
 

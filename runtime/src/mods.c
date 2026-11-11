@@ -95,7 +95,7 @@ static void write_order(void) {
     snprintf(path, sizeof path, "%s/mods.ini", g_base);
     FILE* w = fopen(path, "w");
     if (!w) return;
-    fprintf(w, "# Sonic Riders mods, applied top to bottom: when two mods replace the same file, the\n"
+    fprintf(w, "# Sonic Heroes mods, applied top to bottom: when two mods replace the same file, the\n"
                "# lower one wins. Put a # in front of a mod to turn it off. Changes apply on the next start.\n");
     for (int i = 0; i < g_nmods; i++) fprintf(w, "%s%s\n", g_on[i] ? "" : "# ", g_names[i]);
     fclose(w);

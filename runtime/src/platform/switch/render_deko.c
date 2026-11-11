@@ -99,7 +99,7 @@ static const DkShader* frag_shader_for(const GxUniforms* u) {
         if (k_spec_keys[mid] < k.hash) lo = mid + 1; else hi = mid - 1;
     }
     g_spec_misses++;
-    gx_frag_key_record(&k, "sdmc:/switch/sonicriders/shader_keys.txt");
+    gx_frag_key_record(&k, "sdmc:/switch/sonicheroes/shader_keys.txt");
     return uber;
 }
 #define OVERLAY_SLOT 1                         /* image descriptor of the overlay image */
@@ -797,7 +797,7 @@ static int shot_thread(void* arg) {
     rt_thread_lower_priority();
     uint64_t t0 = armGetSystemTick();
     char path[96];
-    snprintf(path, sizeof path, "sdmc:/switch/sonicriders/shot_%u.bmp", sh->frame);
+    snprintf(path, sizeof path, "sdmc:/switch/sonicheroes/shot_%u.bmp", sh->frame);
     FILE* f = fopen(path, "wb");
     if (f) {
         uint32_t row = FB_W * 3, size = 54 + row * FB_H;

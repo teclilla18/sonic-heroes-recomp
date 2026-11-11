@@ -1,5 +1,8 @@
 # Architecture and design decisions
 
+> **Inherited from the Sonic Riders port** (forked 2026-11-11). File and folder names are updated for Sonic Heroes;
+> facts, numbers, addresses and test results are still Sonic Riders' until this page is revised for Heroes.
+
 **Reference.** Moved from docs/REFERENCE.md on 2026-11-03 (content unchanged). Index: [REFERENCE.md](../REFERENCE.md).
 
 Legend: **[confirmed]** = verified directly; **[likely]** = strong evidence, not proven; **[uncertain]** = guess / needs work.
@@ -38,7 +41,7 @@ see HISTORY.md):
   - `OSLink`/`OSLinkFixed`;
   - no-ops: `__OSInitAudioSystem`, `__OSStopAudioSystem`, `__OSInitMemoryProtection` (real-mode BAT setup via `rfi`).
 
-The whole OS scheduler, alarms, mutexes and message queues run recompiled, which proved simpler and more faithful than replacing the APIs. All replacements are listed in `config/GXEE8P/hle.txt`.
+The whole OS scheduler, alarms, mutexes and message queues run recompiled, which proved simpler and more faithful than replacing the APIs. All replacements are listed in `config/G9SE8P/hle.txt`.
 
 ## Plan: ahead-of-time specialized shader cache
 
@@ -50,7 +53,7 @@ Implemented since (tools/gen_shaders.py, gx_shader_key.c); the original plan:
   - TEV stage count; per stage: order (map, coord, enable, channel), color/alpha env, ksel, swap selects, IND_CMD;
   - the indirect stage count and IREF; alpha test compare/logic; the EFB alpha-update rules.
   Register *values* (TEV colors, konst, matrices, alpha refs) stay uniforms, so one shader covers many materials.
-- **Collect:** (the shipped list: `config/GXEE8P/shader_keys.txt`, tracked since v0.5.2; release builds before that had no keys and ran races on the ubershader) the PC build logs every new key (`SR_SHADER_KEYS=<file>`). Play through the game, or merge key files from the user's Switch (`sdmc:/switch/sonicriders/shader_keys.txt`, written when a key misses the cache).
+- **Collect:** (the shipped list: `config/G9SE8P/shader_keys.txt`, tracked since v0.5.2; release builds before that had no keys and ran races on the ubershader) the PC build logs every new key (`SR_SHADER_KEYS=<file>`). Play through the game, or merge key files from the user's Switch (`sdmc:/switch/sonicheroes/shader_keys.txt`, written when a key misses the cache).
 - **Build:** `tools/gen_shaders.py` emits straight-line GLSL per key (the gx.frag logic with every select resolved at generation time), compiles each with uam, and embeds a sorted key → dksh table. The GL backend can use the same generated GLSL to check equivalence against the ubershader on PC.
 - **Runtime:** look up the key per state; on a miss use the ubershader and record the key for the next build.
 
@@ -59,7 +62,7 @@ Implemented since (tools/gen_shaders.py, gx_shader_key.c); the original plan:
 | Decision | Choice | Why |
 |---|---|---|
 | Recompiler | Fork ZeldaWWHDRecomp's translator (`ppc2c.py`, `crlive.py`, `leaflocal.py`, `ppc.h`, fres/frsqrte tables; MPL-2.0, upstream commit f10b566) + new GameCube front end `tools/recomp/gcrecomp.py` | Espresso and Gekko share the 750 user ISA, incl. paired singles, GQR quantization and `dcbz_l`. Its inline C with register-in-locals passes is proven at 30 fps on Switch hardware. **DolRecomp** (github.com/ExpansionPak/DolRecomp, GPL-3.0) was evaluated: it supports DOL+REL natively but is emulator-style (full MSR/exception model, callback memory access, a helper call per op), which is slower on ARM. Kept as a reference only. |
-| Function discovery | decomp-toolkit v1.8.4 analysis (`config/GXEE8P/config.yml`), with `detect_strings: false` (a dtk bug in REL sec 2) | Understands MWCC idioms and REL relocations. Not used for matching. |
+| Function discovery | decomp-toolkit v1.8.4 analysis (`config/G9SE8P/config.yml`), with `detect_strings: false` (a dtk bug in REL sec 2) | Understands MWCC idioms and REL relocations. Not used for matching. |
 | Jump tables | Structural: a data object whose words all point mid-function into one function. The recompiler reports any `lwzx/mtctr/bctr` without a table. | dtk names only some tables `jumptable_*` (others like `@740`). |
 | REL placement | Linked statically at `REL_BASE = 0x81800000`, just above the 24 MiB of MEM1 (the runtime backs 28 MiB), by the recompiler and identically at runtime (`loader.c`). The game still loads and "links" its own copy from its heap, and the native OSLink points that copy at the fixed image. | Fixed addresses for recompiled code, and the game keeps exactly its normal memory. (First tried 0x81500000 with ArenaHi lowered, which would have cost the game ~2.5 MB.) |
 | Guest memory | Window indexed by physical address, `ea & 0x3FFFFFFF` (folds the 0x8/0xC mirrors; locked cache → `0x20000000`). Loads/stores in `0xC8000000–0xCFFFFFFF` go to `mmio.c`. | One AND + one compare per access, and every hardware access, incl. inline GX FIFO writes in game code, is caught. |

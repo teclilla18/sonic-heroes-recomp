@@ -5,12 +5,12 @@ The game boots on a fresh memory card kept in memory (your save is not touched),
 skips the intro movie and measures 30 s of each of the title screen's two demo races (Metal City 1 player,
 then a 2-player split-screen race). See docs/PERF.md.
 
-  python tools/perf_test.py run [--runs 3] [--exe build/host-mingw/sonicriders.exe] [--save perf/results/X.json]
+  python tools/perf_test.py run [--runs 3] [--exe build/host-mingw/sonicheroes.exe] [--save perf/results/X.json]
                                 [--expect perf/results/Y.json]
       PC: runs the game N times (minimized, no sound) and prints the table.
   python tools/perf_test.py show FILE [FILE...] [--expect perf/results/Y.json] [--save perf/results/X.json]
       Tables of result files: perftest.json files written by the game (e.g. copied from the Switch's SD card,
-      sdmc:/switch/sonicriders/perftest.json, after a run with SR_PERFTEST=1 in env.txt), or saved records.
+      sdmc:/switch/sonicheroes/perftest.json, after a run with SR_PERFTEST=1 in env.txt), or saved records.
       Several perftest.json files are combined like the runs of `run`.
 
 --expect compares each scene with a saved record and prints "SLOWER than the record" when the game speed or the
@@ -117,7 +117,7 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
     a = sub.add_parser("run", help="PC: run the performance test")
-    a.add_argument("--exe", default=os.path.join(ROOT, "build", "host-mingw", "sonicriders.exe"))
+    a.add_argument("--exe", default=os.path.join(ROOT, "build", "host-mingw", "sonicheroes.exe"))
     a.add_argument("--runs", type=int, default=3)
     a.add_argument("--timeout", type=int, default=600)
     b = sub.add_parser("show", help="tables of result files")

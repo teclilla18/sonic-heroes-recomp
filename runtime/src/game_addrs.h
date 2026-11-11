@@ -1,4 +1,4 @@
-/* Addresses in Sonic Riders (GXEE8P rev 0) main.dol that the native runtime uses. Found with
+/* Addresses in Sonic Heroes (G9SE8P rev 0) main.dol that the native runtime uses. Found with
  * decomp-toolkit + tools/showfn.py; see NOTES.md "SDK map". Low-memory globals are the Dolphin OS ABI. */
 #pragma once
 

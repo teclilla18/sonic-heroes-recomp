@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "deny": ["Read(**/*.keys)"]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|PowerShell",
+        "hooks": [
+          { "type": "command", "command": "p=$(command -v py || command -v python3 || command -v python); \"$p\" \"$CLAUDE_PROJECT_DIR/.claude/hooks/guard.py\"" }
+        ]
+      },
+      {
+        "matcher": "Read",
+        "hooks": [
+          { "type": "command", "command": "p=$(command -v py || command -v python3 || command -v python); \"$p\" \"$CLAUDE_PROJECT_DIR/.claude/hooks/read_guard.py\"" }
+        ]
+      }
+    ]
+  }
+}

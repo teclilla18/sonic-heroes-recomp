@@ -66,7 +66,7 @@ void platform_open_game_folder(void);
 const char* update_available(void);  /* update_check.c: the newer release's tag, or NULL */
 const char* update_notes(void);      /* its release notes, or NULL */
 int SDL_OpenURL(const char* url);
-#define UPDATE_PAGE "https://github.com/teclilla18/sonic-riders-recomp/releases/latest"
+#define UPDATE_PAGE "https://github.com/teclilla18/sonic-heroes-recomp/releases/latest"
 #endif
 }
 
@@ -275,7 +275,7 @@ void init() {
     io.DisplaySize = ImVec2(OVERLAY_W, OVERLAY_H);
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad | ImGuiConfigFlags_NoMouseCursorChange;
     io.BackendFlags |= ImGuiBackendFlags_HasGamepad | ImGuiBackendFlags_RendererHasTextures;
-    io.BackendRendererName = "sonicriders-software";
+    io.BackendRendererName = "sonicheroes-software";
     io.ConfigNavCursorVisibleAlways = true;
     setup_style();
     setup_fonts();
@@ -515,7 +515,7 @@ static void pc_frame_rate() {
         char label[32];
         if (v == PC_FPS_UNLIMITED) snprintf(label, sizeof label, "Unlimited");
         else snprintf(label, sizeof label, "%d fps", v);
-        const char* tip = v == 30   ? "Sonic Riders' own 30 fps mode, at full speed."
+        const char* tip = v == 30   ? "Sonic Heroes' own 30 fps mode, at full speed."
                           : v == 60 ? "The game's own frame rate, as on the GameCube."
                           : v == PC_FPS_UNLIMITED
                               ? "As many pictures as the PC can draw, without vsync (the picture may tear)."
@@ -548,7 +548,7 @@ void tab_performance() {
         "60 fps while the console keeps up. In scenes too busy for that it switches to a steady 30 fps at full "
         "speed, and back to 60 once the scene allows it.",
         "60 fps while the console keeps up; when it cannot, frames are left out instead, so races keep their real speed.",
-        "Sonic Riders' own 30 fps mode: a steady 30 fps at full speed. The smoothest choice on a console that is not overclocked."};
+        "Sonic Heroes' own 30 fps mode: a steady 30 fps at full speed. The smoothest choice on a console that is not overclocked."};
     const int order[FR_MODES] = {FR_AUTO, FR_30, FR_60};
     for (int k = 0; k < FR_MODES; k++) {
         int m = order[k];
@@ -615,7 +615,7 @@ void tab_controls() {
     note("F1 held = this menu (Q / E switch its tabs), F11 = fullscreen. Controllers: Xbox and others; more "
          "controllers are players 2 to 4 (the controller column is for all of them). Hold Back (View) to open "
          "this menu.");
-    note("Change the buttons in the launcher (SonicRidersLauncher.exe, Controls page); they apply from the "
+    note("Change the buttons in the launcher (SonicHeroesLauncher.exe, Controls page); they apply from the "
          "next start.");
     heading("Background");
     if (check("Controllers work in the background", &g_settings.pad_background,
@@ -653,7 +653,7 @@ void tab_mods() {
 }
 
 void tab_about() {
-    heading("Sonic Riders native port");
+    heading("Sonic Heroes native port");
     ImGui::Text("Version: %s", g_build_version);
 #ifdef _WIN32
     if (const char* latest = update_available()) {
@@ -727,11 +727,11 @@ void quit_row() {
     ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.82f, 0.20f, 0.18f, 1.0f));
     if (ImGui::Button("Quit Game")) {
         g_quit_popup = true;
-        ImGui::OpenPopup("Quit Sonic Riders?");
+        ImGui::OpenPopup("Quit Sonic Heroes?");
     }
     ImGui::PopStyleColor(2);
     ImGui::SetNextWindowPos(ImVec2(OVERLAY_W * 0.5f, OVERLAY_H * 0.5f), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
-    if (ImGui::BeginPopupModal("Quit Sonic Riders?", nullptr, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove)) {
+    if (ImGui::BeginPopupModal("Quit Sonic Heroes?", nullptr, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove)) {
         note("Progress since your last save in the game is lost.");
         ImGui::Spacing();
         if (ImGui::Button("Cancel", ImVec2(140, 0)) || !g_quit_popup) {
@@ -761,7 +761,7 @@ void settings_window() {
     }
     const ImGuiWindowFlags fl = ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse |
                                 ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
-    if (ImGui::Begin("Sonic Riders  -  Settings", nullptr, fl)) {
+    if (ImGui::Begin("Sonic Heroes  -  Settings", nullptr, fl)) {
         struct Tab {
             const char* name;
             void (*draw)();

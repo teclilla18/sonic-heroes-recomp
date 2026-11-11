@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build the Mac launcher (launcher/mac/SonicRidersLauncher.swift) into "Sonic Riders Launcher.app".
+"""Build the Mac launcher (launcher/mac/SonicHeroesLauncher.swift) into "Sonic Heroes Launcher.app".
 
     python3 tools/build_mac_launcher.py [--out DIR]     (default build/mac-launcher)
 
@@ -16,17 +16,17 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "tools"))
-APP_NAME = "Sonic Riders Launcher.app"
+APP_NAME = "Sonic Heroes Launcher.app"
 MIN_MACOS = "13.0"
 
 INFO_PLIST = """<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>CFBundleExecutable</key><string>SonicRidersLauncher</string>
-	<key>CFBundleIdentifier</key><string>net.srnative.sonicriders.launcher</string>
-	<key>CFBundleName</key><string>Sonic Riders Launcher</string>
-	<key>CFBundleDisplayName</key><string>Sonic Riders Launcher</string>
+	<key>CFBundleExecutable</key><string>SonicHeroesLauncher</string>
+	<key>CFBundleIdentifier</key><string>net.srnative.sonicheroes.launcher</string>
+	<key>CFBundleName</key><string>Sonic Heroes Launcher</string>
+	<key>CFBundleDisplayName</key><string>Sonic Heroes Launcher</string>
 	<key>CFBundleIconFile</key><string>AppIcon</string>
 	<key>CFBundlePackageType</key><string>APPL</string>
 	<key>CFBundleShortVersionString</key><string>1.0</string>
@@ -76,10 +76,10 @@ def main():
     macos, res = os.path.join(app, "Contents", "MacOS"), os.path.join(app, "Contents", "Resources")
     os.makedirs(macos)
     os.makedirs(res)
-    exe = os.path.join(macos, "SonicRidersLauncher")
+    exe = os.path.join(macos, "SonicHeroesLauncher")
     subprocess.check_call(["xcrun", "swiftc", "-O", "-swift-version", "5", "-parse-as-library",
                            "-target", "arm64-apple-macos" + MIN_MACOS,
-                           os.path.join(ROOT, "launcher", "mac", "SonicRidersLauncher.swift"), "-o", exe])
+                           os.path.join(ROOT, "launcher", "mac", "SonicHeroesLauncher.swift"), "-o", exe])
     with open(os.path.join(app, "Contents", "Info.plist"), "w", encoding="utf-8") as f:
         f.write(INFO_PLIST)
     banner = os.path.join(ROOT, "launcher", "banner.jpg")

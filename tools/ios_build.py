@@ -1,6 +1,6 @@
 """iOS build pieces for configure.py (--target ios), on a Mac with Xcode. docs/notes/ios.md.
 
-ninja compiles the runtime and the recompiled code with Xcode's clang into build/ios/libsonicriders.a, builds SDL2's
+ninja compiles the runtime and the recompiled code with Xcode's clang into build/ios/libsonicheroes.a, builds SDL2's
 static library from its source with SDL's own Xcode project, and then runs xcodebuild on a small generated project
 (build/ios/xcode/) that only links, bundles and signs: Xcode makes the provisioning profile a free Apple account
 needs (Personal Team, 7-day builds). Nothing here is game data; the .app it makes is (never publish it).
@@ -29,7 +29,7 @@ def _run(cmd):
         return ""
 
 
-BASE_ID = "net.srnative.sonicriders"
+BASE_ID = "net.srnative.sonicheroes"
 
 
 def ipa_bundle_id(bundle, team):
@@ -107,7 +107,7 @@ def add_build(n, t, objs, out, py):
     n.build(main_o, "cc", t.rel(os.path.join(t.sdl_src, "src", "main", "uikit", "SDL_uikit_main.c")),
             variables={"extra": "-O2 -w"})
     objs = objs + [main_o]
-    lib = out + "/libsonicriders.a"
+    lib = out + "/libsonicheroes.a"
     n.rule("lib", "rm -f $out && libtool -static -no_warning_for_no_symbols -o $out -filelist $out.rsp",
            rspfile="$out.rsp", rspfile_content="$in_newline", description="LIBTOOL $out")
     n.build(lib, "lib", objs)
@@ -118,26 +118,26 @@ def add_build(n, t, objs, out, py):
     n.build(t.sdl_lib(), "sdl_ios", implicit=[sdl_proj + "/project.pbxproj"])
 
     proj = write_xcode_project(t, out)
-    app = out + "/xcode/build/Release-iphoneos/SonicRiders.app"
+    app = out + "/xcode/build/Release-iphoneos/SonicHeroes.app"
     # no Apple team on this Mac: an unsigned app; Sideloadly / AltStore sign the .ipa with the player's Apple ID
     sign = ("-allowProvisioningUpdates -allowProvisioningDeviceRegistration DEVELOPMENT_TEAM=%s" % t.team if t.team
             else "CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY=")
     n.rule("xcode_app", "xcodebuild -quiet -project %s -configuration Release -sdk %s %s SYMROOT=%s/%s/xcode/build build"
            % (proj, SDK, sign, t.root, out), description="XCODE $out (link, bundle%s)" % (", sign" if t.team else ", unsigned"),
            pool="console")
-    n.build(app + "/SonicRiders", "xcode_app", [lib, t.sdl_lib()],
+    n.build(app + "/SonicHeroes", "xcode_app", [lib, t.sdl_lib()],
             implicit=[proj + "/project.pbxproj", out + "/xcode/Info.plist"] + ([t.rel(t.icon)] if t.icon else []))
-    # the .ipa (Payload/SonicRiders.app zipped) for sideloading tools that re-sign it (Sideloadly, AltStore)
-    ipa = out + "/SonicRiders.ipa"
+    # the .ipa (Payload/SonicHeroes.app zipped) for sideloading tools that re-sign it (Sideloadly, AltStore)
+    ipa = out + "/SonicHeroes.ipa"
     n.rule("ipa", "%s tools/ios_build.py ipa %s $out %s%s" % (py, app, t.ipa_id, (' "%s"' % t.ipa_dir) if t.ipa_dir else ""),
            description="IPA $out")
-    n.build(ipa, "ipa", app + "/SonicRiders", implicit=["tools/ios_build.py"])
+    n.build(ipa, "ipa", app + "/SonicHeroes", implicit=["tools/ios_build.py"])
     n.default(ipa)
-    return app + "/SonicRiders"
+    return app + "/SonicHeroes"
 
 
 def make_ipa(app, ipa, bundle_id, copy_dir=""):
-    """zip the .app as Payload/SonicRiders.app with bundle_id (ipa_bundle_id; Sideloadly and AltStore re-sign it);
+    """zip the .app as Payload/SonicHeroes.app with bundle_id (ipa_bundle_id; Sideloadly and AltStore re-sign it);
     optionally copy it to copy_dir (previous one kept as -prev)"""
     tmp = ipa + ".tmp"
     shutil.rmtree(tmp, ignore_errors=True)
@@ -153,9 +153,9 @@ def make_ipa(app, ipa, bundle_id, copy_dir=""):
     os.replace(ipa + ".part", ipa)
     if copy_dir:
         os.makedirs(copy_dir, exist_ok=True)
-        dst = os.path.join(copy_dir, "SonicRiders.ipa")
+        dst = os.path.join(copy_dir, "SonicHeroes.ipa")
         if os.path.exists(dst):
-            os.replace(dst, os.path.join(copy_dir, "SonicRiders-prev.ipa"))
+            os.replace(dst, os.path.join(copy_dir, "SonicHeroes-prev.ipa"))
         shutil.copy2(ipa, dst)
         print("ipa: %s" % dst)
 
@@ -165,11 +165,11 @@ INFO_PLIST = """<?xml version="1.0" encoding="UTF-8"?>
 <plist version="1.0">
 <dict>
   <key>CFBundleDevelopmentRegion</key><string>en</string>
-  <key>CFBundleDisplayName</key><string>Sonic Riders</string>
+  <key>CFBundleDisplayName</key><string>Sonic Heroes</string>
   <key>CFBundleExecutable</key><string>$(EXECUTABLE_NAME)</string>
   <key>CFBundleIdentifier</key><string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
   <key>CFBundleInfoDictionaryVersion</key><string>6.0</string>
-  <key>CFBundleName</key><string>Sonic Riders</string>
+  <key>CFBundleName</key><string>Sonic Heroes</string>
   <key>CFBundlePackageType</key><string>APPL</string>
   <key>CFBundleShortVersionString</key><string>0.5</string>
   <key>CFBundleVersion</key><string>1</string>
@@ -201,17 +201,17 @@ INFO_PLIST = """<?xml version="1.0" encoding="UTF-8"?>
 
 
 def write_xcode_project(t, out):
-    """a one-target Xcode project: no sources of its own; it links libsonicriders.a (force-loaded: main(),
+    """a one-target Xcode project: no sources of its own; it links libsonicheroes.a (force-loaded: main(),
     SDL_main and the recompiled code), SDL2 and MoltenVK into the app and signs it"""
     xdir = os.path.join(t.root, out, "xcode")
-    pdir = os.path.join(xdir, "SonicRiders.xcodeproj")
+    pdir = os.path.join(xdir, "SonicHeroes.xcodeproj")
     os.makedirs(pdir, exist_ok=True)
     with open(os.path.join(xdir, "Info.plist"), "w", encoding="utf-8") as f:
         f.write(INFO_PLIST)
     # a source file Xcode can compile (a target with an empty Sources phase links nothing on some versions)
     with open(os.path.join(xdir, "stub.c"), "w", encoding="utf-8") as f:
-        f.write("/* the app's code is in libsonicriders.a (tools/ios_build.py) */\nint sr_ios_stub;\n")
-    ldflags = ["-force_load", "$(PROJECT_DIR)/../libsonicriders.a", "$(PROJECT_DIR)/../sdl/Release-iphoneos/libSDL2.a",
+        f.write("/* the app's code is in libsonicheroes.a (tools/ios_build.py) */\nint sr_ios_stub;\n")
+    ldflags = ["-force_load", "$(PROJECT_DIR)/../libsonicheroes.a", "$(PROJECT_DIR)/../sdl/Release-iphoneos/libSDL2.a",
                t.mvk_lib, "-lc++", "-Wl,-u,_vkGetInstanceProcAddr"]
     for fw in FRAMEWORKS:
         ldflags += ["-framework", fw]
@@ -241,7 +241,7 @@ def write_xcode_project(t, out):
         json.dump({"images": images, "info": {"author": "xcode", "version": 1}}, f)
     ld = "(\n" + "".join("\t\t\t\t\t%s,\n" % q(x) for x in ldflags) + "\t\t\t\t)"
     target_settings = {
-        "PRODUCT_NAME": "SonicRiders", "PRODUCT_BUNDLE_IDENTIFIER": t.bundle_id, "INFOPLIST_FILE": "Info.plist",
+        "PRODUCT_NAME": "SonicHeroes", "PRODUCT_BUNDLE_IDENTIFIER": t.bundle_id, "INFOPLIST_FILE": "Info.plist",
         "IPHONEOS_DEPLOYMENT_TARGET": MIN_IOS, "TARGETED_DEVICE_FAMILY": q("1,2"), "SDKROOT": "iphoneos",
         "ARCHS": "arm64", "CODE_SIGN_STYLE": "Automatic", "CODE_SIGN_IDENTITY": q("Apple Development"),
         "GENERATE_INFOPLIST_FILE": "NO", "ENABLE_BITCODE": "NO", "DEAD_CODE_STRIPPING": "YES",
@@ -343,12 +343,12 @@ PBXPROJ = """// !$*UTF8*$!
 		A10000000000000000000003 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A10000000000000000000005 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000006; };
 		A10000000000000000000006 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		A10000000000000000000004 /* SonicRiders.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SonicRiders.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A10000000000000000000004 /* SonicHeroes.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SonicHeroes.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A10000000000000000000010 = {isa = PBXGroup; children = (A10000000000000000000002, A10000000000000000000003, A10000000000000000000006, A10000000000000000000011); sourceTree = "<group>"; };
 		A10000000000000000000011 /* Products */ = {isa = PBXGroup; children = (A10000000000000000000004); name = Products; sourceTree = "<group>"; };
 		A10000000000000000000020 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (A10000000000000000000001); runOnlyForDeploymentPostprocessing = 0; };
 		A10000000000000000000021 /* Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (A10000000000000000000005); runOnlyForDeploymentPostprocessing = 0; };
-		A10000000000000000000030 /* SonicRiders */ = {
+		A10000000000000000000030 /* SonicHeroes */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = A10000000000000000000041;
 			buildPhases = (A10000000000000000000020, A10000000000000000000021);
@@ -356,8 +356,8 @@ PBXPROJ = """// !$*UTF8*$!
 			);
 			dependencies = (
 			);
-			name = SonicRiders;
-			productName = SonicRiders;
+			name = SonicHeroes;
+			productName = SonicHeroes;
 			productReference = A10000000000000000000004;
 			productType = "com.apple.product-type.application";
 		};
@@ -411,4 +411,4 @@ if __name__ == "__main__":
     elif len(sys.argv) >= 5 and sys.argv[1] == "ipa":  # from build.ninja: ios_build.py ipa <app> <out.ipa> <id> [copy dir]
         make_ipa(sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5] if len(sys.argv) > 5 else "")
     else:
-        sys.exit("usage: ios_build.py ipa <SonicRiders.app> <out.ipa> <bundle id> [copy dir] | icon <picture> <out.png>")
+        sys.exit("usage: ios_build.py ipa <SonicHeroes.app> <out.ipa> <bundle id> [copy dir] | icon <picture> <out.png>")

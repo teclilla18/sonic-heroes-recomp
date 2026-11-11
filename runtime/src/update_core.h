@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define UPDATE_REPO "teclilla18/sonic-riders-recomp"
+#define UPDATE_REPO "teclilla18/sonic-heroes-recomp"
 #define UPDATE_PAGE "https://github.com/" UPDATE_REPO "/releases/latest"
 
 /* "v0.7.0", "v0.7.0-11-gabc (dirty)", "0.7" -> 1 and v[0..2]; anything else (a dev build without a tag) -> 0 */
@@ -128,7 +128,7 @@ typedef struct {
 static int update_https_get(const wchar_t* host, const wchar_t* path, char** body, size_t cap) {
     int ok = -1;
     *body = NULL;
-    HINTERNET s = WinHttpOpen(L"sonic-riders-recomp-update-check", WINHTTP_ACCESS_TYPE_AUTOMATIC_PROXY,
+    HINTERNET s = WinHttpOpen(L"sonic-heroes-recomp-update-check", WINHTTP_ACCESS_TYPE_AUTOMATIC_PROXY,
                               WINHTTP_NO_PROXY_NAME, WINHTTP_NO_PROXY_BYPASS, 0);
     if (!s) return -1;
     WinHttpSetTimeouts(s, 5000, 5000, 5000, 5000);
@@ -161,11 +161,11 @@ static int update_https_get(const wchar_t* host, const wchar_t* path, char** bod
 }
 
 /* blocking (seconds at most); call from a helper thread. asset_fmt: the wanted asset's name with %s for the tag
- * (e.g. "SonicRiders-PC-Setup-%s.zip"), or NULL. 0 on success; free info->notes after */
+ * (e.g. "SonicHeroes-PC-Setup-%s.zip"), or NULL. 0 on success; free info->notes after */
 static int update_fetch_info(UpdateInfo* info, const char* asset_fmt) {
     memset(info, 0, sizeof *info);
     char* json;
-    if (update_https_get(L"api.github.com", L"/repos/teclilla18/sonic-riders-recomp/releases/latest", &json, 1 << 20))
+    if (update_https_get(L"api.github.com", L"/repos/teclilla18/sonic-heroes-recomp/releases/latest", &json, 1 << 20))
         return -1;
     int ok = update_tag_from_json(json, info->tag, sizeof info->tag) ? 0 : -1;
     if (ok == 0) {
@@ -209,7 +209,7 @@ static int update_download(const char* url, const wchar_t* file, volatile long l
     u.dwUrlPathLength = 1024;
     if (!WinHttpCrackUrl(wurl, 0, 0, &u)) return -1;
     int ok = -1;
-    HINTERNET s = WinHttpOpen(L"sonic-riders-recomp-update", WINHTTP_ACCESS_TYPE_AUTOMATIC_PROXY, WINHTTP_NO_PROXY_NAME,
+    HINTERNET s = WinHttpOpen(L"sonic-heroes-recomp-update", WINHTTP_ACCESS_TYPE_AUTOMATIC_PROXY, WINHTTP_NO_PROXY_NAME,
                               WINHTTP_NO_PROXY_BYPASS, 0);
     if (!s) return -1;
     WinHttpSetTimeouts(s, 10000, 10000, 15000, 30000);

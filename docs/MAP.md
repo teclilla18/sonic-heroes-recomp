@@ -1,5 +1,8 @@
 # Code map
 
+> **Inherited from the Sonic Riders port** (forked 2026-11-11). File and folder names are updated for Sonic Heroes;
+> facts, numbers, addresses and test results are still Sonic Riders' until this page is revised for Heroes.
+
 Build/run commands: [notes/build-and-test.md](notes/build-and-test.md) "Quick commands". Doc index: [REFERENCE.md](REFERENCE.md).
 
 Where things live, so a change starts with `grep -n '<name>' <file>` instead of reading whole files. Names are
@@ -41,7 +44,7 @@ functions or macros (line numbers drift). Sizes are approximate line counts.
 | iOS player setup / release | tools/setup_mac.py; tools/make_release.py (`--flavor ios`, `IOS_COMMAND`, `readme_ios`) | 7-step Mac setup; `ios_build.find_team` (cert, else Xcode account), unsigned .ipa; main.c `ios_message` (disc missing / incomplete) |
 | Mac launcher (iOS builder) | launcher/mac/SonicRidersLauncher.swift, launcher/mac/START_HERE.html; tools/build_mac_launcher.py; make_release.py `build_mac_launcher` | pages `ReadyPage` (`Model.recheck`), `BuildPage` (`Model.build`, `Model.line` progress), `InstallPage`, `RenewPage`; `findRoot`/`originalURL` (translocation); icon: ios_build.py `square_png`, `flatten_png`, `make_icon`; setup_mac.py `prepare_icon` |
 | Touch control drawing (shader) | `runtime/shaders/vk_touch.frag` | `icon()` (per-button strokes) |
-| Android Java activity | `android/java/net/srnative/sonicriders/SonicRidersActivity.java` | `onCreate` (crash report before SDL starts) |
+| Android Java activity | `android/java/net/srnative/sonicheroes/SonicRidersActivity.java` | `onCreate` (crash report before SDL starts) |
 | Android crash report (next launch) | `android/java/.../CrashReport.java` | `collect` (exit record + crash.txt + log → Download/SonicRiders), `show`, `share` |
 | Native crash handler (Android, Linux) | host/platform_host.c | `crash_signal` (crash.txt, logcat, log), `crash_install` |
 | Android manifest template | `android/AndroidManifest.xml.in` | `@ICON@` |
@@ -70,4 +73,4 @@ vk_*.frag / vk_quad.vert: Vulkan helpers (copies, fills, touch controls).
 | Game-data guard | tools/check_no_game_data.py (`OWN_ART`) |
 | Setup (Windows) | setup/setup.ps1, setup/toolchain.json |
 | Perf test compare | tools/perf_test.py |
-| Game config | config/GXEE8P/hle.txt, patches.txt |
+| Game config | config/G9SE8P/hle.txt, patches.txt |

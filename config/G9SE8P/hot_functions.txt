@@ -1,0 +1,3 @@
+# Recompiled game functions that run most, hottest first (tools/hot_functions.py): the
+# recompiler emits them first so hot code sits together. Addresses only.
+# Empty in the fork: refill from Heroes profiles (PC boot and stages, Switch SR_PROFILE runs).

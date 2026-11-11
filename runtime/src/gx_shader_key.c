@@ -5,7 +5,7 @@
  *
  * tools/gen_shaders.py turns recorded keys into specialized shaders (CBP() returns these constants),
  * compiled ahead of time for deko3d. The PC build records the keys it meets (SR_SHADER_KEYS=<file>);
- * the Switch build logs the ones its table lacks to sdmc:/switch/sonicriders/shader_keys.txt.
+ * the Switch build logs the ones its table lacks to sdmc:/switch/sonicheroes/shader_keys.txt.
  * Line format: <hash> <n> <reg>:<value> ... (hex). */
 #include <stdio.h>
 #include <stdlib.h>

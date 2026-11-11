@@ -18,7 +18,7 @@ to start; each one has the context an agent or a person needs.
 ## Contributing with Claude Code (or another coding agent)
 
 1. Fork the repository on GitHub and clone your fork.
-2. Build once so the agent can test: `SonicRidersSetup.bat` with your disc image, choosing **3**
+2. Build once so the agent can test: `SonicHeroesSetup.bat` with your disc image, choosing **3**
    (Switch + PC). The PC build is how the agent checks its work.
 3. Enable the game-data guard: `git config core.hooksPath tools/git-hooks`.
 4. Start Claude Code in the repository folder. It reads [CLAUDE.md](CLAUDE.md) automatically: the hard
@@ -42,7 +42,7 @@ written into docs/HISTORY.md first, then a fix.
 Nothing derived from the game goes into git, issues or pull requests: no disc images, DOL/REL files,
 extracted assets, disassembly, recompiled C (`build/gen/`), decomp-toolkit output (`symbols.txt`,
 `splits.txt`), builds (`.nro`, `.exe`, `.nsp`), shader keys, memory cards, or console keys.
-Logs from `sonicriders.log` are fine to paste.
+Logs from `sonicheroes.log` are fine to paste.
 
 Two checks enforce this, both running `tools/check_no_game_data.py`:
 
@@ -60,7 +60,7 @@ fine, say so in the pull request rather than working around it.
 
 ## Getting set up
 
-Follow [Building from source](docs/BUILDING.md): `SonicRidersSetup.bat` (or `setup\setup.ps1`) builds
+Follow [Building from source](docs/BUILDING.md): `SonicHeroesSetup.bat` (or `setup\setup.ps1`) builds
 everything from your own disc image. For day-to-day work the PC build (`-Target pc`) is the fastest
 loop; the Switch build needs hardware or a Switch emulator to test.
 
@@ -74,7 +74,7 @@ you found it, what the fix is, and what is still unproven.
 
 Main places:
 
-- `tools/recomp/`: the PowerPC → C recompiler; `config/GXEE8P/` its inputs (decomp-toolkit config,
+- `tools/recomp/`: the PowerPC → C recompiler; `config/G9SE8P/` its inputs (decomp-toolkit config,
   native replacements in `hle.txt`, code patches in `patches.txt`).
 - `runtime/src/`: hardware models (`vi.c`, `di.c`, `gx_*.c`, `dsp.c`, `ax.c`, `exi.c`, `si.c`),
   scheduler, memory; `platform/switch/` and `platform/host/` for the two targets.

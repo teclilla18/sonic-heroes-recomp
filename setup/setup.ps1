@@ -1,30 +1,30 @@
 <#
-Sonic Riders native port: setup tool (Windows).
+Sonic Heroes native port: setup tool (Windows).
 
 Builds the port from YOUR OWN disc image, on your PC. Nothing from the game is downloaded or
 shipped: the tool checks your image, recompiles its code locally, builds the Switch homebrew
 (.nro), a PC build and/or an Android APK, and copies the Switch build to your SD card.
 
-  SonicRidersSetup.bat                 (double-click: asks for everything)
+  SonicHeroesSetup.bat                 (double-click: asks for everything)
   powershell -ExecutionPolicy Bypass -File setup\setup.ps1 -Iso <image> -Target switch -Sd E:\
 
 Parameters (all optional; asked for when missing):
-  -Iso PATH          your Sonic Riders (USA) disc image, GXEE8P revision 0 (Redump, 1.4 GB .iso)
+  -Iso PATH          your Sonic Heroes (USA) disc image, G9SE8P revision 0 (Redump, 1.4 GB .iso)
   -Target T          switch | pc | both (Switch + PC) | android | all
   -Abi A             Android: arm64-v8a (phones, default) | x86_64 (the emulator) | both
   -Install yes|no    Android: install the APK on the phone connected by USB (adb), if there is one
   -AcceptAndroidSdkLicense   Android: you accept the Android SDK License (https://developer.android.com/studio/terms);
                      without it the setup asks (and -Yes stops)
-  -Sd PATH           the SD card (drive or folder) to install to; files go to <Sd>\switch\sonicriders\
+  -Sd PATH           the SD card (drive or folder) to install to; files go to <Sd>\switch\sonicheroes\
   -NoSd              build only, do not copy to an SD card
   -CopyIso yes|no    also copy the disc image to the SD card (the Switch build needs it there once)
-  -DesktopShortcut yes|no   PC: also put a "Sonic Riders" shortcut on the desktop
+  -DesktopShortcut yes|no   PC: also put a "Sonic Heroes" shortcut on the desktop
   -Icon PATH         your own icon picture for PC / Android / the Switch HOME screen (.ico or .png; other
                      pictures are converted) instead of the fan-made icon in setup\icon.png
   -HomeIcon yes|no   Switch: also make a HOME-screen icon (a forwarder .nsp); needs -Keys
   -Keys PATH         Switch HOME-screen icon: your console's prod.keys (dumped with Lockpick_RCM; read in
                      place, never copied)
-  -ToolsDir PATH     where the downloaded toolchain is kept (default %LOCALAPPDATA%\SonicRidersSetup\tools)
+  -ToolsDir PATH     where the downloaded toolchain is kept (default %LOCALAPPDATA%\SonicHeroesSetup\tools)
   -Yes               no questions: use the defaults (needs -Iso and -Target; -Sd or -NoSd)
 
 Everything is logged to setup.log next to this folder. Downloads are pinned by SHA-256 in
@@ -54,7 +54,7 @@ $ProgressPreference = "SilentlyContinue"  # Invoke-WebRequest's progress bar slo
 $Root = (Resolve-Path "$PSScriptRoot\..").Path
 $LogFile = Join-Path $Root "setup.log"
 $IsoSha1 = "ce0cecf57034bef8bab7d6f588ce92c85a849613"
-$SdSub = "switch\sonicriders"
+$SdSub = "switch\sonicheroes"
 
 # ---------------------------------------------------------------- logging, errors
 "" | Out-File -FilePath $LogFile -Encoding utf8
@@ -109,17 +109,17 @@ function Run([string]$what, [string]$exe, [string[]]$arguments, [hashtable]$envV
     if ($code -ne 0) { Fail "$what failed (exit code $code)." }
 }
 
-Log "Sonic Riders native port - setup" "Green"
+Log "Sonic Heroes native port - setup" "Green"
 Log "Folder: $Root"
 Log ("Windows {0}, PowerShell {1}" -f [Environment]::OSVersion.Version, $PSVersionTable.PSVersion)
 if (-not [Environment]::Is64BitOperatingSystem) { Fail "64-bit Windows is required." }
 if (-not (Test-Path "$Root\configure.py") -or -not (Test-Path "$Root\tools\recomp\gcrecomp.py")) {
-    Fail "This does not look like the complete release folder (configure.py / tools are missing)." "Extract the whole zip first, then run SonicRidersSetup.bat from inside it."
+    Fail "This does not look like the complete release folder (configure.py / tools are missing)." "Extract the whole zip first, then run SonicHeroesSetup.bat from inside it."
 }
 # the build tools get paths in Windows' old 8-bit encoding: letters outside English (a user name
 # with accented or Turkish letters in the folder) turned into "?" and every tool failed with "CreateProcess failed" (GBAtemp report)
 if ($Root -match "[^ -~]") {
-    Fail "The folder path has letters the build tools can't handle: $Root" "Extract the zip to a folder whose path uses only English letters and digits, e.g. C:\SonicRiders, and run the installer from there."
+    Fail "The folder path has letters the build tools can't handle: $Root" "Extract the zip to a folder whose path uses only English letters and digits, e.g. C:\SonicHeroes, and run the installer from there."
 }
 # the downloaded Python must not pick up a Python installed on this PC (its settings or packages)
 foreach ($v in "PYTHONHOME", "PYTHONPATH", "PYTHONSTARTUP") { [Environment]::SetEnvironmentVariable($v, $null) }
@@ -132,7 +132,7 @@ if (-not $Iso) {
     if ($Yes) { Fail "-Iso is required with -Yes." }
     Add-Type -AssemblyName System.Windows.Forms
     $dlg = New-Object System.Windows.Forms.OpenFileDialog
-    $dlg.Title = "Select your Sonic Riders (USA) disc image (GXEE8P, revision 0)"
+    $dlg.Title = "Select your Sonic Heroes (USA) disc image (G9SE8P, revision 0)"
     $dlg.Filter = "GameCube disc image (*.iso;*.gcm)|*.iso;*.gcm|All files (*.*)|*.*"
     if ($dlg.ShowDialog() -ne [System.Windows.Forms.DialogResult]::OK) { Fail "No disc image selected." }
     $Iso = $dlg.FileName
@@ -144,17 +144,17 @@ Log ("Image: {0} ({1:N0} bytes)" -f $Iso, $isoSize)
 $fs = [IO.File]::OpenRead($Iso)
 try { $hdr = New-Object byte[] 8; [void]$fs.Read($hdr, 0, 8) } finally { $fs.Close() }
 $discId = [Text.Encoding]::ASCII.GetString($hdr, 0, 6)
-if ($discId -ne "GXEE8P") {
-    Fail "This image's game ID is '$discId'; Sonic Riders (USA) is GXEE8P." "Only the USA release is supported (PAL GXEP8P and Japanese GXEJ8P are not)."
+if ($discId -ne "G9SE8P") {
+    Fail "This image's game ID is '$discId'; Sonic Heroes (USA) is G9SE8P." "Only the USA release is supported (PAL GXEP8P and Japanese GXEJ8P are not)."
 }
 if ($hdr[7] -ne 0) { Fail ("This is revision {0} of the disc; revision 0 is supported." -f $hdr[7]) }
 Log "Checking the image's SHA-1 (about 10-30 seconds)..."
 $sha1 = (Get-FileHash -LiteralPath $Iso -Algorithm SHA1).Hash.ToLower()
 Log "SHA-1: $sha1"
 if ($sha1 -ne $IsoSha1) {
-    Fail "The image does not match the known-good dump (expected SHA-1 $IsoSha1)." "A clean 1:1 dump (Redump: 'Sonic Riders (USA) (En,Ja,Fr,De,Es,It)') is needed. Trimmed, compressed (RVZ/CISO/GCZ) or modified images do not work; convert RVZ back to ISO with Dolphin first."
+    Fail "The image does not match the known-good dump (expected SHA-1 $IsoSha1)." "A clean 1:1 dump (Redump: 'Sonic Heroes (USA) (En,Ja,Fr,De,Es,It)') is needed. Trimmed, compressed (RVZ/CISO/GCZ) or modified images do not work; convert RVZ back to ISO with Dolphin first."
 }
-Log "Disc image OK: Sonic Riders (USA), GXEE8P revision 0." "Green"
+Log "Disc image OK: Sonic Heroes (USA), G9SE8P revision 0." "Green"
 
 Step "2/7  What to build"
 if (-not $Target) {
@@ -191,7 +191,7 @@ if ($doSwitch -and -not $NoSd) {
     if ($Sd) {
         if (-not (Test-Path -LiteralPath $Sd -PathType Container)) { Fail "SD card path not found: $Sd" }
         $sdRoot = (Resolve-Path -LiteralPath $Sd).Path
-        if ($sdRoot -match "\\switch\\sonicriders\\?$") { $sdRoot = Split-Path (Split-Path $sdRoot) }
+        if ($sdRoot -match "\\switch\\sonicheroes\\?$") { $sdRoot = Split-Path (Split-Path $sdRoot) }
         if (-not (Test-Path -LiteralPath (Join-Path $sdRoot "switch") -PathType Container) -and -not (Test-Path -LiteralPath (Join-Path $sdRoot "atmosphere"))) {
             $a = Ask "$sdRoot has no 'switch' folder. Is this really your Switch SD card? (y/n)" "n"
             if ($a -notmatch "^[yY]") { Fail "Stopped: pick the SD card's top folder (the one that contains 'switch' and 'atmosphere')." }
@@ -219,7 +219,7 @@ if ($doSwitch -and -not $HomeIcon) {
     if ($Yes) { $HomeIcon = $(if ($Keys) { "yes" } else { "no" }) }
     else {
         Log ""
-        Log "Optional: a Sonic Riders icon on the Switch HOME screen (opens the game directly, no need to hold R)."
+        Log "Optional: a Sonic Heroes icon on the Switch HOME screen (opens the game directly, no need to hold R)."
         Log "  It needs your console's prod.keys (dump them with Lockpick_RCM). They are read where they are, never"
         Log "  copied or uploaded. The icon is a 256 x 256 picture: yours (square works best), or the game's own."
         Log "  Installing the icon needs DBI or Goldleaf and up-to-date sigpatches on the console."
@@ -241,7 +241,7 @@ if ($HomeIcon -eq "yes") {
         $Keys = (Resolve-Path -LiteralPath $Keys).Path
         Log "Keys: $Keys (read in place)"
         if (-not $Icon -and -not $Yes) {
-            if ((Ask "Use your own picture for the icon? Otherwise the Sonic Riders fan icon (setup\icon.png). (y/n)" "n") -match "^[yY]") {
+            if ((Ask "Use your own picture for the icon? Otherwise the Sonic Heroes fan icon (setup\icon.png). (y/n)" "n") -match "^[yY]") {
                 $Icon = Pick-File "Select a picture for the icon (square, 256 x 256 or bigger looks best)" "Pictures|*.png;*.ico;*.jpg;*.jpeg;*.bmp;*.gif|All files (*.*)|*.*"
             }
         }
@@ -290,11 +290,11 @@ if ($Icon -and $doPc -and $Icon -notmatch "\.ico$") {
 Step "3/7  Toolchain (downloaded once, checked by SHA-256)"
 $tc = Get-Content -Raw (Join-Path $PSScriptRoot "toolchain.json") | ConvertFrom-Json
 if (-not $ToolsDir) {
-    $ToolsDir = Join-Path $env:LOCALAPPDATA "SonicRidersSetup\tools"
+    $ToolsDir = Join-Path $env:LOCALAPPDATA "SonicHeroesSetup\tools"
     # devkitPro paths must not contain spaces, and no tool path may have letters outside English
-    if ($ToolsDir -match "[^!-~]") { $ToolsDir = Join-Path $env:SystemDrive "SonicRidersTools" }
+    if ($ToolsDir -match "[^!-~]") { $ToolsDir = Join-Path $env:SystemDrive "SonicHeroesTools" }
 }
-if ($ToolsDir -match "[^!-~]") { Fail "The tools folder must not contain spaces or non-English letters: $ToolsDir" "Pass -ToolsDir C:\SonicRidersTools (or another such folder)." }
+if ($ToolsDir -match "[^!-~]") { Fail "The tools folder must not contain spaces or non-English letters: $ToolsDir" "Pass -ToolsDir C:\SonicHeroesTools (or another such folder)." }
 $dlDir = Join-Path $ToolsDir "downloads"
 New-Item -ItemType Directory -Force -Path $dlDir | Out-Null
 Log "Tools folder: $ToolsDir"
@@ -472,7 +472,7 @@ New-Item -ItemType Directory -Force -Path $baserom | Out-Null
 Run "extract main.dol and _Main.rel" $python @("-I", "tools\extract_iso.py", $Iso, "baserom", "--no-verify-iso")
 
 Step "5/7  Analysing the game code"
-Run "decomp-toolkit analysis" $dtk @("dol", "split", "config/GXEE8P/config.yml", "build/GXEE8P")
+Run "decomp-toolkit analysis" $dtk @("dol", "split", "config/G9SE8P/config.yml", "build/G9SE8P")
 }
 # the build recompiles the code to C (configure.py the first time, ninja when its inputs change)
 
@@ -481,13 +481,13 @@ $builtNro = $null; $builtExe = $null  # (set when built)
 if ($doSwitch) {
     Run "configure (Switch)" $python @("configure.py", "--target", "switch", "--devkitpro", $dkp, "--imgui", $imgui) @{ DEVKITPRO = $dkp }
     Run "build the Switch homebrew (this takes a while)" $ninja @() @{ DEVKITPRO = $dkp }
-    $builtNro = Join-Path $Root "build\switch\sonicriders.nro"
-    if (-not (Test-Path $builtNro)) { Fail "The build finished but build\switch\sonicriders.nro is missing." }
+    $builtNro = Join-Path $Root "build\switch\sonicheroes.nro"
+    if (-not (Test-Path $builtNro)) { Fail "The build finished but build\switch\sonicheroes.nro is missing." }
     Log ("Switch build: {0} ({1:N0} bytes)" -f $builtNro, (Get-Item $builtNro).Length) "Green"
 }
 $builtNsp = $null
 if ($doSwitch -and $HomeIcon -eq "yes") {
-    $builtNsp = Join-Path $Root "build\nsp\SonicRiders-HOME-icon.nsp"
+    $builtNsp = Join-Path $Root "build\nsp\SonicHeroes-HOME-icon.nsp"
     $fwArgs = @("tools\nsp\make_forwarder.py", "--devkitpro", $dkp, "--cc", (Join-Path $llvm "bin\x86_64-w64-mingw32-clang.exe"), "--keys", $Keys, "--out", $builtNsp)
     if ($Icon) { $fwArgs += @("--icon", $Icon) }
     Run "make the HOME-screen icon (forwarder .nsp)" $python $fwArgs
@@ -499,8 +499,8 @@ if ($doPc) {
     if ($IconIco) { $pcArgs += @("--icon", $IconIco) }
     Run "configure (PC)" $python $pcArgs
     Run "build the PC test build" $ninja @()
-    $builtExe = Join-Path $Root "build\host-mingw\sonicriders.exe"
-    if (-not (Test-Path $builtExe)) { Fail "The build finished but build\host-mingw\sonicriders.exe is missing." }
+    $builtExe = Join-Path $Root "build\host-mingw\sonicheroes.exe"
+    if (-not (Test-Path $builtExe)) { Fail "The build finished but build\host-mingw\sonicheroes.exe is missing." }
     # the PC build reads the first *.iso in baserom\: link (same drive) or copy the image there
     $isoDest = Join-Path $baserom ([IO.Path]::GetFileName($Iso))
     if (-not (Get-ChildItem $baserom -Filter *.iso | Where-Object { $_.Length -eq $isoSize })) {
@@ -511,14 +511,14 @@ if ($doPc) {
 }
 $builtApks = @()
 if ($doAndroid) {
-    $keystore = Join-Path $ToolsDir "android\sonicriders-local.keystore"
+    $keystore = Join-Path $ToolsDir "android\sonicheroes-local.keystore"
     foreach ($a in $(if ($Abi -eq "both") { @("arm64-v8a", "x86_64") } else { @($Abi) })) {
         $andArgs = @("configure.py", "--target", "android", "--android-sdk", $asdk, "--jdk", $jdk, "--sdl-src", $sdlSrc, "--abi", $a, "--keystore", $keystore, "--imgui", $imgui)
         if ($Icon) { $andArgs += @("--icon", $Icon) }  # setup\icon.png unless you picked your own
         Run "configure (Android, $a)" $python $andArgs
         Run "build the Android APK ($a; this takes a while)" $ninja @()
-        $apk = Join-Path $Root "build\android\sonicriders-$a.apk"
-        if (-not (Test-Path $apk)) { Fail "The build finished but build\android\sonicriders-$a.apk is missing." }
+        $apk = Join-Path $Root "build\android\sonicheroes-$a.apk"
+        if (-not (Test-Path $apk)) { Fail "The build finished but build\android\sonicheroes-$a.apk is missing." }
         $builtApks += $apk
         Log ("Android build: {0} ({1:N0} bytes)" -f $apk, (Get-Item $apk).Length) "Green"
     }
@@ -529,10 +529,10 @@ if ($doAndroid) {
 Step "7/7  Installing"
 if ($sdDir) {
     New-Item -ItemType Directory -Force -Path $sdDir | Out-Null
-    $nroDest = Join-Path $sdDir "sonicriders.nro"
+    $nroDest = Join-Path $sdDir "sonicheroes.nro"
     Copy-Item $builtNro $nroDest -Force
     if ((Get-FileHash $nroDest -Algorithm SHA256).Hash -ne (Get-FileHash $builtNro -Algorithm SHA256).Hash) { Fail "The copy on the SD card does not match the build (card full or failing?)." }
-    Log "Copied sonicriders.nro to $sdDir (verified)."
+    Log "Copied sonicheroes.nro to $sdDir (verified)."
     if ($CopyIso -eq "yes") {
         $isoSd = Join-Path $sdDir ([IO.Path]::GetFileName($Iso))
         $sdFree = (Get-PSDrive -Name ($sdDir.Substring(0, 1)) -ErrorAction SilentlyContinue).Free
@@ -547,22 +547,22 @@ if ($sdDir) {
     if ($builtNsp) {
         $nspDir = Join-Path $sdRoot "NSP"
         New-Item -ItemType Directory -Force -Path $nspDir | Out-Null
-        Copy-Item $builtNsp (Join-Path $nspDir "SonicRiders-HOME-icon.nsp") -Force
-        Log "Copied the HOME-screen icon to $nspDir\SonicRiders-HOME-icon.nsp"
+        Copy-Item $builtNsp (Join-Path $nspDir "SonicHeroes-HOME-icon.nsp") -Force
+        Log "Copied the HOME-screen icon to $nspDir\SonicHeroes-HOME-icon.nsp"
     }
     Log ""
     Log "Done. Eject the SD card safely, put it in the Switch, hold R while starting any game to open the" "Green"
-    Log "Homebrew Menu with full memory, and start 'Sonic Riders'." "Green"
+    Log "Homebrew Menu with full memory, and start 'Sonic Heroes'." "Green"
     if ($builtNsp) {
         Log ""
         Log "HOME-screen icon: install it once on the Switch:" "Green"
-        Log "  DBI: Browse SD card > NSP > SonicRiders-HOME-icon.nsp > Install (to SD card)." "Green"
-        Log "  or Goldleaf: Explore SD card > NSP > SonicRiders-HOME-icon.nsp > Install > SD card." "Green"
-        Log "  It needs up-to-date sigpatches. The icon starts switch/sonicriders/sonicriders.nro: keep it there." "Green"
+        Log "  DBI: Browse SD card > NSP > SonicHeroes-HOME-icon.nsp > Install (to SD card)." "Green"
+        Log "  or Goldleaf: Explore SD card > NSP > SonicHeroes-HOME-icon.nsp > Install > SD card." "Green"
+        Log "  It needs up-to-date sigpatches. The icon starts switch/sonicheroes/sonicheroes.nro: keep it there." "Green"
         Log "  You can delete the .nsp from the SD card afterwards." "Green"
     }
 } elseif ($builtNro) {
-    Log "Switch: copy build\switch\sonicriders.nro and your disc image to sdmc:/switch/sonicriders/ on the SD card." "Green"
+    Log "Switch: copy build\switch\sonicheroes.nro and your disc image to sdmc:/switch/sonicheroes/ on the SD card." "Green"
     if ($builtNsp) { Log "HOME-screen icon: $builtNsp - copy it to the SD card and install it with DBI or Goldleaf (docs\INSTALL.md)." "Green" }
 }
 if ($builtExe) {
@@ -574,17 +574,17 @@ if ($builtExe) {
         $lnk = $ws.CreateShortcut($path)
         $lnk.TargetPath = $builtExe
         $lnk.WorkingDirectory = $Root
-        $lnk.Description = "Sonic Riders (native PC port)"
+        $lnk.Description = "Sonic Heroes (native PC port)"
         $lnk.Save()
     }
-    $here = Join-Path $Root "Sonic Riders.lnk"
-    try { New-Shortcut $here; Log "Created the shortcut 'Sonic Riders' in this folder." } catch { Log "Could not create a shortcut ($($_.Exception.Message)); start build\host-mingw\sonicriders.exe from this folder instead." "Yellow" }
-    if (-not $DesktopShortcut) { $DesktopShortcut = (Ask "Put a 'Sonic Riders' shortcut on your desktop? (y/n)" "y") -replace "^[yY].*", "yes" -replace "^[nN].*", "no" }
+    $here = Join-Path $Root "Sonic Heroes.lnk"
+    try { New-Shortcut $here; Log "Created the shortcut 'Sonic Heroes' in this folder." } catch { Log "Could not create a shortcut ($($_.Exception.Message)); start build\host-mingw\sonicheroes.exe from this folder instead." "Yellow" }
+    if (-not $DesktopShortcut) { $DesktopShortcut = (Ask "Put a 'Sonic Heroes' shortcut on your desktop? (y/n)" "y") -replace "^[yY].*", "yes" -replace "^[nN].*", "no" }
     if ($DesktopShortcut -eq "yes") {
-        try { New-Shortcut (Join-Path ([Environment]::GetFolderPath("Desktop")) "Sonic Riders.lnk"); Log "Created the desktop shortcut." } catch { Log "Could not create the desktop shortcut." "Yellow" }
+        try { New-Shortcut (Join-Path ([Environment]::GetFolderPath("Desktop")) "Sonic Heroes.lnk"); Log "Created the desktop shortcut." } catch { Log "Could not create the desktop shortcut." "Yellow" }
     }
     Log ""
-    Log "PC: start the game with the 'Sonic Riders' shortcut. Keep this folder: the game, your disc image" "Green"
+    Log "PC: start the game with the 'Sonic Heroes' shortcut. Keep this folder: the game, your disc image" "Green"
     Log "link and your saves (saves\) live here." "Green"
     Log "Keyboard: WASD = move, J = A, K = B, L = X, I = Y, Enter = START, U/O = L/R, P = Z." "Green"
     Log "A game controller works too. Hold F1 (or the controller's Back/View button) for the settings menu;" "Green"
@@ -636,7 +636,7 @@ if ($builtApks.Count -gt 0) {
         if ($devs.Count -ne 1) { Fail "Install: $($devs.Count) Android devices are connected and authorized; exactly one is needed." "Turn on USB debugging, connect the phone, allow this PC on its screen, then run the setup again." }
         Run "install on the Android device" $adb @("install", "-r", $phoneApk)
         # the game reads the disc image from its own folder on the phone (docs/ANDROID_PLAN.md section 5)
-        $phoneDir = "/sdcard/Android/data/net.srnative.sonicriders/files/baserom"
+        $phoneDir = "/sdcard/Android/data/net.srnative.sonicheroes/files/baserom"
         $old = $ErrorActionPreference; $ErrorActionPreference = "Continue"
         $have = (& $adb shell "sha1sum $phoneDir/*.iso 2>/dev/null") -join " "
         $ErrorActionPreference = $old
@@ -645,18 +645,18 @@ if ($builtApks.Count -gt 0) {
         } else {
             # the app must create its own folder: one made from the adb shell first is not readable by the app
             $old = $ErrorActionPreference; $ErrorActionPreference = "Continue"
-            & $adb shell "am start -W -n net.srnative.sonicriders/net.srnative.sonicriders.SonicRidersActivity" 2>&1 | Out-Null
+            & $adb shell "am start -W -n net.srnative.sonicheroes/net.srnative.sonicheroes.SonicHeroesActivity" 2>&1 | Out-Null
             Start-Sleep -Seconds 4
-            & $adb shell "am force-stop net.srnative.sonicriders" 2>&1 | Out-Null
+            & $adb shell "am force-stop net.srnative.sonicheroes" 2>&1 | Out-Null
             $ErrorActionPreference = $old
             Run "make the game's folder on the phone" $adb @("shell", "mkdir -p $phoneDir")
             Log "Copying the disc image to the phone (1.4 GB, about a minute over USB)..."
-            Run "copy the disc image to the phone" $adb @("push", $Iso, "$phoneDir/SonicRiders.iso")
-            $have = (& $adb shell "sha1sum $phoneDir/SonicRiders.iso") -join " "
+            Run "copy the disc image to the phone" $adb @("push", $Iso, "$phoneDir/SonicHeroes.iso")
+            $have = (& $adb shell "sha1sum $phoneDir/SonicHeroes.iso") -join " "
             if ($have -notmatch $IsoSha1) { Fail "The disc image on the phone does not match (storage full?)." }
             Log "Disc image on the phone verified." "Green"
         }
-        Log "Installed. Start 'Sonic Riders' from the phone's app list. Tap the top-left button for the settings menu." "Green"
+        Log "Installed. Start 'Sonic Heroes' from the phone's app list. Tap the top-left button for the settings menu." "Green"
     } else {
         Log "Android: install $phoneApk with 'adb install -r' (USB debugging on)." "Green"
     }

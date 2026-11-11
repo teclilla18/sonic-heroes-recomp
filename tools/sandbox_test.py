@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Clean-install test of a release zip in Windows Sandbox (a fresh Windows with nothing installed).
 
-  python tools/sandbox_test.py --flavor pc      [--zip build/release/SonicRiders-PC-Setup-v0.4.1.zip]
+  python tools/sandbox_test.py --flavor pc      [--zip build/release/SonicHeroes-PC-Setup-v0.4.1.zip]
   python tools/sandbox_test.py --flavor android [--space] [--cache <downloads folder>] [--launch]
 
 Writes build/sandbox/<run>/ (the .wsb and the logon script; gitignored, the .wsb names the folder of
@@ -9,12 +9,12 @@ your disc image) and an empty build/sandbox/results/<run>/, the only folder the 
 Inside the sandbox the logon script, like a new user:
   - copies the zip to Downloads and marks it as downloaded from the internet (Zone.Identifier ZoneId=3),
   - extracts it with the Explorer shell (so the mark-of-the-web reaches the .bat like after "Extract All"),
-  - runs "Install Sonic Riders (<Plat>).bat" with the unattended flags (README-FIRST's step), or with
-    --launcher (pc) SonicRidersLauncher.exe with SR_LAUNCHER_INSTALL (its INSTALL AND PLAY; exit code 0 =
+  - runs "Install Sonic Heroes (<Plat>).bat" with the unattended flags (README-FIRST's step), or with
+    --launcher (pc) SonicHeroesLauncher.exe with SR_LAUNCHER_INSTALL (its INSTALL AND PLAY; exit code 0 =
     installed and PLAY ready; its launcher_test.txt is copied to the results too),
   - PASS = setup exit code 0 and the .exe / .apk exists; RESULT.txt is always written (also on a crash),
   - copies only setup.log, progress.txt and RESULT.txt to the results folder (never the image or a build).
---space adds a second install in "C:\\Sonic Riders Test" (same sandbox, tools then already downloaded).
+--space adds a second install in "C:\\Sonic Heroes Test" (same sandbox, tools then already downloaded).
 --cache maps a folder of setup downloads read-only and seeds the tools folder from it: only for
 fix-and-rerun loops; the check before a release runs cold (no --cache).
 
@@ -32,7 +32,7 @@ import time
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PLAT = {"pc": "PC", "android": "Android"}
-OUTPUT = {"pc": [r"build\host-mingw\sonicriders.exe"], "android": [r"build\android\sonicriders-arm64-v8a.apk"]}
+OUTPUT = {"pc": [r"build\host-mingw\sonicheroes.exe"], "android": [r"build\android\sonicheroes-arm64-v8a.apk"]}
 EXTRA_ARGS = {"pc": ["-NoSd", "-Yes"], "android": ["-NoSd", "-Yes", "-AcceptAndroidSdkLicense", "-Install", "no"]}
 SANDBOX_EXE = r"C:\Windows\System32\WindowsSandbox.exe"
 
@@ -49,7 +49,7 @@ $results = @()
 try {
     P "sandbox up; flavor $($cfg.flavor), zip $($cfg.zip)"
     if ($cfg.cache) {
-        $dl = Join-Path $env:LOCALAPPDATA "SonicRidersSetup\tools\downloads"
+        $dl = Join-Path $env:LOCALAPPDATA "SonicHeroesSetup\tools\downloads"
         New-Item -ItemType Directory -Force -Path $dl | Out-Null
         Copy-Item C:\sr\cache\* $dl -Force
         P "seeded the tools downloads from the read-only cache ($((Get-ChildItem $dl).Count) files; NOT a cold run)"
@@ -94,7 +94,7 @@ try {
             }
             if ($cfg.launcher) {
                 # README-FIRST's first way: the launcher's "Select disc..." + INSTALL AND PLAY (SR_LAUNCHER_INSTALL)
-                $exe = Join-Path $top "SonicRidersLauncher.exe"
+                $exe = Join-Path $top "SonicHeroesLauncher.exe"
                 $motw = [bool](Get-Item $exe -Stream Zone.Identifier -ErrorAction SilentlyContinue)
                 P "run ${i}: launcher install instead (mark-of-the-web on the exe: $motw)"
                 $env:SR_LAUNCHER_INSTALL = $iso
@@ -178,14 +178,14 @@ def mapping(host, inside, ro):
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--flavor", choices=sorted(PLAT), required=True)
-    ap.add_argument("--zip", help="release zip (default: the newest build/release/SonicRiders-<Plat>-Setup-*.zip)")
+    ap.add_argument("--zip", help="release zip (default: the newest build/release/SonicHeroes-<Plat>-Setup-*.zip)")
     ap.add_argument("--iso", help="disc image (default: NOTES.local.md 'sandbox-iso:', else baserom/*.iso)")
-    ap.add_argument("--space", action="store_true", help=r'second install in "C:\Sonic Riders Test"')
+    ap.add_argument("--space", action="store_true", help=r'second install in "C:\Sonic Heroes Test"')
     ap.add_argument("--cache", help="folder of setup downloads, mapped read-only (fix-and-rerun loops only)")
     ap.add_argument("--memory", type=int, default=8192, help="sandbox RAM in MB (default 8192)")
     ap.add_argument("--keep-open", action="store_true", help="leave the sandbox running after the result")
     ap.add_argument("--launch", action="store_true", help="start Windows Sandbox with the new .wsb")
-    ap.add_argument("--launcher", action="store_true", help="pc: install with SonicRidersLauncher.exe "
+    ap.add_argument("--launcher", action="store_true", help="pc: install with SonicHeroesLauncher.exe "
                     "(SR_LAUNCHER_INSTALL) instead of the .bat; also checks its ready check")
     ap.add_argument("--run", help="run name (default <flavor>-<timestamp>)")
     a = ap.parse_args()
@@ -195,7 +195,7 @@ def main():
     plat = PLAT[a.flavor]
     zp = a.zip
     if not zp:
-        hits = glob.glob(os.path.join(ROOT, "build", "release", "SonicRiders-%s-Setup-*.zip" % plat))
+        hits = glob.glob(os.path.join(ROOT, "build", "release", "SonicHeroes-%s-Setup-*.zip" % plat))
         if not hits:
             sys.exit("no release zip: run python tools/make_release.py --flavor %s --version <v>" % a.flavor)
         zp = max(hits, key=os.path.getmtime)
@@ -209,9 +209,9 @@ def main():
     with zipfile.ZipFile(zp) as z:
         names = [n for n in z.namelist() if not n.endswith("/")]
     top = names[0].split("/")[0]
-    bat = "Install Sonic Riders (%s).bat" % plat
+    bat = "Install Sonic Heroes (%s).bat" % plat
     if "%s/%s" % (top, bat) not in names:  # Switch / Android zips: the GUI installer .exe + this console fallback
-        bat = "Install Sonic Riders (%s) - command line.bat" % plat
+        bat = "Install Sonic Heroes (%s) - command line.bat" % plat
     if "%s/%s" % (top, bat) not in names:
         sys.exit("%s has no %s" % (zp, bat))
 
@@ -223,7 +223,7 @@ def main():
     os.makedirs(rundir, exist_ok=True)
     os.makedirs(resdir, exist_ok=True)
 
-    dests = [r"C:\SonicRiders"] + ([r"C:\Sonic Riders Test"] if a.space else [])
+    dests = [r"C:\SonicHeroes"] + ([r"C:\Sonic Heroes Test"] if a.space else [])
     cfg = {"flavor": a.flavor, "zip": os.path.basename(zp), "top": top, "bat": bat, "files": len(names),
            "iso": os.path.basename(iso), "args": EXTRA_ARGS[a.flavor], "outputs": OUTPUT[a.flavor],
            "dests": dests, "cache": bool(a.cache), "shutdown": not a.keep_open, "launcher": a.launcher}
@@ -249,7 +249,7 @@ def main():
         "  <LogonCommand><Command>powershell.exe -NoProfile -ExecutionPolicy Bypass -File "
         "C:\\sr\\run\\sandbox_logon.ps1</Command></LogonCommand>",
         "</Configuration>", ""])
-    wsbpath = os.path.join(rundir, "sonicriders-%s.wsb" % run)
+    wsbpath = os.path.join(rundir, "sonicheroes-%s.wsb" % run)
     with open(wsbpath, "w", encoding="utf-8") as f:
         f.write(wsb)
     print("sandbox_test: %s" % wsbpath)

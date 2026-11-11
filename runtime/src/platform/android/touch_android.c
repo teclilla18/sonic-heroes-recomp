@@ -1,6 +1,6 @@
 /* Touch controls for phones (docs/ANDROID_PLAN.md section 7), drawn by render_vk.c (vk_touch.frag).
  *
- * Sonic Riders' controls (GameCube): stick = steer / tricks in the air, A = jump (hold to charge),
+ * Sonic Heroes' controls (GameCube): stick = steer / tricks in the air, A = jump (hold to charge),
  * B or X = boost, L or R = drift (held), L+R = tornado (or leave turbulence), START = pause.
  * Layout, in units of the screen height H (so it scales with the phone), mirrored for the thumbs:
  *   left half: a floating stick that appears where the thumb lands (base radius 0.16 H; dead zone 12% in

@@ -1,4 +1,4 @@
-/* Entry point: sonicriders [path to the GXEE8P disc image] (default: platform_disc_path) */
+/* Entry point: sonicheroes [path to the G9SE8P disc image] (default: platform_disc_path) */
 #ifdef SR_IOS
 #include <SDL.h>
 #endif
@@ -100,7 +100,7 @@ int platform_android_args(int argc, char** argv);
  * a plain one on the scene first (without it the alert waited unseen on a black screen) */
 static void ios_message(const char* title, const char* text) {
     SDL_Init(SDL_INIT_VIDEO);
-    SDL_Window* w = SDL_CreateWindow("Sonic Riders", 0, 0, 0, 0, SDL_WINDOW_FULLSCREEN | SDL_WINDOW_ALLOW_HIGHDPI);
+    SDL_Window* w = SDL_CreateWindow("Sonic Heroes", 0, 0, 0, 0, SDL_WINDOW_FULLSCREEN | SDL_WINDOW_ALLOW_HIGHDPI);
     void ios_attach_window(SDL_Window* win);  /* ios_scene.m: onto the app's window scene, or it stays unseen */
     if (w) ios_attach_window(w);
     SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, title, text, w);
@@ -132,11 +132,11 @@ int main(int argc, char** argv) {
         if (!f) {
             rt_log("[ios] no disc image in Documents or Documents/baserom");
             fflush(stderr);
-            ios_message( "Sonic Riders needs your disc image",
-                "Copy your own Sonic Riders (USA) disc image (.iso, 1.4 GB) into this app's folder, then open the game again.\n\n"
-                "From a Mac: connect the device, open it in Finder, Files tab, and drag the .iso onto Sonic Riders.\n"
+            ios_message( "Sonic Heroes needs your disc image",
+                "Copy your own Sonic Heroes (USA) disc image (.iso, 1.4 GB) into this app's folder, then open the game again.\n\n"
+                "From a Mac: connect the device, open it in Finder, Files tab, and drag the .iso onto Sonic Heroes.\n"
                 "From a PC: the same in iTunes or the Apple Devices app (File Sharing).\n"
-                "On the device: Files app > On My iPhone (iPad) > Sonic Riders.");
+                "On the device: Files app > On My iPhone (iPad) > Sonic Heroes.");
             exit(0);
         }
         /* opened while Finder was still copying it: the game hung at its first big read (2026-11-08) */
@@ -163,7 +163,7 @@ int main(int argc, char** argv) {
             rt_log("[ios] the disc image is only %lld bytes (a full one: 1459978240)", size);
             fflush(stderr);
             ios_message( "The disc image is incomplete",
-                "Your disc image is smaller than a full Sonic Riders (USA) disc (1.4 GB).\n\n"
+                "Your disc image is smaller than a full Sonic Heroes (USA) disc (1.4 GB).\n\n"
                 "If it is still being copied, wait until Finder has finished, then open the game again. Otherwise "
                 "copy a clean, full .iso again (not RVZ, CISO or a trimmed image).");
             exit(0);

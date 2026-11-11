@@ -1,5 +1,8 @@
 # Android port: plan (2026-11-03, branch `android`)
 
+> **Inherited from the Sonic Riders port** (forked 2026-11-11). File and folder names are updated for Sonic Heroes;
+> facts, numbers, addresses and test results are still Sonic Riders' until this page is revised for Heroes.
+
 Goal: one setup run on the user's PC, with their own Sonic Riders ISO, builds an APK for their own phone with
 everything the Switch and Windows builds have. The APK holds recompiled game code, so like the `.nro` it is built
 locally and never distributed (`*.apk`, `*.aab`, `*.so`, `*.dex`, `*.spv`, keystores: `.gitignore` and
@@ -116,7 +119,7 @@ clang (`aarch64-linux-android29-clang`, `-fPIC -fvisibility=hidden`, `-Wl,-z,max
 `ndk-build` → `libSDL2.so`; `glslc` → SPIR-V embedded; `javac` + `d8` → `classes.dex` (SDL's Java + our activity);
 `aapt2` → manifest, resources, icon (`make_icon.py`'s save icon as PNG); `zipalign -P 16` (uncompressed, aligned
 `.so`); `apksigner` with a keystore made once by `keytool` in `<ToolsDir>` (never in the repo).
-Output `build/android/sonicriders-<abi>.apk`. minSdk 30 (Android 11: Vulkan 1.1, AAudio, C11 `<threads.h>` in bionic), targetSdk 35.
+Output `build/android/sonicheroes-<abi>.apk`. minSdk 30 (Android 11: Vulkan 1.1, AAudio, C11 `<threads.h>` in bionic), targetSdk 35.
 Trade-off: we must follow SDK changes by hand; if that bites, a Gradle project is the fallback.
 
 Game data: **read at run time, not packed in the APK** (recommended).
@@ -176,7 +179,7 @@ like the Switch).
   for Vulkan). The emulator checks building, booting and logic; performance numbers only from the phone, always
   with device, Android version and battery/temperature state (as the Switch clocks rule).
 - `tools/android_run.py` (new): `adb install -r`, `am start` with `SR_*` as launch extras (or `env.txt` pushed),
-  `adb logcat` capture filtered to the app, pull `sonicriders.log`, `shot_*.bmp`, `perftest.json` from the app
+  `adb logcat` capture filtered to the app, pull `sonicheroes.log`, `shot_*.bmp`, `perftest.json` from the app
   folder, and compare shots with PC captures of the same det-route frames. The port's own captures are the
   reference; `adb exec-out screencap` only for system UI problems (touch overlay placement, cutouts).
 - Every milestone: `ninja` for host and switch still succeeds; guard + `git status --ignored` before commits.

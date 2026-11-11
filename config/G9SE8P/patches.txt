@@ -1,0 +1,4 @@
+# Code patches applied by the recompiler (tools/recomp/gcrecomp.py): ADDRESS before|after C-STATEMENT.
+# Addresses are this build's: main.dol as is, each REL at its own fixed base (to be decided in Phase 0;
+# the Riders port linked its single REL at REL_BASE 0x81800000).
+# Empty in the fork: Sonic Heroes' patches (widescreen, diagnostics) were removed.

@@ -8,7 +8,7 @@ extern "C" {
 #endif
 
 /* RAM addresses in GX registers (texture images, TLUT sources, copy destinations) are physical: the
- * hardware ignores the bits above them. Sonic Riders sets bit 27 in some TLUT loads (088B6AC0 for
+ * hardware ignores the bits above them. Sonic Heroes sets bit 27 in some TLUT loads (088B6AC0 for
  * 008B6AC0): unmasked, the load was skipped as out of range and the texture got a stale palette
  * (the rainbow trick-rank letters). Dolphin masks the same way. */
 #define GX_PHYS_MASK 0x01FFFFFFu

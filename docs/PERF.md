@@ -1,5 +1,8 @@
 # Performance test
 
+> **Inherited from the Sonic Riders port** (forked 2026-11-11). File and folder names are updated for Sonic Heroes;
+> facts, numbers, addresses and test results are still Sonic Riders' until this page is revised for Heroes.
+
 A fixed, repeatable run to compare builds: the same scenes every time, no save and no input needed, on PC
 and on the Switch. Use it before and after a change that may cost speed, and before each release (keep the
 result in `perf/results/`).
@@ -41,9 +44,9 @@ The game window stays minimized and silent. `--save perf/results/<name>.json` ke
 
 ## On the Switch
 
-1. Put `SR_PERFTEST=1` in `sdmc:/switch/sonicriders/env.txt` (keep a copy of your own env.txt).
+1. Put `SR_PERFTEST=1` in `sdmc:/switch/sonicheroes/env.txt` (keep a copy of your own env.txt).
 2. Start the game from the HOME menu and leave it for about 3 minutes, until "Performance test finished".
-3. Close it from HOME, copy `sdmc:/switch/sonicriders/perftest.json` to the PC, and remove the line from env.txt.
+3. Close it from HOME, copy `sdmc:/switch/sonicheroes/perftest.json` to the PC, and remove the line from env.txt.
 4. `python tools/perf_test.py show perftest.json --expect perf/results/<record>-switch.json`
 
 Several runs can be combined: `show run1.json run2.json run3.json --save ...`. Write down the clocks: a

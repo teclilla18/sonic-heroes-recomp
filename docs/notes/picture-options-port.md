@@ -1,5 +1,8 @@
 # Picture options on Linux, Android and Switch (plan, 2026-11-10)
 
+> **Inherited from the Sonic Riders port** (forked 2026-11-11). File and folder names are updated for Sonic Heroes;
+> facts, numbers, addresses and test results are still Sonic Riders' until this page is revised for Heroes.
+
 Kind: Working note (Linux, Android, Switch done for v0.8.0; MSAA, lighting, iOS open). Goal (user, 2026-11-10): the PC's F1 > Display set (resolution,
 anti-aliasing, FSR 1, bloom, colour presets + sliders, character lighting) on every platform as options, same names
 and saved keys, light defaults. Replaces the old "PC only" rule. iOS later (Mac session).

@@ -1,5 +1,8 @@
 # PS4 / PS5 port: research (2026-11-03)
 
+> **Inherited from the Sonic Riders port** (forked 2026-11-11). File and folder names are updated for Sonic Heroes;
+> facts, numbers, addresses and test results are still Sonic Riders' until this page is revised for Heroes.
+
 **Investigation.** What the console homebrew scene offers as of 2026-11-03, for a possible port after Android.
 From public news and GitHub pages, not tested by us. Firmware support changes fast: recheck before acting.
 Index: [REFERENCE.md](../REFERENCE.md).

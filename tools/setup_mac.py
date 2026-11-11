@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
-"""Sonic Riders setup for iPhone and iPad, on a Mac (started by "Install Sonic Riders (iOS).command").
+"""Sonic Heroes setup for iPhone and iPad, on a Mac (started by "Install Sonic Heroes (iOS).command").
 
     python3 tools/setup_mac.py [--iso IMAGE] [--icon PICTURE|default] [--yes] [--tools DIR]
                                [--install yes|no] [--device ID] [--unsigned]
 
 Builds the iOS app on this Mac from your own disc image, like the PC setups:
-  1. check your disc image (Sonic Riders USA, GXEE8P revision 0, SHA-1 of the Redump dump)
+  1. check your disc image (Sonic Heroes USA, G9SE8P revision 0, SHA-1 of the Redump dump)
   2. check Xcode (App Store; its iOS SDK and Metal Toolchain), Homebrew's ninja and shaderc, and your
      Apple ID in Xcode (optional: without one the app is built unsigned, for Sideloadly / AltStore)
   3. download the tools, each checked by SHA-256 (setup/toolchain.json "mac" + "imgui"):
      decomp-toolkit, MoltenVK, SDL2's source, Dear ImGui
   4. extract main.dol and _Main.rel from the image
   5. analyse the game code (decomp-toolkit)
-  6. recompile and build (configure.py --target ios, ninja): SonicRiders.ipa, also copied to
-     ~/Desktop/Sonic Riders iOS/
+  6. recompile and build (configure.py --target ios, ninja): SonicHeroes.ipa, also copied to
+     ~/Desktop/Sonic Heroes iOS/
   7. with an Apple ID in Xcode and a device on the cable: install the app and copy the disc image to it
 Nothing from the game leaves this Mac except to your own device. Apple silicon Macs (M1 or newer).
 Docs: docs/notes/ios.md, INSTALL.md.
@@ -32,7 +32,7 @@ from setup_linux import ROOT, log, step, fail, ask, run  # noqa: E402
 
 S.STEPS = 7
 XCODE = "/Applications/Xcode.app/Contents/Developer"
-IPA_DIR = os.path.join(os.path.expanduser("~"), "Desktop", "Sonic Riders iOS")
+IPA_DIR = os.path.join(os.path.expanduser("~"), "Desktop", "Sonic Heroes iOS")
 
 
 def out(cmd, env=None):
@@ -44,8 +44,8 @@ def out(cmd, env=None):
 
 def pick_iso():
     """macOS's own file dialog (AppleScript), else a typed path."""
-    r = subprocess.run(["osascript", "-e", 'POSIX path of (choose file with prompt "Select your Sonic Riders (USA) '
-                        'disc image (GXEE8P, revision 0, .iso)")'], capture_output=True, text=True)
+    r = subprocess.run(["osascript", "-e", 'POSIX path of (choose file with prompt "Select your Sonic Heroes (USA) '
+                        'disc image (G9SE8P, revision 0, .iso)")'], capture_output=True, text=True)
     if r.returncode == 0 and r.stdout.strip():
         return r.stdout.strip()
     if sys.stdin.isatty():
@@ -149,7 +149,7 @@ def pick_device(team, a):
 
 
 def existing_app_id(team, d):
-    """the app ID to build with when Sonic Riders is already installed, so the install updates that app (saves and
+    """the app ID to build with when Sonic Heroes is already installed, so the install updates that app (saves and
     disc image stay): the one on the device, else the last build's. '' = the default (ios_build.BASE_ID.<team>).
     Unsigned builds always use the plain ID: Sideloadly adds the player's team ID itself."""
     if not team:
@@ -162,13 +162,13 @@ def existing_app_id(team, d):
             ids = []
         if ids:
             pick = next((i for i in ids if i.endswith("." + team)), ids[0])
-            log("Sonic Riders is already on %s (%s): building with that ID, so it is updated in place." % (d["name"], pick))
+            log("Sonic Heroes is already on %s (%s): building with that ID, so it is updated in place." % (d["name"], pick))
             if len(ids) > 1:
-                log("Other Sonic Riders apps on it: %s (left alone)." % ", ".join(i for i in ids if i != pick), "yellow")
+                log("Other Sonic Heroes apps on it: %s (left alone)." % ", ".join(i for i in ids if i != pick), "yellow")
             return pick
-    info = os.path.join(ROOT, "build", "ios", "xcode", "build", "Release-iphoneos", "SonicRiders.app", "Info.plist")
+    info = os.path.join(ROOT, "build", "ios", "xcode", "build", "Release-iphoneos", "SonicHeroes.app", "Info.plist")
     prev = out(["plutil", "-extract", "CFBundleIdentifier", "raw", info]) if os.path.isfile(info) else ""
-    return prev if prev.startswith("net.srnative.sonicriders") else ""
+    return prev if prev.startswith("net.srnative.sonicheroes") else ""
 
 
 def write_renew_notes(ipa_dir, ipa, bundle, team):
@@ -177,20 +177,20 @@ def write_renew_notes(ipa_dir, ipa, bundle, team):
     signed = bool(team)
     default_ok = ios_build.ipa_bundle_id(bundle, team) != bundle  # Sideloadly's default appends .<team>
     lines = [
-        "Sonic Riders on iPhone / iPad: renewing every 7 days",
+        "Sonic Heroes on iPhone / iPad: renewing every 7 days",
         "",
         "With a free Apple ID, iOS stops opening the app 7 days after it was installed. Renewing puts the same",
         "app back for 7 more days; your saves and the disc image stay on the device. Renew it THE SAME WAY you",
-        "installed it, or the device gets a second, empty Sonic Riders (no disc image, no saves).",
+        "installed it, or the device gets a second, empty Sonic Heroes (no disc image, no saves).",
         "",
-        "The app file (the build before it: SonicRiders-prev.ipa, in the same folder):",
+        "The app file (the build before it: SonicHeroes-prev.ipa, in the same folder):",
         "    " + ipa,
         "",
     ]
     if signed:
         lines += [
             "YOU INSTALLED IT FROM THE MAC (the installer copied it to the device)",
-            "  Either: connect the device, unlock it, and run \"Install Sonic Riders (iOS).command\" again; answer y",
+            "  Either: connect the device, unlock it, and run \"Install Sonic Heroes (iOS).command\" again; answer y",
             "          to installing and n to copying the disc image.",
         ]
         if default_ok:
@@ -223,27 +223,27 @@ def write_renew_notes(ipa_dir, ipa, bundle, team):
 
 
 def main():
-    ap = argparse.ArgumentParser(description="Sonic Riders setup for iPhone / iPad (on a Mac)")
-    ap.add_argument("--iso", default="", help="your Sonic Riders (USA) disc image (GXEE8P revision 0, 1.4 GB .iso)")
+    ap = argparse.ArgumentParser(description="Sonic Heroes setup for iPhone / iPad (on a Mac)")
+    ap.add_argument("--iso", default="", help="your Sonic Heroes (USA) disc image (G9SE8P revision 0, 1.4 GB .iso)")
     ap.add_argument("--icon", default="", help="your own app icon: any picture (PNG, JPG, HEIC, WEBP, GIF, BMP, TIFF; the "
                     "centre square is used), or 'default' for the game's save icon (default: ask)")
     ap.add_argument("--yes", action="store_true", help="no questions (needs --iso)")
-    ap.add_argument("--tools", default=os.path.join(os.path.expanduser("~"), ".local", "share", "SonicRidersSetup", "tools-mac"),
-                    help="where the downloaded tools go (default ~/.local/share/SonicRidersSetup/tools-mac)")
+    ap.add_argument("--tools", default=os.path.join(os.path.expanduser("~"), ".local", "share", "SonicHeroesSetup", "tools-mac"),
+                    help="where the downloaded tools go (default ~/.local/share/SonicHeroesSetup/tools-mac)")
     ap.add_argument("--install", choices=["", "yes", "no"], default="",
                     help="install on a connected iPhone/iPad (needs your Apple ID in Xcode; default: ask)")
     ap.add_argument("--device", default="", help="which connected device (name or id) when there are several")
     ap.add_argument("--unsigned", action="store_true", help="build an unsigned .ipa even with an Apple ID in Xcode")
-    ap.add_argument("--ipa-dir", default=IPA_DIR, help="where SonicRiders.ipa is copied (default ~/Desktop/Sonic Riders iOS)")
+    ap.add_argument("--ipa-dir", default=IPA_DIR, help="where SonicHeroes.ipa is copied (default ~/Desktop/Sonic Heroes iOS)")
     a = ap.parse_args()
     ipa_dir = os.path.abspath(os.path.expanduser(a.ipa_dir))
 
     with open(S.LOG, "w", encoding="utf-8") as f:
-        f.write("Sonic Riders setup (iOS, on a Mac) %s\n" % time.strftime("%Y-%m-%d %H:%M:%S"))
-    log("Sonic Riders setup for iPhone and iPad")
+        f.write("Sonic Heroes setup (iOS, on a Mac) %s\n" % time.strftime("%Y-%m-%d %H:%M:%S"))
+    log("Sonic Heroes setup for iPhone and iPad")
     log("System: macOS %s %s, Python %s" % (platform.mac_ver()[0], platform.machine(), platform.python_version()))
     if platform.system() != "Darwin":
-        fail("This setup is for a Mac. On Windows use the PC / Android setups, on Linux SonicRidersSetup.sh.")
+        fail("This setup is for a Mac. On Windows use the PC / Android setups, on Linux SonicHeroesSetup.sh.")
     if platform.machine() != "arm64":
         fail("This setup needs an Apple silicon Mac (M1 or newer).")
     if not os.path.isfile(os.path.join(ROOT, "configure.py")):
@@ -251,7 +251,7 @@ def main():
              "Extract the whole zip first, then run the installer from inside it.")
     if " " in ROOT or not ROOT.isascii():
         fail("This folder's path has spaces or non-English letters: %s" % ROOT,
-             "Move the folder to e.g. ~/SonicRiders (Finder: drag it into your home folder) and run it again.")
+             "Move the folder to e.g. ~/SonicHeroes (Finder: drag it into your home folder) and run it again.")
     import json
     tc = json.load(open(os.path.join(ROOT, "setup", "toolchain.json"), encoding="utf-8"))
     mac = tc["mac"]
@@ -307,7 +307,7 @@ def main():
 
     # 5 -------------------------------------------------------------
     step(5, "Analysing the game code")
-    run("decomp-toolkit analysis", [dtk, "dol", "split", "config/GXEE8P/config.yml", "build/GXEE8P"])
+    run("decomp-toolkit analysis", [dtk, "dol", "split", "config/G9SE8P/config.yml", "build/G9SE8P"])
 
     # 6 -------------------------------------------------------------
     step(6, "Recompiling and building the app (10-20 minutes the first time)")
@@ -318,14 +318,14 @@ def main():
         (["--bundle-id", bundle] if bundle else [])
     run("configure", conf)
     run("build the app", ["ninja"])
-    ipa = os.path.join(ipa_dir, "SonicRiders.ipa")
+    ipa = os.path.join(ipa_dir, "SonicHeroes.ipa")
     if not os.path.isfile(ipa):
         fail("The build finished but %s is missing." % ipa)
     log("Built %s" % ipa, "green")
 
     # 7 -------------------------------------------------------------
     step(7, "Installing")
-    app = os.path.join(ROOT, "build", "ios", "xcode", "build", "Release-iphoneos", "SonicRiders.app")
+    app = os.path.join(ROOT, "build", "ios", "xcode", "build", "Release-iphoneos", "SonicHeroes.app")
     bundle = out(["plutil", "-extract", "CFBundleIdentifier", "raw", os.path.join(app, "Info.plist")])
     installed = False
     if d and (a.install or ("yes" if ask("Install on %s? (y/n)" % d["name"], "y", a.yes).lower().startswith("y")
@@ -339,17 +339,17 @@ def main():
     renew = write_renew_notes(ipa_dir, ipa, bundle, team)
     log()
     if installed:
-        log("Done. Sonic Riders is on your %s." % ("iPad" if "iPad" in d["model"] else "iPhone"), "green")
+        log("Done. Sonic Heroes is on your %s." % ("iPad" if "iPad" in d["model"] else "iPhone"), "green")
         log("First start: if iOS says 'Untrusted Developer', open Settings > General > VPN & Device Management,")
         log("tap your Apple ID under Developer App and tap Trust.")
     else:
         log("Done. The app: %s" % ipa, "green")
         log("Install it with Sideloadly (sideloadly.io) or AltStore with your Apple ID:")
-        log("  1. Connect the iPhone/iPad, open Sideloadly, drag SonicRiders.ipa into it, enter your Apple ID, Start.")
+        log("  1. Connect the iPhone/iPad, open Sideloadly, drag SonicHeroes.ipa into it, enter your Apple ID, Start.")
         log("  2. On the device: Settings > General > VPN & Device Management > your Apple ID > Trust.")
         log("     (iOS 16 or newer also needs Settings > Privacy & Security > Developer Mode: on.)")
         log("  3. Copy your disc image to the app: in Finder click the device, Files tab, drag the .iso onto")
-        log("     Sonic Riders, and wait until Finder has finished before opening the game.")
+        log("     Sonic Heroes, and wait until Finder has finished before opening the game.")
     log()
     log("Every 7 days (free Apple ID) the app must be renewed. How, for the way you installed it:", "yellow")
     log("  %s" % renew, "cyan")

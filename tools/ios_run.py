@@ -1,15 +1,15 @@
 """iPhone test runs from the Mac (the iOS counterpart of tools/android_run.py), over Xcode's devicectl.
 
   python3 tools/ios_run.py devices                 list connected devices
-  python3 tools/ios_run.py install                 install build/ios/xcode/build/Release-iphoneos/SonicRiders.app
+  python3 tools/ios_run.py install                 install build/ios/xcode/build/Release-iphoneos/SonicHeroes.app
   python3 tools/ios_run.py push-iso <image.iso>    copy the disc image to Documents/baserom/ (once; ~1.4 GB)
   python3 tools/ios_run.py run [KEY=VALUE ...]     launch with the console attached (stdout/stderr on the Mac);
                                                    KEY=VALUE pairs become environment variables (SR_*)
   python3 tools/ios_run.py pull [name ...]         copy Documents/<name> back to build/ios/pulled/
-                                                   (default: sonicriders.log, sonicriders.prev.log, crash.txt)
+                                                   (default: sonicheroes.log, sonicheroes.prev.log, crash.txt)
 
 --device <id or name> picks a device when more than one is connected. Everything the app writes is in its
-Documents folder (Files app: On My iPhone > Sonic Riders). docs/notes/ios.md.
+Documents folder (Files app: On My iPhone > Sonic Heroes). docs/notes/ios.md.
 """
 import json
 import os
@@ -18,7 +18,7 @@ import sys
 import tempfile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-APP = os.path.join(ROOT, "build/ios/xcode/build/Release-iphoneos/SonicRiders.app")
+APP = os.path.join(ROOT, "build/ios/xcode/build/Release-iphoneos/SonicHeroes.app")
 
 
 def devicectl(*a, check=True):
@@ -47,7 +47,7 @@ def devices():
 
 
 def installed_ids(dev):
-    """bundle IDs of the Sonic Riders apps already on the device (net.srnative.sonicriders*), sorted"""
+    """bundle IDs of the Sonic Heroes apps already on the device (net.srnative.sonicheroes*), sorted"""
     with tempfile.TemporaryDirectory() as d:
         out = os.path.join(d, "apps.json")
         subprocess.run(["xcrun", "devicectl", "device", "info", "apps", "--device", dev, "--json-output", out],
@@ -55,7 +55,7 @@ def installed_ids(dev):
         with open(out) as f:
             apps = json.load(f).get("result", {}).get("apps", [])
     return sorted(a.get("bundleIdentifier", "") for a in apps
-                  if a.get("bundleIdentifier", "").startswith("net.srnative.sonicriders"))
+                  if a.get("bundleIdentifier", "").startswith("net.srnative.sonicheroes"))
 
 
 def pick_device(want):
@@ -107,7 +107,7 @@ def main():
         if rc:  # e.g. the phone is locked or the developer is not trusted yet
             sys.exit(rc)
     elif cmd == "pull":
-        names = rest or ["sonicriders.log", "sonicriders.prev.log", "crash.txt"]
+        names = rest or ["sonicheroes.log", "sonicheroes.prev.log", "crash.txt"]
         out = os.path.join(ROOT, "build/ios/pulled")
         os.makedirs(out, exist_ok=True)
         for name in names:

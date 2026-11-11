@@ -1,7 +1,22 @@
 # Instructions for coding agents (Claude Code and others)
 
-Goal: play Sonic Riders (GameCube, USA, GXEE8P rev 0) natively on a modded Switch (and on Windows) by static
-recompilation: the PowerPC code becomes C on each contributor's machine from their own disc; this repo holds only our source.
+Goal: play Sonic Heroes (GameCube, USA, G9SE8P rev 0) natively by static recompilation: the PowerPC code becomes C
+on each contributor's machine from their own disc; this repo holds only our source. Targets in order (user's
+decision, 2026-11-11): **Nintendo Switch first**, then Windows PC, Android, Linux / Steam Deck, iOS. The PC build
+is still the fast test loop; it is just not released first.
+
+Current status (loaded automatically):
+@STATE.md
+
+## This repo is a fork of the Sonic Riders port
+
+- Forked 2026-11-11 from the Riders port's `main`; git remote `riders` is the local Riders repo. Keep the layout
+  and every shared file identical to Riders so fixes cherry-pick both ways (`git fetch riders`,
+  `git cherry-pick <sha>`; Heroes fixes that help Riders go back the same way).
+- So: internal names stay as Riders has them (`SR_*` variables, `sr_` code names). Only player-facing names say
+  Heroes (app `sonicheroes`, zips `SonicHeroes-*`, folders, title/package IDs). Game-specific code and data go in
+  `config/G9SE8P/` and clearly marked game files, not scattered through shared runtime files.
+- Docs marked **Inherited** still hold Riders' facts; Riders' history is in `docs/archive/riders/` (read-only).
 
 ## Hard rules
 
@@ -9,13 +24,13 @@ recompilation: the PowerPC code becomes C on each contributor's machine from the
    `baserom/`, extracted assets, disassembly, recompiled output (`build/`, `build/gen/`), `.nro`/`.nsp`/`.exe`,
    dtk output (`config/*/symbols.txt`, `splits.txt`), saves, console keys. Small facts (addresses,
    function names, register values) are fine; blocks of disassembly or recompiled code are not. One exception
-   (user's decision, 2026-11-07): the shader-key list `config/GXEE8P/shader_keys.txt` (GPU TEV register settings)
+   (user's decision, 2026-11-07): the shader-key list `config/G9SE8P/shader_keys.txt` (GPU TEV register settings)
    is tracked, because release builds without it run Switch races at ~30 fps; other key files stay local.
 2. Before every commit and push run `python tools/check_no_game_data.py` and check `git status --ignored`. If
    anything questionable would be included, **stop and ask the user**. Never `--no-verify` or weaken the check.
 3. **Push to GitHub at the end of every session**, after rule 2 passes.
 4. No personal details in tracked files (home paths, SD drive letters, console setup, emails): write `<repo>`,
-   `<home>`, `<sd>`. Machine-specific notes go in `NOTES.local.md` (gitignored; read it if present).
+   `<home>`, `<sd>`. Machine-specific notes go in `CLAUDE.local.md` (gitignored, loads automatically).
 5. Never modify the user's original disc image. Work on copies.
 
 ## Hard-won lessons
@@ -37,14 +52,15 @@ recompilation: the PowerPC code becomes C on each contributor's machine from the
 
 ## Where things are (open only what the task needs; grep, don't read whole files)
 
-- **STATE.md**: read at the start of every session (status, open items, next hardware test).
+- **STATE.md**: imported above (status, open items, next hardware test); rewritten at the end of every session.
+- **docs/notes/recon.md**: the Heroes disc (executables, 18 RELs, libraries, risks).
 - **docs/REFERENCE.md**: a short index of the topic notes in `docs/notes/` (build-and-test with **Quick commands**,
-  android, debug-variables, game-addresses, architecture). Open only the note you need, grep inside it.
-- **docs/HISTORY.md**: dated sessions and hardware tests from 2026-10-26, oldest first (older: `docs/archive/`).
+  android, debug-variables, architecture). Open only the note you need, grep inside it.
+- **docs/HISTORY.md**: dated sessions and hardware tests since the fork, oldest first (Riders': `docs/archive/riders/`).
   Grep a date, `#issue`, address or `SR_` (`grep -rn <x> docs/HISTORY.md docs/archive/`).
 - **docs/MAP.md**: where each topic lives (file + function names). Use it before opening code.
 - docs/ONLINE.md (online play), docs/PERF.md (perf test), docs/MODDING.md, docs/BUILDING.md, CONTRIBUTING.md.
-- Code: `tools/recomp/` recompiler, `config/GXEE8P/` (`hle.txt`, `patches.txt`), `runtime/src/` devices and runtime,
+- Code: `tools/recomp/` recompiler, `config/G9SE8P/` (`hle.txt`, `patches.txt`), `runtime/src/` devices and runtime,
   `runtime/src/platform/{switch,host}/`, `runtime/shaders/` shared GX shader.
 
 ## Status words and regressions
@@ -66,6 +82,9 @@ recompilation: the PowerPC code becomes C on each contributor's machine from the
 
 ## Build and test (the PC build is the fast test loop)
 
+- Skills: `/recon`, `/emu-run`, `/hw-test`, `/render-bisect`, `/hang-hunt`, `/ref-compare`, `/analyze-log`,
+  `/release`, `/wrap-up`. Subagents: `log-reader` (logs), `re-investigator` (what a function/address does).
+
 - First time: `setup\setup.ps1 -Iso <image.iso> -Target both -NoSd -Yes`. Then `python configure.py --target host
   --toolchain mingw --llvm-mingw <tools>\llvm-mingw --sdl <tools>\sdl2` (or `--target switch --devkitpro
   <tools>\devkitpro`), `--imgui <tools>\imgui` once, and `ninja`. Variables: docs/notes/debug-variables.md.
@@ -73,6 +92,9 @@ recompilation: the PowerPC code becomes C on each contributor's machine from the
   release zips, no download cache; ask the user before launching). Procedure: docs/notes/build-and-test.md.
 
 ## End of every session
+
+Run the `/wrap-up` skill (`.claude/skills/wrap-up/SKILL.md`). Never skip it. It covers:
+
 
 1. Rewrite STATE.md in place (never append; under ~120 lines; newest facts only).
 2. Add a short dated entry at the end of docs/HISTORY.md: what was wrong, how it was found, the fix, what is

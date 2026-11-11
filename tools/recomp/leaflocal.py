@@ -1,5 +1,5 @@
 # Forked from ZeldaWWHDRecomp tools/recomp/leaflocal.py (commit f10b566), MPL-2.0 (see third_party/LICENSE-MPL-2.0).
-# Modified for GameCube (Gekko) DOL/REL recompilation by the Sonic Riders port; see NOTES.md.
+# Modified for GameCube (Gekko) DOL/REL recompilation by the Sonic Heroes port; see NOTES.md.
 """Keep a leaf function's guest registers in C locals.
 
 ppc2c turns every register access into a Cpu struct access (c->r[N], c->f[N].psK). With

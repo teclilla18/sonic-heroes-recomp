@@ -86,7 +86,7 @@ def step_keystore(jdk, keystore):
     os.makedirs(os.path.dirname(os.path.abspath(keystore)), exist_ok=True)
     run([os.path.join(jdk, "bin", "keytool"), "-genkeypair", "-keystore", keystore, "-storetype", "PKCS12",
          "-alias", "local", "-keyalg", "RSA", "-keysize", "2048", "-validity", "10000", "-storepass", "android",
-         "-keypass", "android", "-dname", "CN=Sonic Riders local build"], env=java_env(jdk))
+         "-keypass", "android", "-dname", "CN=Sonic Heroes local build"], env=java_env(jdk))
 
 
 def step_apk(a):
@@ -147,7 +147,7 @@ class Tools:
         self.bt = need((sorted(glob.glob(os.path.join(self.sdk, "build-tools", "*")))[-1:] or [""])[0], "SDK build-tools")
         self.plat = need(os.path.join(self.sdk, "platforms", "android-%d" % TARGET_SDK), "SDK platform android-%d" % TARGET_SDK)
         self.keystore = (args.keystore or os.path.join(os.path.dirname(os.path.abspath(self.sdk)),
-                                                       "sonicriders-local.keystore")).replace("\\", "/")
+                                                       "sonicheroes-local.keystore")).replace("\\", "/")
         for p in (self.sdk, self.ndk, self.jdk, self.sdl_src, self.keystore):
             if " " in p:
                 sys.exit("configure: Android tool paths must not contain spaces (ndk-build): %s" % p)
@@ -239,7 +239,7 @@ def write_probe_ninja(args, root, writer_cls, py):
             n.build(so, "so", [obj], implicit=libs[abi][:1],
                     variables={"target": t.target(abi), "ldflags": "%s -lvulkan -lGLESv3 -lEGL -llog -landroid -ldl -lm" % link})
             apk = "%s/probe-%s.apk" % (OUT, abi)
-            add_apk(n, t, abi, apk, so, libs[abi], dex, "net.srnative.sonicriders.probe", "SR_Probe", "1", "m1")
+            add_apk(n, t, abi, apk, so, libs[abi], dex, "net.srnative.sonicheroes.probe", "SR_Probe", "1", "m1")
             defaults.append(apk)
         n.default(defaults)
     print("wrote build.ninja (android probe, %s)" % ", ".join(abis))

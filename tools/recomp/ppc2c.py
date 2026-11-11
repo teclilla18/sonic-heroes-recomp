@@ -1,5 +1,5 @@
 # Forked from ZeldaWWHDRecomp tools/recomp/ppc2c.py (commit f10b566), MPL-2.0 (see third_party/LICENSE-MPL-2.0).
-# Modified for GameCube (Gekko) DOL/REL recompilation by the Sonic Riders port; see NOTES.md.
+# Modified for GameCube (Gekko) DOL/REL recompilation by the Sonic Heroes port; see NOTES.md.
 """Translate Espresso PowerPC instructions to C statements.
 
 Each instruction becomes a C statement operating on `Cpu* c` (see

@@ -145,7 +145,7 @@ static void write_file(int frame) {
     w32(f, 0);                     /* flags: GameCube */
     w64(f, tmem_off); w32(f, 1 << 20);
     w32(f, GUEST_RAM_SIZE); w32(f, 0);
-    char id[8] = "GXEE8P";
+    char id[8] = "G9SE8P";
     fwrite(id, 1, 8, f);
     fwrite(zero, 1, 24, f);
     fclose(f);

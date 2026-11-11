@@ -27,7 +27,7 @@
         android:hardwareAccelerated="true">
         <!-- simpleperf and the Android profilers can attach to this build (no debuggable flag) -->
         <profileable android:shell="true" />
-        <activity android:name="net.srnative.sonicriders.SonicRidersActivity"
+        <activity android:name="net.srnative.sonicheroes.SonicHeroesActivity"
             android:label="@LABEL@"
             android:alwaysRetainTaskState="true"
             android:launchMode="singleInstance"

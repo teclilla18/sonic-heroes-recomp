@@ -1,5 +1,8 @@
 # Windows launcher (2026-11-07, implemented, not released)
 
+> **Inherited from the Sonic Riders port** (forked 2026-11-11). File and folder names are updated for Sonic Heroes;
+> facts, numbers, addresses and test results are still Sonic Riders' until this page is revised for Heroes.
+
 `launcher/launcher.cpp` → `SonicRidersLauncher.exe`, modelled on Tag Force Recomp's launcher (notes/plans-2026-11.md).
 It holds no game code or data, so a ready-made copy can go in the PC release zip (packaging not done yet).
 
@@ -15,7 +18,7 @@ It holds no game code or data, so a ready-made copy can go in the PC release zip
   change and before PLAY; read again when the game closes.
 - First run: "Select disc..." + INSTALL AND PLAY runs `setup\setup.ps1 -Target pc -NoSd -Yes -DesktopShortcut no
   -Iso <file>` hidden, output in a log box, progress from its "== N/7" step lines. PLAY starts
-  `build\host-mingw\sonicriders.exe` (Stop ends it). Install path not run end to end yet.
+  `build\host-mingw\sonicheroes.exe` (Stop ends it). Install path not run end to end yet.
 - Banner: `launcher\banner.jpg`, public fan art chosen by the user (1800x520 crop of a 1920x1080 picture; not from
   the game). Committed with the user's OK (2026-11-07); the guard allows exactly this file by SHA-1
   (OWN_ART in tools/check_no_game_data.py), so a changed banner needs a new hash there. Without it the banner is a blue gradient.
@@ -58,7 +61,7 @@ launcher_test.txt and exits 0 on success; `SR_INSTALLER=... SR_LAUNCHER_SHOT=<pn
 ## Updates (2026-11-09)
 
 `update_core.h` fetches the newest release (tag, notes as plain text, the address of this flavour's zip:
-`SonicRiders-<PC|Switch|Android>-Setup-<tag>.zip`). The sidebar's gold "See what's new" opens the Update page
+`SonicHeroes-<PC|Switch|Android>-Setup-<tag>.zip`). The sidebar's gold "See what's new" opens the Update page
 (P_UPDATE, listed only when there is one): notes, DOWNLOAD AND INSTALL (WinHTTP to build\update\update.zip with a
 progress bar), then `build\update\apply.ps1` (written by the launcher): Expand-Archive, the running exe renamed to
 `.old` (deleted at the next start), robocopy `/E /IS /IT /IM` of the zip's top folder over the root (without these

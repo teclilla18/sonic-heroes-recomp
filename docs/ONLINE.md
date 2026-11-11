@@ -1,5 +1,8 @@
 # Online play (design, in progress)
 
+> **Inherited from the Sonic Riders port** (forked 2026-11-11). File and folder names are updated for Sonic Heroes;
+> facts, numbers, addresses and test results are still Sonic Riders' until this page is revised for Heroes.
+
 Goal: race other players over the internet, PC and Switch together (cross-play).
 
 ## Rules

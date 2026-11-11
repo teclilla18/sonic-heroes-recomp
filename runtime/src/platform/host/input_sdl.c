@@ -77,7 +77,7 @@ void input_init(void) {
 static const GcPad k_neutral = {0, 0x80, 0x80, 0x80, 0x80, 0, 0};
 
 /* Analog triggers. A GameCube trigger is analog for most of its travel and clicks (the digital L / R
- * that Sonic Riders' drift reads) only at the bottom. Pads report different maximums (an Xbox Series X
+ * that Sonic Heroes' drift reads) only at the bottom. Pads report different maximums (an Xbox Series X
  * pad over Bluetooth on Android did not always reach the old fixed 29000 of 32767, so a full press
  * sometimes gave a weak or no drift). So each pad's trigger peak is learned while playing: the analog
  * value is scaled so the peak is 255, and the click comes at TRIG_CLICK of the peak. Until a peak is

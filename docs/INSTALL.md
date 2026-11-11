@@ -1,5 +1,8 @@
 # Installing Sonic Riders
 
+> **Inherited from the Sonic Riders port** (forked 2026-11-11). File and folder names are updated for Sonic Heroes;
+> facts, numbers, addresses and test results are still Sonic Riders' until this page is revised for Heroes.
+
 [← Back to the README](../README.md)
 
 - [What you need](#what-you-need)
@@ -51,7 +54,7 @@
 
 ## Install on Switch
 
-1. **Download** `SonicRiders-Switch-Setup-<version>.zip` from the [latest release](../../../releases/latest).
+1. **Download** `SonicHeroes-Switch-Setup-<version>.zip` from the [latest release](../../../releases/latest).
 2. **Extract** the whole zip to a folder, for example `C:\SonicRiders`. Don't run it from inside the zip.
    The folder's path must use only English letters and digits: if your Windows user name has accents or
    other letters, don't use your Downloads or Desktop folder.
@@ -74,7 +77,7 @@
    game enough memory.
 
 Hold **−** (Minus) in the game for the settings menu. Your saves and settings stay on the SD card in
-`switch/sonicriders/`.
+`switch/sonicheroes/`.
 
 ### Optional: a Sonic Riders icon on the HOME screen
 
@@ -88,11 +91,11 @@ command-line setup asks right after "What to build"):
 - **The picture (optional):** your own picture (`.png`, `.ico`, `.jpg`, `.bmp`; square, **256 x 256** or bigger
   looks best; it is made into the 256 x 256 JPEG the HOME menu shows), or the game's own memory-card icon.
   The same picture is used for the PC and Android icons when you build those too.
-- With an SD card selected, the setup copies it to `NSP\SonicRiders-HOME-icon.nsp` on the card (else it stays
-  in `build\nsp\`). **Install it once:** DBI → *Browse SD card* → `NSP` → `SonicRiders-HOME-icon.nsp` →
+- With an SD card selected, the setup copies it to `NSP\SonicHeroes-HOME-icon.nsp` on the card (else it stays
+  in `build\nsp\`). **Install it once:** DBI → *Browse SD card* → `NSP` → `SonicHeroes-HOME-icon.nsp` →
   *Install* (to the SD card); or Goldleaf → *Explore SD card* → the `.nsp` → *Install* → *SD card*. Go back to
   HOME: the icon is there, and the `.nsp` on the card can be deleted.
-- The icon starts `switch/sonicriders/sonicriders.nro`: keep the game there. Updating the game = replacing the
+- The icon starts `switch/sonicheroes/sonicheroes.nro`: keep the game there. Updating the game = replacing the
   `.nro`; the icon stays. If opening the icon shows an error, update your sigpatches.
 - The `.nsp` is packed with your keys: it is yours only, never share it.
 
@@ -102,7 +105,7 @@ icon question, or by hand: `python tools\nsp\make_forwarder.py --devkitpro <tool
 
 ## Install on PC
 
-1. **Download** `SonicRiders-PC-Setup-<version>.zip` from the [latest release](../../../releases/latest).
+1. **Download** `SonicHeroes-PC-Setup-<version>.zip` from the [latest release](../../../releases/latest).
 2. **Extract** the whole zip to a folder **you'll keep**, for example `C:\Games\SonicRiders`. The game,
    your saves and your settings live in that folder.
 3. **Double-click `Install Sonic Riders (PC).bat`.** If Windows shows "Windows protected your PC",
@@ -111,7 +114,7 @@ icon question, or by hand: `python tools\nsp\make_forwarder.py --devkitpro <tool
    the game: 10–30 minutes. It ends with "Done".
 5. **Play:** start **Sonic Riders** with the shortcut in the folder (or on your desktop).
 
-Controls are in [PLAYING.md](PLAYING.md). The game's log is `sonicriders.log` in the install folder
+Controls are in [PLAYING.md](PLAYING.md). The game's log is `sonicheroes.log` in the install folder
 (attach it to bug reports).
 
 ## Install on Android
@@ -121,7 +124,7 @@ The game is built on your PC and installed on the phone over USB; nothing is dow
 1. **On the phone, turn on USB debugging (once):** Settings → About phone → Software information → tap
    **Build number** 7 times until it says Developer mode is on. Then Settings → **Developer options** →
    **USB debugging**: on. (On other brands Build number is under About phone.)
-2. **Download** `SonicRiders-Android-Setup-<version>.zip` from the [latest release](../../../releases/latest)
+2. **Download** `SonicHeroes-Android-Setup-<version>.zip` from the [latest release](../../../releases/latest)
    and **extract** the whole zip to a folder **you'll keep**, for example `C:\SonicRiders` (only English letters
    and digits in the path).
 3. **Connect the phone** with a USB cable and unlock it. If it asks what the USB connection is for, choose
@@ -144,7 +147,7 @@ is START, top left opens the settings menu. Any Bluetooth or USB controller work
 controls until you touch the screen; hold Back/Select or press the phone's Back for the menu). Two players on
 one phone: connect two controllers.
 
-**Your saves** live inside the app's own folder on the phone (`Android/data/net.srnative.sonicriders/files/`).
+**Your saves** live inside the app's own folder on the phone (`Android/data/net.srnative.sonicheroes/files/`).
 Uninstalling the app deletes them, so update by installing over it (below), not by uninstalling first.
 
 **If the game crashes or stops with an error,** open it again: it shows "Sonic Riders stopped last time" and
@@ -164,7 +167,7 @@ on a very warm phone) is survived after the next update: the game pauses for abo
 
 ## Install on Linux / Steam Deck
 
-1. **Download** `SonicRiders-Linux-Setup-<version>.zip` from the [Linux test pre-release](../../../releases/tag/v0.5.0-linux-test)
+1. **Download** `SonicHeroes-Linux-Setup-<version>.zip` from the [Linux test pre-release](../../../releases/tag/v0.5.0-linux-test)
    (later releases will include it).
    On the Steam Deck, do steps 1-4 in **Desktop Mode** (Power → Switch to Desktop).
 2. **Extract** the whole zip to a folder **you'll keep**, for example `~/Games/SonicRiders` (right-click
@@ -179,8 +182,8 @@ on a very warm phone) is survived after the next update: the game pauses for abo
    tick **Sonic Riders** and click *Add*. Back in Game Mode it's in your library under *Non-Steam*, and
    the Deck's controls work as a game controller (hold *View* for the settings menu).
 
-The game's log is `sonicriders.log` in the install folder (attach it to bug reports); the setup's log is
-`setup.log`. The downloaded tools are kept in `~/.local/share/SonicRidersSetup/tools` for updates.
+The game's log is `sonicheroes.log` in the install folder (attach it to bug reports); the setup's log is
+`setup.log`. The downloaded tools are kept in `~/.local/share/SonicHeroesSetup/tools` for updates.
 
 ## Install on iPhone / iPad
 
@@ -194,7 +197,7 @@ it once and add iOS when it asks), **Homebrew** ([brew.sh](https://brew.sh); the
 and `shaderc` with it), about 6 GB free, internet the first time, a cable for the device, and an
 iPhone/iPad on **iOS / iPadOS 16 or newer**. A free Apple ID is enough.
 
-1. **Download** `SonicRiders-iOS-Setup-<version>.zip`, **double-click** it and keep the folder it makes
+1. **Download** `SonicHeroes-iOS-Setup-<version>.zip`, **double-click** it and keep the folder it makes
    (for example in your home folder). Open **`START HERE (Mac).html`** in it: it shows the first start with
    pictures.
 2. **Open the launcher the first time** (once; it's free and not signed by Apple, so macOS asks you to allow it):
@@ -228,8 +231,8 @@ iPhone/iPad on **iOS / iPadOS 16 or newer**. A free Apple ID is enough.
 
 With a free Apple ID, iOS stops opening the app 7 days after it was installed. Renewing puts it back for 7 more
 days; your saves and the disc image stay on the device. The app file is always on your Mac at
-**`~/Desktop/Sonic Riders iOS/SonicRiders.ipa`** (Finder: Desktop → *Sonic Riders iOS*; the build before it is
-`SonicRiders-prev.ipa`), and **`How to renew (every 7 days).txt`** in the same folder has these steps with your
+**`~/Desktop/Sonic Riders iOS/SonicHeroes.ipa`** (Finder: Desktop → *Sonic Riders iOS*; the build before it is
+`SonicHeroes-prev.ipa`), and **`How to renew (every 7 days).txt`** in the same folder has these steps with your
 own app ID filled in.
 
 **Renew the same way you installed**, or the device gets a second, empty Sonic Riders (no disc image, no saves):
@@ -238,9 +241,9 @@ own app ID filled in.
   - connect the device and in the launcher's *Install* page click *Find devices* and **Install only (renewing)**
     (or run `Install Sonic Riders (iOS).command` again: **y** to installing, **n** to copying the disc image); or
   - with Sideloadly, using the same Apple ID: drag in the `.ipa` and follow the `How to renew` file. Apps the Mac
-    installed from this version on have the ID `net.srnative.sonicriders.<your team ID>`, the same one Sideloadly
+    installed from this version on have the ID `net.srnative.sonicheroes.<your team ID>`, the same one Sideloadly
     makes with its default settings, so you just press *Start*. An app installed by an older version keeps its
-    older ID (for example `net.srnative.sonicriders.t1a2b3c4d`): there, open **Advanced Options** and **untick
+    older ID (for example `net.srnative.sonicheroes.t1a2b3c4d`): there, open **Advanced Options** and **untick
     "Use automatic bundle ID"** first, or Sideloadly installs a second app. The installer finds an app that is
     already on the device and builds with its ID, so your saves stay.
 - **You installed it with Sideloadly (or AltStore):** connect the device, drag the same `.ipa` into Sideloadly
@@ -258,7 +261,7 @@ installed apps", remove another sideloaded app first.
 
 **Playing:** touch controls on screen (the round button at the top left opens the settings menu, START
 pauses), or a game controller (Xbox, PlayStation, MFi). Locking the device or opening Control Center
-pauses the game. The game's log is `sonicriders.log` in the app's folder (Files app → *On My iPhone* →
+pauses the game. The game's log is `sonicheroes.log` in the app's folder (Files app → *On My iPhone* →
 *Sonic Riders*); the setup's log is `setup.log` in the install folder.
 
 ## Updating to a new version
@@ -275,7 +278,7 @@ Your saves and settings are kept: on the Switch they're on the SD card, which th
 On PC and Linux they're in the old install folder: copy its `saves` folder into the new one, then delete the old
 folder. On Android the update installs over the app and keeps its saves; it must be built **on the same PC**,
 because Android only accepts an update signed with the same key (the setup keeps it in
-`%LOCALAPPDATA%\SonicRidersSetup\tools\android\`; don't delete it). From another PC you would have to
+`%LOCALAPPDATA%\SonicHeroesSetup\tools\android\`; don't delete it). From another PC you would have to
 uninstall first, which deletes the saves.
 
 To get a notification when a new version comes out, click **Watch** at the top of the GitHub page,
@@ -290,9 +293,9 @@ then **Custom** → **Releases**. What changed in each version is in the [CHANGE
 | `CreateProcess failed: The system cannot find the file specified` (paths shown with `?` or odd letters) | Your folder path (often your Windows user name) has letters outside English. Fixed in v0.3.4: extract the zip to a folder like `C:\SonicRiders` and run the installer there. On v0.3.3 or older, also start it with `-ToolsDir C:\SonicRidersTools`. |
 | A download fails | Check your internet connection or firewall and run the setup again; finished downloads are kept. |
 | `Error opening archive: Can't initialize filter; unable to run program "xz -d -qq"` | Fixed in v0.2.2: download the latest release and run its installer. |
-| Switch: black screen or crash at start | Make sure you started from a game with R held (not the Album), and that the `.iso` is in `switch/sonicriders/`. |
+| Switch: black screen or crash at start | Make sure you started from a game with R held (not the Album), and that the `.iso` is in `switch/sonicheroes/`. |
 | Switch: slow motion / low frame rate | Set the frame rate to *30 fps* or *60 fps* (hold Minus for the settings), or overclock (see [What you need](#what-you-need)). |
-| PC: the game doesn't start | Check `sonicriders.log` in the install folder; update your graphics driver (OpenGL 3.3 is needed). |
+| PC: the game doesn't start | Check `sonicheroes.log` in the install folder; update your graphics driver (OpenGL 3.3 is needed). |
 | PC: no sound | Check Windows' default playback device; the game uses it. |
 | Linux: double-clicking the installer opens it in a text editor | Right-click it → *Properties* → *Permissions* → tick *Is executable*, or run `sh 'Install Sonic Riders (Linux).sh'` in a terminal in that folder. |
 | Linux: "SDL2 library ... was not found" | Install your distribution's SDL2 package (`libsdl2-2.0-0` on Debian/Ubuntu, `sdl2` on Arch/SteamOS, `SDL2` on Fedora). |
@@ -306,25 +309,25 @@ then **Custom** → **Releases**. What changed in each version is in the [CHANGE
 
 It checks your image's hash; downloads a pinned toolchain (Python, ninja, decomp-toolkit, and either
 devkitPro's devkitA64/libnx/deko3d for the Switch or llvm-mingw + SDL2 for the PC; every file is
-checked against a SHA-256 in `setup/toolchain.json`) into `%LOCALAPPDATA%\SonicRidersSetup\tools`;
+checked against a SHA-256 in `setup/toolchain.json`) into `%LOCALAPPDATA%\SonicHeroesSetup\tools`;
 extracts `main.dol` and `_Main.rel` from your image; analyses and recompiles them into C; builds; and
 (Switch) copies the result to the SD card. No administrator rights are needed.
 
 The SD card ends up with:
 
 ```
-sdmc:/switch/sonicriders/
-    sonicriders.nro             the port
+sdmc:/switch/sonicheroes/
+    sonicheroes.nro             the port
     <your disc image>.iso       read at runtime (music, models, stages...)
     saves/card_a.raw            memory card (created on first save)
     settings.ini                settings menu choices
-    sonicriders.log             log of the last run (sonicriders.prev.log: the one before; .prev2-.prev4: older)
+    sonicheroes.log             log of the last run (sonicheroes.prev.log: the one before; .prev2-.prev4: older)
 ```
 
-On Linux the install folder ends up with `Sonic Riders.sh` (the launcher), `build/host-linux/sonicriders`,
-`baserom/` (a link to your disc image), `saves/` and `sonicriders.log`, and the menu entry is
-`~/.local/share/applications/sonicriders.desktop`.
+On Linux the install folder ends up with `Sonic Riders.sh` (the launcher), `build/host-linux/sonicheroes`,
+`baserom/` (a link to your disc image), `saves/` and `sonicheroes.log`, and the menu entry is
+`~/.local/share/applications/sonicheroes.desktop`.
 
-The PC install folder ends up with `Sonic Riders.lnk` (the shortcut), `build\host-mingw\sonicriders.exe`
+The PC install folder ends up with `Sonic Riders.lnk` (the shortcut), `build\host-mingw\sonicheroes.exe`
 (the game), `baserom\` (a link to your disc image), `saves\` (memory card and settings) and
-`sonicriders.log`.
+`sonicheroes.log`.

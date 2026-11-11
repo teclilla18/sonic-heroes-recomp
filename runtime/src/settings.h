@@ -49,8 +49,8 @@ enum { FOV_MIN = 80, FOV_MAX = 130 };
 enum { PC_SCALE_MIN = 1, PC_SCALE_MAX = 4 };  /* 5x-6x tanked the fps on the maintainer's PC (2026-11-07) */
 
 extern Settings g_settings;
-extern volatile double g_aspect_scale;  /* camera aspect multiplier (config/GXEE8P/patches.txt) */
-extern volatile double g_fov_scale;     /* camera field of view multiplier (config/GXEE8P/patches.txt) */
+extern volatile double g_aspect_scale;  /* camera aspect multiplier (config/G9SE8P/patches.txt) */
+extern volatile double g_fov_scale;     /* camera field of view multiplier (config/G9SE8P/patches.txt) */
 
 void settings_load(void);   /* at start-up: reads the file, applies */
 int settings_handheld_pc(void);  /* Steam Deck / gamescope (first-run defaults, window size) */

@@ -1,4 +1,4 @@
-/* Small native replacements shared by several SDK functions (config/GXEE8P/hle.txt). */
+/* Small native replacements shared by several SDK functions (config/G9SE8P/hle.txt). */
 #include "runtime.h"
 
 /* hardware set-up/tear-down that has nothing to do natively; returns 0 */

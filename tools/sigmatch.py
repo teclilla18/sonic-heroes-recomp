@@ -5,7 +5,7 @@ The checksum is a port of Dolphin's HashSignatureDB::ComputeCodeChecksum: it has
 fields only (operands that relocation changes are masked), so the same SDK function matches
 across games. Function boundaries come from decomp-toolkit's symbols.txt.
 
-usage: sigmatch.py baserom/main.dol config/GXEE8P/symbols.txt build/ext/totaldb.dsy OUT.txt
+usage: sigmatch.py baserom/main.dol config/G9SE8P/symbols.txt build/ext/totaldb.dsy OUT.txt
 OUT.txt: one line per matched function: ADDR SIZE NAME [size-mismatch] [ambiguous]
 """
 import collections

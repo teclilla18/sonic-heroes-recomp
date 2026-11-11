@@ -1,0 +1,4 @@
+# Specialized fragment-shader keys (tools/gen_shaders.py, runtime/src/gx_shader_key.c): one line per GX TEV
+# setup the game uses: <hash> <n> <BP reg>:<value> ... (hex). Graphics-chip settings only, no game code or assets.
+# Add keys a console reports in sdmc:/switch/sonicheroes/shader_keys.txt (Android: the app folder).
+# Empty in the fork: Sonic Heroes' keys were removed; Heroes' keys are collected from scratch.

@@ -1,0 +1,10 @@
+# Native replacements: ADDRESS NAME  ->  f_ADDRESS calls the runtime's hle_NAME(c).
+# The game's own code stays available as f_ADDRESS_orig. Addresses: main.dol (G9SE8P rev 0).
+# Empty in the fork: the Sonic Heroes addresses were removed. Phase 0 finds the same functions in Heroes'
+# main.dol (tools/sigmatch.py) for the sections the Riders port had:
+#   OS: context switch (OSSaveContext/OSLoadContext, runtime/src/sched.c)
+#   OS: hardware initialisation with no native counterpart (__OSInitAudioSystem, __OSStopAudioSystem,
+#       __OSInitMemoryProtection)
+#   OS: module linking (OSLink/OSLinkFixed). Heroes loads 18 RELs, Riders one: see STATE.md
+#   C library: block copies and fills (runtime/src/hle_misc.c)
+#   Frame rate modes (runtime/src/frame_pacing.c)

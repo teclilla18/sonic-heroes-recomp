@@ -15,7 +15,7 @@ import struct
 import sys
 import zlib
 
-REL_SIZE = 2572344          # _Main.rel of GXEE8P rev 0
+REL_SIZE = 2572344          # _Main.rel of G9SE8P rev 0
 PAL_OFF, ICON_OFF = 0x1F7420, 0x1F7660  # palette (256 x RGB5A3), icon (32x32 CI8, 8x4 tiles)
 
 
@@ -88,7 +88,7 @@ def main():
     with open(args[0], "rb") as f:
         rel = f.read()
     if len(rel) != REL_SIZE:
-        sys.exit("make_icon: %s is not the GXEE8P rev 0 _Main.rel" % args[0])
+        sys.exit("make_icon: %s is not the G9SE8P rev 0 _Main.rel" % args[0])
     px = decode_icon(rel)
     with open(args[1], "wb") as f:
         f.write(ico([half(px), px, scale(px, 2), scale(px, 4), scale(px, 8)]))  # 16 32 64 128 256

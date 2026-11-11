@@ -1,7 +1,7 @@
 /* Frame rate modes (settings "Frame rate"): keep the game at full speed when a frame takes longer than
  * one 60 Hz retrace.
  *
- * Sonic Riders advances its simulation one step per loop iteration, and an iteration normally ends by
+ * Sonic Heroes advances its simulation one step per loop iteration, and an iteration normally ends by
  * waiting for the next retrace and presenting (fn_8000610C). A frame that needs 17 ms misses its
  * retrace and waits for the one after, so the game runs at 30 fps and half speed.
  *
@@ -151,7 +151,7 @@ static void auto_restart_schedule(void) {
  * runs with the same inputs (or a PC and a Switch run) must print the same lines; the first line and
  * block that differ show where they diverged. */
 #ifdef __SWITCH__
-#define DUMP_DIR "sdmc:/switch/sonicriders/"  /* RAM dumps next to the log */
+#define DUMP_DIR "sdmc:/switch/sonicheroes/"  /* RAM dumps next to the log */
 #else
 #define DUMP_DIR "build/"
 #endif

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""List or extract the files of your own Sonic Riders disc image (for making mods).
+"""List or extract the files of your own Sonic Heroes disc image (for making mods).
 
   disc_files.py list    IMAGE.iso [PATTERN]          names and sizes (PATTERN: e.g. "PS*", "*.ADX")
   disc_files.py extract IMAGE.iso OUTDIR [PATTERN]   copies the matching files into OUTDIR

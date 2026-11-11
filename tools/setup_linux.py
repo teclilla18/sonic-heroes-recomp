@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Sonic Riders setup for Linux and the Steam Deck (started by SonicRidersSetup.sh).
+"""Sonic Heroes setup for Linux and the Steam Deck (started by SonicHeroesSetup.sh).
 
     python3 tools/setup_linux.py [--iso IMAGE] [--yes] [--tools DIR] [--compiler auto|system|zig]
                                  [--desktop-shortcut yes|no]
 
 The same steps as the Windows setup (setup/setup.ps1), for the PC version only:
-  1. check your disc image (Sonic Riders USA, GXEE8P revision 0, SHA-1 of the Redump dump)
+  1. check your disc image (Sonic Heroes USA, G9SE8P revision 0, SHA-1 of the Redump dump)
   2. download the tools, each checked by SHA-256 (setup/toolchain.json "linux" + "imgui"):
      decomp-toolkit, ninja, Dear ImGui, and only when the system lacks them: SDL2's headers and
      the zig C/C++ compiler (SteamOS has no compiler and a read-only system, so nothing is installed
@@ -13,8 +13,8 @@ The same steps as the Windows setup (setup/setup.ps1), for the PC version only:
   3. extract main.dol and _Main.rel from the image
   4. analyse the game code (decomp-toolkit)
   5. recompile and build (configure.py --toolchain linux, ninja)
-  6. a launcher ("Sonic Riders.sh"), a menu entry, and how to add it to Steam
-Everything stays in this folder and the tools folder (default ~/.local/share/SonicRidersSetup/tools).
+  6. a launcher ("Sonic Heroes.sh"), a menu entry, and how to add it to Steam
+Everything stays in this folder and the tools folder (default ~/.local/share/SonicHeroesSetup/tools).
 Standard library only. Nothing from the game leaves this machine.
 """
 import argparse
@@ -93,7 +93,7 @@ def run(what, cmd, cwd=ROOT, env=None):
 # ---------------------------------------------------------------- disc image
 def pick_iso():
     """A file dialog where there is one (KDE on the Steam Deck: kdialog; GNOME: zenity), else a typed path."""
-    title = "Select your Sonic Riders (USA) disc image (GXEE8P, revision 0)"
+    title = "Select your Sonic Heroes (USA) disc image (G9SE8P, revision 0)"
     home = os.path.expanduser("~")
     gui = os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY")
     for cmd in (["kdialog", "--title", title, "--getopenfilename", home, "*.iso *.gcm|GameCube disc image"],
@@ -116,8 +116,8 @@ def check_iso(iso):
     with open(iso, "rb") as f:
         hdr = f.read(8)
     disc_id = hdr[:6].decode("ascii", "replace")
-    if disc_id != "GXEE8P":
-        fail("This image's game ID is '%s'; Sonic Riders (USA) is GXEE8P." % disc_id,
+    if disc_id != "G9SE8P":
+        fail("This image's game ID is '%s'; Sonic Heroes (USA) is G9SE8P." % disc_id,
              "Only the USA release is supported (PAL GXEP8P and Japanese GXEJ8P are not).")
     if hdr[7] != 0:
         fail("This is revision %d of the disc; revision 0 is supported." % hdr[7])
@@ -129,9 +129,9 @@ def check_iso(iso):
     log("SHA-1: " + h.hexdigest())
     if h.hexdigest() != ISO_SHA1:
         fail("The image does not match the known-good dump (expected SHA-1 %s)." % ISO_SHA1,
-             "A clean 1:1 dump (Redump: 'Sonic Riders (USA) (En,Ja,Fr,De,Es,It)') is needed. Trimmed, compressed "
+             "A clean 1:1 dump (Redump: 'Sonic Heroes (USA) (En,Ja,Fr,De,Es,It)') is needed. Trimmed, compressed "
              "(RVZ/CISO/GCZ) or modified images do not work; convert RVZ back to ISO with Dolphin first.")
-    log("Disc image OK: Sonic Riders (USA), GXEE8P revision 0.", "green")
+    log("Disc image OK: Sonic Heroes (USA), G9SE8P revision 0.", "green")
     return size
 
 
@@ -143,7 +143,7 @@ def download(url, sha256, dl_dir):
         return dest
     log("Downloading %s" % url)
     tmp = dest + ".part"
-    req = urllib.request.Request(url, headers={"User-Agent": "SonicRidersSetup/1.0"})
+    req = urllib.request.Request(url, headers={"User-Agent": "SonicHeroesSetup/1.0"})
     for attempt in range(3):
         try:
             with urllib.request.urlopen(req, timeout=60) as r, open(tmp, "wb") as f:
@@ -266,19 +266,19 @@ def compiler_works(cxx, tmp_dir=None):
 
 # ---------------------------------------------------------------- install
 def write_launcher(exe):
-    path = os.path.join(ROOT, "Sonic Riders.sh")
+    path = os.path.join(ROOT, "Sonic Heroes.sh")
     with open(path, "w", newline="\n") as f:
         f.write('#!/bin/sh\n'
-                '# Starts the Sonic Riders PC port from this folder (its disc image link, saves/ and settings live here).\n'
+                '# Starts the Sonic Heroes PC port from this folder (its disc image link, saves/ and settings live here).\n'
                 'cd "$(dirname "$0")" || exit 1\n'
-                '# from a terminal the log shows there; otherwise (menu, Steam) it goes to sonicriders.log here,\n'
-                '# the four runs before it kept as sonicriders.prev.log (the last) .. sonicriders.prev4.log\n'
+                '# from a terminal the log shows there; otherwise (menu, Steam) it goes to sonicheroes.log here,\n'
+                '# the four runs before it kept as sonicheroes.prev.log (the last) .. sonicheroes.prev4.log\n'
                 '[ -t 2 ] && exec ./{exe} "$@"\n'
-                '[ -f sonicriders.prev3.log ] && mv -f sonicriders.prev3.log sonicriders.prev4.log\n'
-                '[ -f sonicriders.prev2.log ] && mv -f sonicriders.prev2.log sonicriders.prev3.log\n'
-                '[ -f sonicriders.prev.log ] && mv -f sonicriders.prev.log sonicriders.prev2.log\n'
-                '[ -f sonicriders.log ] && mv -f sonicriders.log sonicriders.prev.log\n'
-                'exec ./{exe} "$@" 2>sonicriders.log\n'.format(exe=os.path.relpath(exe, ROOT)))
+                '[ -f sonicheroes.prev3.log ] && mv -f sonicheroes.prev3.log sonicheroes.prev4.log\n'
+                '[ -f sonicheroes.prev2.log ] && mv -f sonicheroes.prev2.log sonicheroes.prev3.log\n'
+                '[ -f sonicheroes.prev.log ] && mv -f sonicheroes.prev.log sonicheroes.prev2.log\n'
+                '[ -f sonicheroes.log ] && mv -f sonicheroes.log sonicheroes.prev.log\n'
+                'exec ./{exe} "$@" 2>sonicheroes.log\n'.format(exe=os.path.relpath(exe, ROOT)))
     os.chmod(path, 0o755)
     return path
 
@@ -286,8 +286,8 @@ def write_launcher(exe):
 def desktop_entry(launcher, icon):
     def q(p):  # the Exec key quotes arguments with spaces (Desktop Entry spec)
         return '"%s"' % p.replace("\\", "\\\\").replace('"', '\\"').replace("$", "\\$").replace("`", "\\`")
-    lines = ["[Desktop Entry]", "Type=Application", "Name=Sonic Riders",
-             "Comment=Sonic Riders (native PC port; your own disc image)",
+    lines = ["[Desktop Entry]", "Type=Application", "Name=Sonic Heroes",
+             "Comment=Sonic Heroes (native PC port; your own disc image)",
              "Exec=%s" % q(launcher), "Path=%s" % ROOT, "Terminal=false", "Categories=Game;"]
     if icon:
         lines.append("Icon=%s" % icon)
@@ -295,19 +295,19 @@ def desktop_entry(launcher, icon):
 
 
 def main():
-    ap = argparse.ArgumentParser(description="Sonic Riders setup for Linux / Steam Deck")
-    ap.add_argument("--iso", default="", help="your Sonic Riders (USA) disc image (GXEE8P revision 0, 1.4 GB .iso)")
+    ap = argparse.ArgumentParser(description="Sonic Heroes setup for Linux / Steam Deck")
+    ap.add_argument("--iso", default="", help="your Sonic Heroes (USA) disc image (G9SE8P revision 0, 1.4 GB .iso)")
     ap.add_argument("--yes", action="store_true", help="no questions (needs --iso)")
-    ap.add_argument("--tools", default=os.path.join(os.path.expanduser("~"), ".local", "share", "SonicRidersSetup", "tools"),
-                    help="where the downloaded tools go (default ~/.local/share/SonicRidersSetup/tools)")
+    ap.add_argument("--tools", default=os.path.join(os.path.expanduser("~"), ".local", "share", "SonicHeroesSetup", "tools"),
+                    help="where the downloaded tools go (default ~/.local/share/SonicHeroesSetup/tools)")
     ap.add_argument("--compiler", choices=["auto", "system", "zig"], default="auto",
                     help="auto: the system's clang/gcc if it works, else download zig (default)")
     ap.add_argument("--desktop-shortcut", choices=["", "yes", "no"], default="", help="also put a shortcut on the desktop")
     a = ap.parse_args()
 
     with open(LOG, "w", encoding="utf-8") as f:
-        f.write("Sonic Riders setup (Linux) %s\n" % time.strftime("%Y-%m-%d %H:%M:%S"))
-    log("Sonic Riders setup for Linux / Steam Deck")
+        f.write("Sonic Heroes setup (Linux) %s\n" % time.strftime("%Y-%m-%d %H:%M:%S"))
+    log("Sonic Heroes setup for Linux / Steam Deck")
     log("System: %s %s, Python %s" % (platform.system(), platform.machine(), platform.python_version()))
     try:
         with open("/etc/os-release") as f:
@@ -317,12 +317,12 @@ def main():
     except OSError:
         pass
     if platform.system() != "Linux":
-        fail("This setup is for Linux. On Windows use SonicRidersSetup.bat.")
+        fail("This setup is for Linux. On Windows use SonicHeroesSetup.bat.")
     if not os.path.isfile(os.path.join(ROOT, "configure.py")) or not os.path.isfile(os.path.join(ROOT, "tools", "recomp", "gcrecomp.py")):
         fail("This does not look like the complete release folder (configure.py / tools are missing).",
-             "Extract the whole zip first, then run SonicRidersSetup.sh from inside it.")
+             "Extract the whole zip first, then run SonicHeroesSetup.sh from inside it.")
     if " " in ROOT or not ROOT.isascii():
-        log("Note: this folder's path has spaces or non-English letters; if the build fails, move it to e.g. ~/SonicRiders.", "yellow")
+        log("Note: this folder's path has spaces or non-English letters; if the build fails, move it to e.g. ~/SonicHeroes.", "yellow")
     arch = {"amd64": "x86_64", "arm64": "aarch64"}.get(platform.machine().lower(), platform.machine().lower())
     tc = json.load(open(os.path.join(ROOT, "setup", "toolchain.json"), encoding="utf-8"))
     lx = tc["linux"]
@@ -337,7 +337,7 @@ def main():
             fail("--iso is required with --yes.")
         iso = pick_iso()
         if not iso:
-            fail("No disc image selected.", "Run it again and pick the image, or pass it: ./SonicRidersSetup.sh --iso /path/to/image.iso")
+            fail("No disc image selected.", "Run it again and pick the image, or pass it: ./SonicHeroesSetup.sh --iso /path/to/image.iso")
     iso = os.path.abspath(os.path.expanduser(iso))
     iso_size = check_iso(iso)
 
@@ -384,7 +384,7 @@ def main():
     run("extract main.dol and _Main.rel", [sys.executable, "-I", "tools/extract_iso.py", iso, "baserom", "--no-verify-iso"])
     if not any(n.endswith(".iso") and os.path.getsize(os.path.join(baserom, n)) == iso_size
                for n in os.listdir(baserom) if os.path.exists(os.path.join(baserom, n))):
-        dest = os.path.join(baserom, os.path.basename(iso) if iso.endswith(".iso") else "SonicRiders.iso")
+        dest = os.path.join(baserom, os.path.basename(iso) if iso.endswith(".iso") else "SonicHeroes.iso")
         if os.path.lexists(dest):
             os.remove(dest)
         try:
@@ -401,13 +401,13 @@ def main():
 
     # 4 -------------------------------------------------------------
     step(4, "Analysing the game code")
-    run("decomp-toolkit analysis", [dtk, "dol", "split", "config/GXEE8P/config.yml", "build/GXEE8P"])
+    run("decomp-toolkit analysis", [dtk, "dol", "split", "config/G9SE8P/config.yml", "build/G9SE8P"])
 
     # 5 -------------------------------------------------------------
     step(5, "Recompiling and building (a few minutes; longer the first time with zig)")
     run("configure", [sys.executable, "configure.py", "--target", "host", "--toolchain", "linux"] + conf_args)
     run("build the PC version", [ninja])
-    exe = os.path.join(ROOT, "build", "host-linux", "sonicriders")
+    exe = os.path.join(ROOT, "build", "host-linux", "sonicheroes")
     if not os.path.isfile(exe):
         fail("The build finished but %s is missing." % exe)
     log("Built %s" % os.path.relpath(exe, ROOT), "green")
@@ -415,33 +415,33 @@ def main():
     # 6 -------------------------------------------------------------
     step(6, "Installing")
     launcher = write_launcher(exe)
-    log("Created the launcher 'Sonic Riders.sh' in this folder.")
+    log("Created the launcher 'Sonic Heroes.sh' in this folder.")
     entry = desktop_entry(launcher, icon)
     apps = os.path.join(os.environ.get("XDG_DATA_HOME") or os.path.expanduser("~/.local/share"), "applications")
     try:
         os.makedirs(apps, exist_ok=True)
-        with open(os.path.join(apps, "sonicriders.desktop"), "w") as f:
+        with open(os.path.join(apps, "sonicheroes.desktop"), "w") as f:
             f.write(entry)
-        log("Added 'Sonic Riders' to the application menu (Games).")
+        log("Added 'Sonic Heroes' to the application menu (Games).")
     except OSError as e:
         log("Could not add the menu entry (%s)." % e, "yellow")
-    ds = a.desktop_shortcut or ("yes" if ask("Put a 'Sonic Riders' shortcut on your desktop? (y/n)", "y", a.yes).lower().startswith("y") else "no")
+    ds = a.desktop_shortcut or ("yes" if ask("Put a 'Sonic Heroes' shortcut on your desktop? (y/n)", "y", a.yes).lower().startswith("y") else "no")
     if ds == "yes":
         desk = subprocess.run(["xdg-user-dir", "DESKTOP"], capture_output=True, text=True).stdout.strip() if shutil.which("xdg-user-dir") else ""
         desk = desk or os.path.expanduser("~/Desktop")
         if os.path.isdir(desk):
-            p = os.path.join(desk, "sonicriders.desktop")
+            p = os.path.join(desk, "sonicheroes.desktop")
             with open(p, "w") as f:
                 f.write(entry)
             os.chmod(p, 0o755)
             log("Created the desktop shortcut.")
     log()
-    log("Done. Start the game with 'Sonic Riders' in the application menu, or ./'Sonic Riders.sh' here.", "green")
+    log("Done. Start the game with 'Sonic Heroes' in the application menu, or ./'Sonic Heroes.sh' here.", "green")
     log("Keep this folder: the game, your disc image link and your saves (saves/) live here.", "green")
     log()
     log("Steam Deck / Steam (Game Mode, controller):")
     log("  1. In Desktop Mode open Steam > Games > Add a Non-Steam Game to My Library.")
-    log("  2. Tick 'Sonic Riders' in the list (or Browse to 'Sonic Riders.sh' in this folder) and click Add.")
+    log("  2. Tick 'Sonic Heroes' in the list (or Browse to 'Sonic Heroes.sh' in this folder) and click Add.")
     log("  3. Back in Game Mode it is in your library under Non-Steam. The Deck's controls work as a game")
     log("     controller (Steam Input); hold the View button (or F1) for the settings menu.")
     log("Keyboard: WASD = move, J = A, K = B, L = X, I = Y, Enter = START, U/O = L/R, P = Z; F11 = fullscreen.")

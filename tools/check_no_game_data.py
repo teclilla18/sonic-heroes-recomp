@@ -9,7 +9,7 @@ This repository holds only our own source, docs and tooling. Refused:
   - game-data / build directories (baserom/, build/, gen/, asm/, ...) and file types (disc images,
     DOL/REL, ADX/SFD/AFS, objects, NRO/NSO/NSP, APK/AAB/.so/.dex, shader binaries (dksh, SPIR-V), signing keystores, keys, saves, logs, screenshots);
   - files over 512 KB, binary files (NUL bytes);
-  - the game's own files by hash (ISO, main.dol, _Main.rel, SonicR.str);
+  - the game's own files by hash (both games' ISOs, main.dol, RELs and .str files);
   - disassembly (decomp-toolkit asm lines) and recompiled C (the recompiler's per-instruction lines);
   - secrets written as key = hex, and personal home-folder paths.
 Exit status 1 and one line per problem when something is refused.
@@ -29,12 +29,34 @@ EXTS = (".iso", ".gcm", ".rvz", ".ciso", ".gcz", ".wbfs", ".tgc", ".dol", ".rel"
         ".sav", ".log", ".bmp", ".tga", ".wav", ".dtm", ".dat", ".ipa",  # .ipa: the iOS app (recompiled code)
         # Android build products: they hold recompiled game code (or signing keys) and are built locally
         ".apk", ".aab", ".apks", ".idsig", ".so", ".dex", ".spv", ".keystore", ".jks")
-# SHA-1 of the user's disc image and the files on it (Redump GXEE8P rev 0); never committable
+# SHA-1 of the user's disc image and the files on it (Redump G9SE8P rev 0); never committable
 GAME_SHA1 = {
     "ce0cecf57034bef8bab7d6f588ce92c85a849613": "the disc image",
     "e90a13504974b917a675d59f07014e0e817c5e5d": "main.dol",
     "1607fbb1ccabf116642c3c59ee9b21c304a1db26": "_Main.rel",
     "caf827eb8c510744c0825304f68ae89250bb11a3": "SonicR.str",
+    # Sonic Heroes (USA) G9SE8P rev 0 (this fork's game): the disc image and its code files
+    "dd752c8aa64f2f043c32be0f0bd5b8617357bfe6": "the Sonic Heroes disc image",
+    "9214426b8a3fb1d6fe3dcff09bcc1a959e1e04a8": "main.dol (Sonic Heroes)",
+    "2de54e8ff887c417fa96f4b45734e54ad5560e9a": "TSonic.str",
+    "0b28051533603c5f330b1af7e1959be8e73856ea": "advertiseD.rel",
+    "120e89d6ca861f63ecf9c8f2d282bab5b500ab17": "autosaveD.rel",
+    "6e2773a99ec5b05d5634d09521246e3e28bd6de9": "movieD.rel",
+    "3ef757fe69b177792cf6c3ee9fd54fb275df01ba": "stage00D.rel",
+    "7c61a97a347c714cd72bdf6cab204b0749e946f2": "stage01D.rel",
+    "9e1c377aa780e2bee876a14325263a6b2b541934": "stage03D.rel",
+    "76a08d21162462b8c75b124aee8bb213db292bee": "stage05D.rel",
+    "89b6ee655fa9bb07ca8ef9d30dc00befcc9295f2": "stage07D.rel",
+    "836d0accf611530095e01d5f87c43d35bc87bc3c": "stage09D.rel",
+    "79a86badbc61416b3efc14802c536eeaef6cf0aa": "stage11D.rel",
+    "c86851d0e26cfb3b9c639c33babfc7768868fab4": "stage13D.rel",
+    "e5585aec40ebb843bbd5c9a2d947abeda4acc048": "stage26D.rel",
+    "06e4b2926228a64dd7ae81007c75fd9194c402c2": "stage27D.rel",
+    "93b0dd05156fa2dee32a64930d354c9e985d7e4a": "stage28D.rel",
+    "4c052149e2df1c88c29038dd20e7a53c863c1d09": "stage31D.rel",
+    "27d8092da77c4fdb3b53381849966e91d9672e68": "stage32D.rel",
+    "8456fb201666c6ea3bf200fcf2fe8dfd2e05ca50": "stage33D.rel",
+    "efc22e14f102354f27547b3d68c1df6b5e63fce6": "stage40D.rel",
 }
 # patterns are built from pieces so this file does not match itself
 ASM_LINE = re.compile(r"^/\* [0-9A-F]{8} [0-9A-F]{8}  ([0-9A-F]{2} ){4}\*/", re.M)          # dtk asm
@@ -50,12 +72,8 @@ HOME_OK = re.compile(r"(?i)(users[\\/](?:<[^>]+>|(?:you|name|username|me|public)
 # picture is refused until its SHA-1 is put here. Also the launcher banner (the user's OK, 2026-11-07): public
 # fan art the user chose, not from the game.
 OWN_ART = {
-    "docs/images/banner.jpg": "54c9de3ff1b1c31237fc9649449e1f4bdfae4f9b",  # README banner (fan art, user's choice, 2026-11-09)
-    "launcher/banner.jpg": "a1d51fb7890668be5dfd126311b946aec8744339",
     "launcher/icon_256.png": "80541e60eb82d9440c001da3bc4c7240bda2b111",  # launcher icon (user's ChatGPT art, 2026-11-09)
     "launcher/icon_32.png": "24e3018e7e6651be4cbba8228f81364bf9d0a70e",
-    "setup/icon.png": "b84f997daba5df2563d0c3526cf633aa87151ebf",  # game icon: cedry2kio's fan-made icon (user's OK, 2026-11-10; README credits)
-    "setup/icon_256.jpg": "4ab58b2f4da4418a9febadea57937eae7f2da5a6",  # the same, 256 x 256 for the Switch NRO
     "android/touch_icons/boost_b.png": "e91d748d8a99c76b0aad985ea40ae1437c10e982",
     "android/touch_icons/drift_r.png": "45e1558994abaad8f85966ad7c8ff32ee5cde5ac",
     "android/touch_icons/jump_a.png": "d1ff0d81d64478b89993997059c635d42cd3c331",

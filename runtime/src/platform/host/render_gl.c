@@ -1506,7 +1506,7 @@ static int render_thread(void* arg) {
         SDL_DisplayMode dm;  /* Steam Deck / gamescope: the window as big as the screen (it is scaled to it) */
         if (!getenv("SR_WINDOW") && settings_handheld_pc() && SDL_GetDesktopDisplayMode(0, &dm) == 0 && dm.w >= 640)
             win_w = dm.w, win_h = dm.h;
-        g_win = SDL_CreateWindow("Sonic Riders (native)", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, win_w, win_h,
+        g_win = SDL_CreateWindow("Sonic Heroes (native)", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, win_w, win_h,
                                  SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | (minimized ? SDL_WINDOW_MINIMIZED : 0));
         if (!g_win) rt_fatal("SDL_CreateWindow: %s", SDL_GetError());
         if (!SDL_GL_CreateContext(g_win)) rt_fatal("SDL_GL_CreateContext: %s", SDL_GetError());

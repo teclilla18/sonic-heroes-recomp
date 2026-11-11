@@ -1,5 +1,8 @@
 # Playing
 
+> **Inherited from the Sonic Riders port** (forked 2026-11-11). File and folder names are updated for Sonic Heroes;
+> facts, numbers, addresses and test results are still Sonic Riders' until this page is revised for Heroes.
+
 [← Back to the README](../README.md)
 
 ## Controls
@@ -45,7 +48,7 @@ controller.
 
 ## Debug options
 
-Diagnostics are turned on with variables: on the Switch, an `env.txt` in `sdmc:/switch/sonicriders/`
+Diagnostics are turned on with variables: on the Switch, an `env.txt` in `sdmc:/switch/sonicheroes/`
 with one `NAME=VALUE` per line; on PC, environment variables. For example:
 
 | Variable | Effect |

@@ -1,5 +1,8 @@
 # Modding Sonic Riders
 
+> **Inherited from the Sonic Riders port** (forked 2026-11-11). File and folder names are updated for Sonic Heroes;
+> facts, numbers, addresses and test results are still Sonic Riders' until this page is revised for Heroes.
+
 [← Back to the README](../README.md)
 
 > [!NOTE]
@@ -31,7 +34,7 @@ you install, so it can't be swapped at runtime. Code mods are on the [roadmap](#
 
 1. Find the `mods` folder:
    - **PC:** in the install folder (next to `Sonic Riders.lnk`). Create it if it isn't there.
-   - **Switch:** `switch/sonicriders/mods/` on the SD card.
+   - **Switch:** `switch/sonicheroes/mods/` on the SD card.
 2. Put the mod's folder inside it, so that you have `mods/<ModName>/files/...`.
 3. Start the game. The mod is turned on and added to `mods/mods.ini`.
 
@@ -49,7 +52,7 @@ Here `SuperSonicSkin` is on and `TrackPackTest` is off. Changes apply the next t
 You can also turn mods on and off in game: open the settings menu and choose **Mods** (it lists every
 mod with On/Off; the order is the order in `mods.ini`). Restart the game to apply the changes.
 
-**Did it work?** The game's log (`sonicriders.log`) lists every mod at the start, and each mod file
+**Did it work?** The game's log (`sonicheroes.log`) lists every mod at the start, and each mod file
 the first time the game reads it:
 
 ```

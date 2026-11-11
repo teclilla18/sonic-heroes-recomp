@@ -2,7 +2,7 @@
  * code and the runtime: SR_PROFILE=1 samples the instruction pointer of every thread that runs guest
  * code (registered by sched.c / main.c) about every millisecond; profile_dump() (the watchdog, or
  * exit) writes build/profile.txt as "offset-in-executable count" lines, which tools/profile_report.py
- * maps to functions with the linker map (build/host/sonicriders.map). SR_PROFILE_WINDOW=FROM,TO samples
+ * maps to functions with the linker map (build/host/sonicheroes.map). SR_PROFILE_WINDOW=FROM,TO samples
  * only between those VI fields (e.g. one race); SR_PROFILE_OUT=path writes there instead (parallel
  * runs). Other platforms: no-ops. */
 #include <stdio.h>
