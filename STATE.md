@@ -37,8 +37,8 @@ does not behave like Riders**. Logs/keys of that run: close the game, then FTP `
 
 1. **Ultrawide / fit to screen without stretching, HUD at the screen edges.** *Implemented, untested:*
    config/G9SE8P/patches.txt `8019D0F0` widens RwCameraSetViewWindow (fn_8019D0CC [likely]; camera+0x68 view
-   window, raster width +0xC >= 512 = screen cameras only) by `g_aspect_scale` (Hor+, culling follows). A host
-   build was running when the session ended: check it builds, then PC `SR_SCREEN=3 SR_WINDOW=2560x1080` route
+   window, raster width +0xC >= 512 = screen cameras only) by `g_aspect_scale` (Hor+, culling follows). The host
+   build with it compiles (2026-11-11); next: PC `SR_SCREEN=3 SR_WINDOW=2560x1080` route
    shots. Still needed for edge HUD: Heroes game-state addresses for `GAME_TOP_MODE`/`GAME_MENU_FLAG`
    (game_addrs.h `GAME_UNKNOWN`), see docs/archive/riders/ultrawide-fov.md (wide_anchor rules). fn_801AC6A4 =
    RW camera projection (reads 0x70..0x84).
