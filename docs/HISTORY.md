@@ -16,3 +16,8 @@ Dated sessions and hardware tests, oldest first. The Sonic Riders port's history
   plus the re-investigator agent and the recompiler / device-model rules.
 - Disc copied to `baserom/`, hash equal to the original [confirmed]; `extract_iso.py` extracted main.dol, 18 RELs
   and TSonic.str, all verified [confirmed]. Nothing built yet: the runtime still expects Riders' single REL.
+
+- First push to `teclilla18/sonic-heroes-recomp` (private). GitHub guard failed on old versions of the credited
+  fan art inherited from Riders' history (`--history` scans every version); fixed with `PAST_ART` (a09bbbb),
+  green on GitHub [confirmed]. Riders' public guard fails on the same 3 pictures; the fix applies to riders/main
+  cleanly and keeps its fan art (tested on a temporary copy) [confirmed]; not applied to Riders (user's call).

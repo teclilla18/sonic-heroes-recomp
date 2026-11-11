@@ -18,25 +18,28 @@ for one REL (`_Main.rel` at `REL_BASE`); Heroes has 18.
 Done 2026-11-11 (HISTORY "fork"): forked from Riders' `main` with history (remote `riders`); player-facing names,
 Switch title ID 0x010053480D9A0000, Android `net.srnative.sonicheroes`, update checker repo changed; Riders game data
 and fan art removed; guard + `tools/extract_iso.py` know Heroes' hashes; disc copied to `baserom/` and extracted
-(main.dol, 18 RELs, TSonic.str, all verified) [confirmed]; starter-kit skills merged in. Not pushed: GitHub repo
-`teclilla18/sonic-heroes-recomp` not created yet (user).
+(main.dol, 18 RELs, TSonic.str, all verified) [confirmed]; starter-kit skills merged in. Pushed to
+`teclilla18/sonic-heroes-recomp` (private, remote `origin`); GitHub guard green after PAST_ART (a09bbbb: earlier
+versions of the credited fan art are accepted by the history scan only).
+
+**For Riders (user's call, not done):** cherry-pick a09bbbb (turns Riders' failing GitHub guard green; Riders keeps
+its fan art, tested on a copy of riders/main) and optionally aa7cb5f (pre-commit hook path).
 
 ## Next steps, in order
 
-1. User: create the GitHub repo `sonic-heroes-recomp` (private to start), then `git remote add origin <url>` and push.
-2. dtk analysis: `build/tools/dtk.exe dol split config/G9SE8P/config.yml build/G9SE8P` (DOL + 18 modules). Check
+1. dtk analysis: `build/tools/dtk.exe dol split config/G9SE8P/config.yml build/G9SE8P` (DOL + 18 modules). Check
    module IDs, sections, and how the game loads/unloads stage RELs (OSLink/OSUnlink callers).
-3. SDK map: `tools/sigmatch.py` on main.dol; fill `config/G9SE8P/hle.txt` (same entries as Riders had).
-4. Multi-REL design, written in docs/notes/ before code: one fixed base per REL, `rel.c` OSLink/OSUnlink for any
+2. SDK map: `tools/sigmatch.py` on main.dol; fill `config/G9SE8P/hle.txt` (same entries as Riders had).
+3. Multi-REL design, written in docs/notes/ before code: one fixed base per REL, `rel.c` OSLink/OSUnlink for any
    of the 18, `loader.c`, `gcrecomp.py` emitting all modules. Then `disc.c` with the Shift-JIS file names.
-5. Riders game hooks left in shared runtime files, to make inert or move behind a game switch so shared files stay
+4. Riders game hooks left in shared runtime files, to make inert or move behind a game switch so shared files stay
    cherry-pickable: `game_mods.c` / `mods_data.c` (Extreme Gear table), `game_addrs.h`, `netplay.c` save flags,
    `main.c` ISO size check, `android_icon.py` (save icon from `_Main.rel`), `setup.ps1` extract step text.
-6. First PC boot (logos), then Eden v0.1.1, then the OLED.
+5. First PC boot (logos), then Eden v0.1.1, then the OLED.
 
 ## Waiting on the user
 
-- The GitHub repo (step 1). SD card drive letter for /hw-test when Switch tests start.
+- SD card drive letter for /hw-test when Switch tests start.
 - Heroes Disassembly / NPDP prototypes as naming sources: download only with the user's OK.
 
 ## Risks
