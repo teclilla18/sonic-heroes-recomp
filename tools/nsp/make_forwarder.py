@@ -10,7 +10,7 @@ screen starts the .nro as an application (full memory, no need to hold R over a 
 - Your console's prod.keys (dumped with Lockpick_RCM) are needed to pack an NSP. They are read where they are by
   hacBrewPack, never copied, and the NSP is yours only: never share it.
 - --icon: your own picture (.png or .ico; any size, square looks best; it becomes a 256 x 256 JPEG). Without it,
-  the fan-made icon in setup/icon.png is used (by cedry2kio, README credits).
+  the fan-made icon in setup/icon.png is used (by somegameicons, README credits).
 - --cc: a C compiler for this PC, used once for hacBrewPack (llvm-mingw's clang on Windows, "zig cc" or cc on
   Linux). --devkitpro: devkitPro with devkitA64, libnx and switch-tools (the setup's own).
 

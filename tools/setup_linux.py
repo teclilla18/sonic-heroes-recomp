@@ -394,7 +394,7 @@ def main():
             os.symlink(iso, dest)
             log("Linked the disc image into baserom/ (a symbolic link: keep the image where it is).")
     os.makedirs(os.path.join(ROOT, "build"), exist_ok=True)
-    icon = os.path.join(ROOT, "setup", "icon.png")  # the fan-made icon by cedry2kio (README credits)
+    icon = os.path.join(ROOT, "setup", "icon.png")  # the fan-made icon by somegameicons (README credits)
     if not os.path.isfile(icon):
         log("No program icon (setup/icon.png is missing); the game works without it.", "yellow")
         icon = ""

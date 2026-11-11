@@ -247,7 +247,7 @@ if ($HomeIcon -eq "yes") {
         }
     }
 }
-# no picture of your own: the fan-made icon shipped in setup\icon.png (by cedry2kio, see README credits)
+# no picture of your own: the fan-made icon shipped in setup\icon.png (by somegameicons, see README credits)
 if (-not $Icon -and (Test-Path -LiteralPath (Join-Path $Root "setup\icon.png") -PathType Leaf)) { $Icon = Join-Path $Root "setup\icon.png" }
 if ($Icon) {
     if (-not (Test-Path -LiteralPath $Icon -PathType Leaf)) { Fail "Icon picture not found: $Icon" }

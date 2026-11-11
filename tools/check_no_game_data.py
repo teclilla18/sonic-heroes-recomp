@@ -73,6 +73,8 @@ HOME_OK = re.compile(r"(?i)(users[\\/](?:<[^>]+>|(?:you|name|username|me|public)
 # fan art the user chose, not from the game.
 OWN_ART = {
     "docs/images/banner.jpg": "06ffe0808b9f58de8832d3b1b31e820b790cd45b",  # README banner (Sonic Heroes Recomp emblem: the user's own AI-made art, no credit needed, 2026-11-11)
+    "setup/icon.png": "62d5e9ea02ad59f823e0fab11e22100acc0bc4d9",  # game icon: somegameicons' fan-made Sonic Heroes icon on a dark blue (user's OK, 2026-11-11; README credits)
+    "setup/icon_256.jpg": "d9bfb4862ae3f44fbb021a575efabd0816a3756f",  # the same, 256 x 256 JPEG (Homebrew Menu / forwarder)
     "launcher/icon_256.png": "80541e60eb82d9440c001da3bc4c7240bda2b111",  # launcher icon (user's ChatGPT art, 2026-11-09)
     "launcher/icon_32.png": "24e3018e7e6651be4cbba8228f81364bf9d0a70e",
     "android/touch_icons/boost_b.png": "e91d748d8a99c76b0aad985ea40ae1437c10e982",
@@ -86,7 +88,7 @@ OWN_ART = {
 
 # Earlier versions of approved pictures, accepted only by --history (they sit in old commits; GitHub Actions scans
 # every version ever committed). Fan art the project uses with credit (README credits): the banner (public fan art,
-# the user's choice, 2026-11-07) and cedry2kio's game icon (the user's OK, 2026-11-10); and the maintainer's own
+# the user's choice, 2026-11-07) and cedry2kio's Sonic Riders game icon (the user's OK, 2026-11-10); and the maintainer's own
 # touch-control art. Committing any of these again as a new file is still refused unless it is in OWN_ART.
 PAST_ART = {
     "docs/images/banner.jpg": {"54c9de3ff1b1c31237fc9649449e1f4bdfae4f9b"},

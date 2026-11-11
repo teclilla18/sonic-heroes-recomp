@@ -402,7 +402,7 @@ with open(os.path.join(ROOT, "build.ninja"), "w") as f:
         n.build(o, "cxx", IMGUI + "/" + src, variables={"extra": "-O2 -w"})
         objs.append(o)
     # program icon (PC, llvm-mingw): your own .ico (--icon), else build/icon_default.ico, made here from the
-    # fan-made icon in setup/icon.png (by cedry2kio, README credits)
+    # fan-made icon in setup/icon.png (by somegameicons, README credits)
     icon = os.path.abspath(args.icon).replace("\\", "/") if args.icon else default_pc_icon()
     if args.target == "host" and args.toolchain == "mingw" and os.path.isfile(os.path.join(ROOT, icon)):
         rc = OUT + "/gen/icon.rc"
@@ -421,7 +421,7 @@ with open(os.path.join(ROOT, "build.ninja"), "w") as f:
         n.rule("nacp", "%s/tools/bin/nacptool.exe --create \"Sonic Heroes\" \"native port (own disc image required)\" 0.1.0 $out" % dkp,
                description="NACP $out")
         n.build(OUT + "/sonicheroes.nacp", "nacp")
-        # the Homebrew Menu icon: setup/icon_256.jpg (256 x 256 JPEG; the fan-made icon by cedry2kio, README credits)
+        # the Homebrew Menu icon: setup/icon_256.jpg (256 x 256 JPEG; the fan-made icon by somegameicons, README credits)
         nro_icon = "setup/icon_256.jpg" if os.path.isfile(os.path.join(ROOT, "setup/icon_256.jpg")) else ""
         n.rule("nro", "%s/tools/bin/elf2nro.exe $in $out --nacp=%s/sonicheroes.nacp%s" % (dkp, OUT, " --icon=" + nro_icon if nro_icon else ""),
                description="NRO $out")

@@ -65,8 +65,9 @@ Licensed under the [Mozilla Public License 2.0](LICENSE), like the translator it
   [SDL2](https://www.libsdl.org/), [llvm-mingw](https://github.com/mstorsjo/llvm-mingw),
   [Dear ImGui](https://github.com/ocornut/imgui) (MIT),
   [AMD FidelityFX Super Resolution 1](https://github.com/GPUOpen-Effects/FidelityFX-FSR) (MIT).
-- Switch home-screen icon (on the maintainer's console, not in this repository): "Sonic Heroes icon" by
-  **somegameicons** on DeviantArt
-  ([CC BY-NC-ND 3.0](https://creativecommons.org/licenses/by-nc-nd/3.0/)).
+- Game icon (`setup/icon.png`, used for every console's build): fan-made
+  [Sonic Heroes icon](https://www.deviantart.com/somegameicons/art/Sonic-Heroes-icon-422952372) by
+  [somegameicons](https://www.deviantart.com/somegameicons) on DeviantArt, used with credit, shown on a plain dark
+  blue background. somegameicons, if you'd like it changed or removed, open an issue and we'll do it right away.
 
 Sonic Heroes is © SEGA. This project is not affiliated with SEGA.
