@@ -1,10 +1,24 @@
 # Native replacements: ADDRESS NAME  ->  f_ADDRESS calls the runtime's hle_NAME(c).
 # The game's own code stays available as f_ADDRESS_orig. Addresses: main.dol (G9SE8P rev 0).
-# Empty in the fork: the Sonic Heroes addresses were removed. Phase 0 finds the same functions in Heroes'
-# main.dol (tools/sigmatch.py) for the sections the Riders port had:
-#   OS: context switch (OSSaveContext/OSLoadContext, runtime/src/sched.c)
-#   OS: hardware initialisation with no native counterpart (__OSInitAudioSystem, __OSStopAudioSystem,
-#       __OSInitMemoryProtection)
-#   OS: module linking (OSLink/OSLinkFixed). Heroes loads 18 RELs, Riders one: see STATE.md
-#   C library: block copies and fills (runtime/src/hle_misc.c)
-#   Frame rate modes (runtime/src/frame_pacing.c)
+# Found 2026-11-11 with tools/sigmatch.py + dtk symbols (docs/notes/rel-modules.md).
+
+# --- OS: context switch (runtime/src/sched.c) ---
+801D2618 OSSaveContext
+801D2698 OSLoadContext
+
+# --- OS: hardware initialisation with no native counterpart ---
+801D1C90 nop        # __OSInitAudioSystem (DSP reset, ARAM probe)
+801D1E4C nop        # __OSStopAudioSystem
+801D46F4 nop        # __OSInitMemoryProtection (MI protection, BAT setup in real mode via rfi)
+
+# --- OS: module linking. Each REL runs from its fixed image (runtime/src/rel.c; design: rel-modules.md) ---
+801D40EC OSLink     # OSLink(module, bss); no OSLinkFixed in this SDK
+801D4348 OSUnlink   # OSUnlink(module)
+
+# --- C library: block copies and fills (runtime/src/hle_misc.c) ---
+800031E8 memcpy
+80003100 memset
+801C0290 memmove
+
+# --- Frame rate modes (runtime/src/frame_pacing.c): Riders' frame_end / vi_wait_retrace hooks are game code,
+# not found for Heroes yet. VIWaitForRetrace is 801DC758; the frame-end function needs RE first.

@@ -1,4 +1,4 @@
-# State (2026-11-11, after the dtk analysis)
+# State (2026-11-11, evening: multi-REL in, first PC boot)
 
 Read this at the start of every session. Rewrite it in place at the end of each session (never append). Stories
 behind each line: `grep` the date or topic in [docs/HISTORY.md](docs/HISTORY.md) (Riders' history:
@@ -22,28 +22,32 @@ and fan art removed; guard + `tools/extract_iso.py` know Heroes' hashes; disc co
 `teclilla18/sonic-heroes-recomp` (private, remote `origin`); GitHub guard green after PAST_ART (a09bbbb: earlier
 versions of the credited fan art are accepted by the history scan only).
 
-Done 2026-11-11 later (HISTORY "dtk analysis"; facts in docs/notes/rel-modules.md): dtk split works (main + 17
-RELs, 39,075 functions; `links: []` per module) [confirmed]. **stage00D is a stale REL for a different main.dol**,
-left out (only stage ID 1, the test level, maps to it) [confirmed]. No REL imports another. Loader: OSLink
-0x801D40EC / OSUnlink 0x801D4348, one caller each, one global loader object (one REL resident at a time) [likely].
-Stage ID -> REL table at 0x80240B10. sigmatch: 1,369 of 6,223 main.dol functions named (build/G9SE8P/sigmatch.txt).
+Done 2026-11-11 later (HISTORY "dtk analysis"; docs/notes/rel-modules.md): dtk split works (main + 17 RELs);
+**stage00D is a stale REL for a different main.dol**, left out [confirmed]. Loader: OSLink 0x801D40EC / OSUnlink
+0x801D4348, one loader object (one REL resident at a time) [likely]. Stage ID -> REL table at 0x80240B10.
 
-**For Riders (user's call, not done):** cherry-pick a09bbbb (turns Riders' failing GitHub guard green; Riders keeps
-its fan art, tested on a copy of riders/main) and optionally aa7cb5f (pre-commit hook path).
+Done 2026-11-11 evening (HISTORY "multi-REL"): hle.txt filled (10 entries); multi-REL recompiler + runtime
+**implemented** (generic, Riders-compatible), 39,105 functions, **host build links** [confirmed];
+`game_addrs.h` SDK addresses now Heroes' (Riders game-state ones inert via `GAME_UNKNOWN`). **First PC boot**:
+runs 40 s, threads/audio/GL up, all 17 RELs linked at boot [confirmed], then **stuck after frame 2**: the main
+thread waits in RenderWare's video driver (fn_801ACC6C, queue 0x8042CA20) for a post-retrace (fn_801ABB9C) or
+draw-done (fn_801AB9E0) callback; other threads wait in VIWaitForRetrace. Cause not known [uncertain].
+OSLink not reached yet, so per-load relinking is untested.
+
+**For Riders (user's call, not done):** cherry-pick a09bbbb (guard PAST_ART) and optionally aa7cb5f. The shared
+multi-REL commit (gcbin/gcrecomp/loader/rel/hle_misc/frame_pacing/configure) should also work for Riders as
+is (section map checked; not built there).
 
 ## Next steps, in order
 
-1. SDK map into `config/G9SE8P/hle.txt`: the Riders sections (context switch, __OSInitAudioSystem/
-   __OSStopAudioSystem/__OSInitMemoryProtection, OSLink 0x801D40EC + OSUnlink 0x801D4348, memcpy/memset,
-   frame-rate modes). sigmatch output is in build/G9SE8P/sigmatch.txt (regenerate: docs/notes/rel-modules.md).
-2. Multi-REL code per the design in docs/notes/rel-modules.md: gcrecomp.py links each REL at its own base and
-   emits a module table; `rel.c` hle_OSLink/hle_OSUnlink for any module (re-copy pristine image + clear bss on
-   every load, reject stage00D); `loader.c`; `GUEST_RAM_SIZE` 0x01C00000 -> 0x02800000. Then `disc.c`
-   Shift-JIS names. Check the Rel14 warning case in the recompiler.
-3. Riders game hooks left in shared runtime files, to make inert or move behind a game switch so shared files stay
-   cherry-pickable: `game_mods.c` / `mods_data.c` (Extreme Gear table), `game_addrs.h`, `netplay.c` save flags,
-   `main.c` ISO size check, `android_icon.py` (save icon from `_Main.rel`), `setup.ps1` extract step text.
-4. First PC boot (logos), then Eden v0.1.1, then the OLED.
+1. Boot blocker: why retrace / draw-done stops after frame 2 (vi.c retrace timer and VI interrupt mask, GX
+   draw-done/PE finish in gx_fifo.c, `SR_GPTL`). Use /hang-hunt or the watchdog dump; then logos.
+2. Find Heroes' frame end (for frame_pacing hooks) and game-state addresses to replace `GAME_UNKNOWN`
+   (top mode, menu flag) once the game runs.
+3. Remaining Riders hooks in shared files: `mods.c` ("_Main.rel cannot be replaced" -> any translated REL),
+   `netplay.c` SAVE_DATA, `perftest.c` SCENE_KEY, `mods_data.c` REL bss read, `main.c`/`android_icon.py`/
+   `setup.ps1` text. Then `disc.c` Shift-JIS names (if any file needs them).
+4. Then Eden v0.1.1 and the OLED.
 
 ## Waiting on the user
 
@@ -64,10 +68,10 @@ Toolchains in `<home>/AppData/Local/SonicRidersSetup/tools`, Eden v0.1.1 and Dol
 ## Next session
 
 ```
-Continue Sonic Heroes Phase 0 from STATE.md: next steps 1 and 2.
-First fill config/G9SE8P/hle.txt from build/G9SE8P/sigmatch.txt (rerun dtk + tools/sigmatch.py if build/ is gone;
-commands in docs/notes/rel-modules.md), using the Riders sections listed in the file header.
-Then plan the multi-REL code in plan mode (docs/notes/rel-modules.md "Multi-REL design"; tools/recomp/gcrecomp.py
-REL_BASE, runtime/src/rel.c, runtime/src/loader.c, runtime/src/runtime.h GUEST_RAM_SIZE).
-Verify: gcrecomp emits all 17 modules and the host build links; PC boot to logos is the step after.
+Continue Sonic Heroes from STATE.md: next step 1, the first boot blocker.
+The PC build boots for 40 s then stalls after frame 2: the main thread waits in fn_801ACC6C (RenderWare video
+driver) for its post-retrace / draw-done callbacks; other threads wait in VIWaitForRetrace (HISTORY 2026-11-11
+"multi-REL"). Look at runtime/src/vi.c (retrace interrupts, VI mask) and gx_fifo.c (draw done / PE finish).
+Start with /hang-hunt or one SR_WATCHDOG=40 SR_GPTL run (build commands: CLAUDE.local.md "PC build").
+Verify: frames keep presenting (SR_SCREENSHOT=60,300,900 shots exist); goal: the logos.
 ```

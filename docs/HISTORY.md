@@ -38,3 +38,27 @@ Dated sessions and hardware tests, oldest first. The Sonic Riders port's history
   bases side by side, 15.6 MB from 0x81800000; re-copy the pristine image on every OSLink): docs/notes/rel-modules.md.
 - `.gitignore`: per-module dtk outputs `config/*/*/symbols.txt`, `splits.txt` were not covered; added.
 - Nothing runs yet; no hardware or emulator test this session (nothing builds for Heroes).
+
+## 2026-11-11 (evening): hle.txt, multi-REL recompiler/runtime, first PC boot
+
+- `config/G9SE8P/hle.txt` filled from sigmatch + dtk names: OSSaveContext 801D2618 / OSLoadContext 801D2698,
+  __OSInitAudioSystem 801D1C90 / __OSStopAudioSystem 801D1E4C / __OSInitMemoryProtection 801D46F4 (nop),
+  OSLink 801D40EC, OSUnlink 801D4348 (new hle_OSUnlink), memcpy 800031E8, memset 80003100, memmove 801C0290.
+  Riders' frame_end / vi_wait_retrace hooks are game code: not found for Heroes yet.
+- Multi-REL (implemented, generic so Riders' single `_Main` uses the same code): module list from config.yml
+  (`gcbin.read_modules`), section map from dtk splits.txt (`rel_section_names`; Riders' _Main still 1..4,
+  checked read-only on the Riders repo), one fixed base per REL (0x81800000-0x8279FD94), `g_rel_modules[]`
+  table, `rel_link_module` (relinks from the disc on every OSLink), `GUEST_RAM_SIZE` 0x02800000. Recompile:
+  39,105 functions in ~170 s [confirmed]; host build links [confirmed].
+- Link errors found five Riders addresses hard-coded in the runtime (`f_<addr>_orig` in hle_misc.c and
+  frame_pacing.c); now looked up by hle.txt name (`hle_orig`).
+- First PC boot died at once: "dispatch to 80010650" = Riders' __OSReschedule in `game_addrs.h`. SDK addresses
+  there now Heroes' (RunQueue 803F23B8, RunQueueBits/Hint/Reschedule 8042CB98/9C/A0, __OSReschedule 801D6994,
+  DecrementerExceptionCallback 801D1640, OSExitThread 801D6BAC by checksum match, DVD statics 8042CC18.. and
+  DummyCommandBlock 803F2EC0) [confirmed by dtk names]; Riders game-state addresses point at an always-zero
+  spot (`GAME_UNKNOWN`). The fatal dispatch message now dumps the SR_WATCHDOG trace.
+- Second boot: runs 40 s, 3 game threads, DSP/AX, GL renderer, 8 disc reads, all 17 RELs linked at boot
+  [confirmed]; then stuck after frame 2: main thread sleeps in fn_801ACC6C (RenderWare GC video driver, queue
+  8042CA20) waiting for its VISetPostRetraceCallback (fn_801ABB9C) / GXSetDrawDoneCallback (fn_801AB9E0)
+  wakers; the other threads wait in VIWaitForRetrace [confirmed from the watchdog dump]. Cause not looked at
+  [uncertain]: retrace interrupts stop, or draw-done never signalled.

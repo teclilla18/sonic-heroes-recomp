@@ -59,7 +59,21 @@ message.
   12-13 stage11, 14-15 stage13); 16-21 reuse stage01..stage11, 22-24 stage26/27/28, 25 stage01, 26-29
   stage31/32/33/40, 30-35 and 52-61 stage40, 36-51 reuse the story-stage RELs.
 
-## Multi-REL design (proposal; nothing implemented yet)
+## Multi-REL design (implemented 2026-11-11; boot-time linking tested on PC, OSLink not reached yet)
+
+Code: `tools/gcbin.py` `read_modules` (config.yml module list, no PyYAML) and `rel_section_names` (dtk section
+names -> REL section index from splits.txt; Riders' _Main still gives text..bss = 1..4), `tools/recomp/gcrecomp.py`
+`Module` + `g_rel_modules[]` table, `runtime/src/loader.c` `rel_link_module`, `runtime/src/rel.c` `hle_OSLink` /
+`hle_OSUnlink`, `GUEST_RAM_SIZE` 0x02800000. Generic: Riders (one module `_Main`) uses the same code.
+Recompile: 39,105 functions, 162 files, ~170 s; bases (config.yml order) advertiseD 0x81800000, autosaveD
+0x81820000, movieD 0x81830000, stage01D 0x818E0000 ... stage40D 0x82690000-0x8279FD94. Report: one untabled
+`bctr` at 0x801B9610 = `__ptmf_scall` (C++ member-pointer call, dispatched through the function table, not a
+switch) and one unknown op19 xo=569 word (data inside a function range [likely]).
+
+First PC boot (2026-11-11): all 17 modules link at boot in the runtime [confirmed, `[load]` lines]; the game
+has not called OSLink yet (it stops earlier, see HISTORY). Host exe links (624 MB with debug info).
+
+Original proposal:
 
 Riders: one REL pre-linked at `REL_BASE` 0x81800000 (above MEM1); `hle_OSLink` (runtime/src/rel.c) leaves the
 game's heap copy alone and points the module header's prolog at the fixed image.
