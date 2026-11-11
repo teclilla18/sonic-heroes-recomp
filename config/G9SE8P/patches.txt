@@ -2,3 +2,11 @@
 # Addresses are this build's: main.dol as is, each REL at its own fixed base (to be decided in Phase 0;
 # the Riders port linked its single REL at REL_BASE 0x81800000).
 # Empty in the fork: Sonic Heroes' patches (widescreen, diagnostics) were removed.
+
+# ---- Widescreen (any aspect), Hor+: RenderWare's RwCameraSetViewWindow (fn_8019D0CC [likely]: copies the view
+# window into camera+0x68/0x6C, stores the reciprocals at 0x70/0x74, then updates the frustum) widens the view
+# window by g_aspect_scale (target aspect / (4/3)) right after the copy, so projection and culling both follow.
+# Only cameras drawing into a screen-sized frame buffer (raster width at +0xC >= 512): the 128 x 128
+# render-to-texture cameras (reflections) keep theirs. 2026-11-11.
+decl extern volatile double g_aspect_scale;
+8019D0F0 before { double k = g_aspect_scale; uint32_t fb = ld32(c->r[3] + 0x60); if (k != 1.0 && fb && (int32_t)ld32(fb + 0xC) >= 512) st32(c->r[3] + 0x68, f32_as_u32((float)(u32_as_f32(ld32(c->r[3] + 0x68)) * k))); }
