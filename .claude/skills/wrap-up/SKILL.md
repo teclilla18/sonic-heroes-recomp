@@ -29,6 +29,8 @@ The file is large and the read guard refuses whole-file reads, so read only its 
 - **Road to v1.0 card:** if anything this session moved an area (stages/modes playable, graphics, Switch fps,
   platforms, 2-player, features), edit AREAS and UPDATED in `tools/make_progress.py`, run it, and update the README
   "Road to v1.0" table and the image's alt text to match. Do it in the same commit as the change when you can.
+  Triggers: a bug fixed, an issue closed, a feature or platform added, a performance change, a release. Bars go up
+  only for what was tested (PC route, Eden, hardware), never for code that is only written.
 - If the user corrected you this session in a way that will matter again, propose a one-line addition to CLAUDE.md (don't add it without asking).
 
 ## 4. Guard, commit, push

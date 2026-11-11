@@ -104,5 +104,6 @@ Run the `/wrap-up` skill (`.claude/skills/wrap-up/SKILL.md`). Never skip it. It 
    **Road to v1.0 card (user's rule, 2026-11-11):** after every change that moves an area (a stage or mode plays,
    a platform boots, a hardware fps change, a feature lands), update AREAS/UPDATED in `tools/make_progress.py`, run
    it (redraws `docs/images/progress.svg`) and update README's "Road to v1.0" table and alt text in the same commit.
+   Bars go up only for what was **tested** (PC route, Eden, hardware), never for code that is only written.
 3. Guard + `git status --ignored`, commit, push. PRs: one topic; say what changed, why and how it was tested (PC
    route and frames, emulator, hardware, `[perf]` numbers); end commit messages with your agent's co-author line.
