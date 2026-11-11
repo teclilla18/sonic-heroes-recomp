@@ -81,3 +81,21 @@ Dated sessions and hardware tests, oldest first. The Sonic Riders port's history
   (GL_DEPTH_CLAMP; deko3d depthClampEnable; Vulkan depthClamp feature) [confirmed on PC; Switch/Vulkan not run].
 - PC result: Seaside Hill at 60 fps, 2,600-2,700 draws/frame; START skips the story movie (the user's tip).
   Not implemented yet (from `[perf]`): fog (~2,000 draws/frame use it), indirect textures, Z textures.
+
+## 2026-11-11 (late night): Switch hardware, shader keys, forwarder, public repo
+
+- Switch NRO built (GCC, ~5 min), Eden v0.1.1 smoke test: title -> stage01D at 60 fps, frames correct
+  (`SR_SHOTS`, not SR_SCREENSHOT, on the Switch). Disc image uploaded by FTP (18 min).
+- Hardware test 1 (OLED handheld, GPU 384 MHz set by the app; sys-clk overclock not checked): Seaside Hill 30.0
+  fps, GPU 19.9 ms/frame, "specialized shaders for 0 of 31,743 states" [confirmed]. The console recorded 17
+  distinct keys (Eden the same 17). Test 2 with them built in: **59.4 fps**, GPU 4.37 ms/frame, all states
+  specialized, render thread no longer waits [confirmed].
+- Forwarder NSP (tools/nsp/make_forwarder.py; had kept Riders' title id, fixed to 010053480d9a0000), icon =
+  somegameicons' art on a dark blue (the user's choice), user's keys passed by path. Installed by the user;
+  launching from HOME works [confirmed].
+- SwitchWakerHD studied: it compiles shaders on the console (uam as a library + worker + SD cache); plan in
+  docs/notes/shader-compile-on-console.md; Riders told via its CLAUDE.local.md.
+- Repo made public: the 12 Heroes-only commits carried the user's Gmail (Riders' public history only has the
+  no-reply address), so they were rewritten to the no-reply address and the GitHub repo was deleted (by the user)
+  and recreated public; guard green. Old -> new ids: a09bbbb -> 89e93e2, aa7cb5f -> 1cb9ac8, 3dd787e -> 9cc7934,
+  8d5e14d -> 64086c6, 2b63b6d -> a7573d9, fb1459a -> 3020e9d.
