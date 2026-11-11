@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/images/banner.jpg" alt="Sonic, Tails and Knuckles leaping over the Sonic Heroes Recomp emblem in a bright blue sky" width="100%">
+</p>
+
 # Sonic Heroes native port
 
 Play **Sonic Heroes** (GameCube, USA) natively, with no emulator, on a modded **Nintendo Switch**, and later on
