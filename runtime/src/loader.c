@@ -1,5 +1,6 @@
-/* Put the game in guest memory the way the IPL and apploader would, then link _Main.rel at the
- * fixed address the recompiler translated it for (tools/recomp/gcrecomp.py REL_BASE). */
+/* Put the game in guest memory the way the IPL and apploader would, then link every REL module at
+ * the fixed address the recompiler translated it for (tools/recomp/gcrecomp.py, g_rel_modules). */
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -28,24 +29,27 @@ static void load_dol(void) {
     rt_log("[load] main.dol: entry %08X, bss %08X+%X", be32(dh + 0xE0), bss, bss_size);
 }
 
-/* OSLink for a module at a fixed base; module 0 (the DOL) targets are absolute addends */
-static void link_rel(const uint8_t* rel, uint32_t rel_size) {
-    uint32_t base = g_rel_base;
+/* OSLink for a module at its fixed base; module 0 (the DOL) targets are absolute addends */
+static void link_rel(const RecompModule* mod, const uint8_t* rel, uint32_t rel_size) {
+    uint32_t base = mod->base;
     uint32_t nsec = be32(rel + 0x0C), secinfo = be32(rel + 0x10), id = be32(rel + 0x00);
     uint32_t imp_off = be32(rel + 0x28), imp_size = be32(rel + 0x2C);
     uint32_t fix_size = be32(rel + 0x48);
     uint32_t sec_addr[32] = {0};
-    if (nsec > 32 || fix_size > rel_size) rt_fatal("unexpected _Main.rel layout");
+    if (nsec > 32 || fix_size > rel_size || id != mod->id || fix_size != mod->fix_size ||
+        be32(rel + 0x20) != mod->bss_size)
+        rt_fatal("%s.rel on the disc is not the module the recompiler translated", mod->name);
     memcpy(mem_phys(base), rel, fix_size);
     for (uint32_t i = 0; i < nsec; i++) {
         uint32_t o = be32(rel + secinfo + 8 * i) & ~3u, s = be32(rel + secinfo + 8 * i + 4);
-        sec_addr[i] = o ? base + o : (s ? g_rel_bss : 0);
+        sec_addr[i] = o ? base + o : (s ? mod->bss : 0);
     }
-    memset(mem_phys(g_rel_bss), 0, g_rel_bss_size);
+    memset(mem_phys(mod->bss), 0, mod->bss_size);
     uint32_t applied = 0;
     for (uint32_t k = 0; k < imp_size / 8; k++) {
-        uint32_t mod = be32(rel + imp_off + 8 * k), p = be32(rel + imp_off + 8 * k + 4);
+        uint32_t imp = be32(rel + imp_off + 8 * k), p = be32(rel + imp_off + 8 * k + 4);
         uint32_t cur = 0, sec = 0;
+        if (imp != 0 && imp != id) rt_fatal("%s.rel imports module %u: only itself and main.dol are supported", mod->name, imp);
         for (;; p += 8) {
             uint16_t o = be16(rel + p);
             uint8_t t = rel[p + 2], ts = rel[p + 3];
@@ -55,7 +59,7 @@ static void link_rel(const uint8_t* rel, uint32_t rel_size) {
             cur += o;
             if (t == 201) continue;                      /* R_DOLPHIN_NOP */
             uint32_t where = sec_addr[sec] + cur;
-            uint32_t target = mod == id ? sec_addr[ts] + add : add;
+            uint32_t target = imp == id ? sec_addr[ts] + add : add;
             uint8_t* q = mem_phys(where);
             switch (t) {
             case 1: put32(q, target); break;                                          /* ADDR32 */
@@ -71,7 +75,20 @@ static void link_rel(const uint8_t* rel, uint32_t rel_size) {
             applied++;
         }
     }
-    rt_log("[load] _Main.rel linked at %08X (bss %08X+%X), %u relocations", base, g_rel_bss, g_rel_bss_size, applied);
+    rt_log("[load] %s.rel linked at %08X (bss %08X+%X), %u relocations", mod->name, base, mod->bss, mod->bss_size,
+           applied);
+}
+
+void rel_link_module(const RecompModule* mod) {
+    char path[64];
+    uint32_t off, size;
+    snprintf(path, sizeof path, "%s.rel", mod->name);
+    if (!disc_find(path, &off, &size)) rt_fatal("%s not found on the disc", path);
+    uint8_t* rel = malloc(size);
+    if (!rel) rt_fatal("out of memory reading %s", path);
+    disc_read(off, rel, size);
+    link_rel(mod, rel, size);
+    free(rel);
 }
 
 void load_game(void) {
@@ -97,16 +114,17 @@ void load_game(void) {
     mem_write_bytes(fst_addr, fst, fst_size);
     mem_w32(0x80000038, fst_addr);
     mem_w32(0x8000003C, be32(h + 0x42C));
-    uint32_t rel_end = g_rel_bss + g_rel_bss_size;
-    if (g_rel_base < 0x80000000u + MEM1_SIZE || rel_end > 0x80000000u + GUEST_RAM_SIZE)
-        rt_fatal("REL (%08X-%08X) must lie in the backed area above MEM1", g_rel_base, rel_end);
+    for (unsigned i = 0; i < g_rel_module_count; i++) {
+        const RecompModule* m = &g_rel_modules[i];
+        uint32_t end = m->bss + m->bss_size;
+        if (m->base < 0x80000000u + MEM1_SIZE || end > 0x80000000u + GUEST_RAM_SIZE ||
+            (i + 1 < g_rel_module_count && end > g_rel_modules[i + 1].base))
+            rt_fatal("REL %s (%08X-%08X) must lie in the backed area above MEM1, apart from the next", m->name,
+                     m->base, end);
+    }
     mem_w32(0x80000030, 0);                             /* ArenaLo: OSInit uses __ArenaLo */
     mem_w32(0x80000034, fst_addr);                      /* ArenaHi */
 
-    uint32_t off, size;
-    if (!disc_find("_Main.rel", &off, &size)) rt_fatal("_Main.rel not found on the disc");
-    uint8_t* rel = malloc(size);
-    disc_read(off, rel, size);
-    link_rel(rel, size);
-    free(rel);
+    /* linked once now so code and data are in place; OSLink relinks a module fresh on every load */
+    for (unsigned i = 0; i < g_rel_module_count; i++) rel_link_module(&g_rel_modules[i]);
 }

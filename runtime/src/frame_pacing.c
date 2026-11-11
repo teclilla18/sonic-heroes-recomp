@@ -50,8 +50,17 @@
 #define S30_HOLD_MAX 1800 /* 30 s: the hold doubles each time 60 failed within S30_SHORT */
 #define S30_SHORT 600     /* 10 s */
 
-void f_8000610C_orig(Cpu* c);  /* the frame end (generated) */
-void f_80017038_orig(Cpu* c);  /* VIWaitForRetrace */
+/* the game's own frame end and VIWaitForRetrace behind the hle.txt entries (looked up by name) */
+static void f_frame_end_orig(Cpu* c) {
+    static PpcFunc orig;
+    if (!orig) orig = hle_orig("frame_end");
+    orig(c);
+}
+static void f_vi_wait_retrace_orig(Cpu* c) {
+    static PpcFunc orig;
+    if (!orig) orig = hle_orig("vi_wait_retrace");
+    orig(c);
+}
 
 static uint32_t g_present_now; /* guest thread whose frame end skips VIWaitForRetrace (0: none). Other
                                 * threads (CRI, sound) wait for retraces in loops: they must never skip */
@@ -85,12 +94,12 @@ void hle_vi_wait_retrace(Cpu* c) {
     { int ppc_detclock(void); void vi_det_frame_wait(uint32_t thread);
       if (ppc_detclock() && ld32(OS_CURRENT_THREAD) == g_main_thread) {
           vi_det_frame_wait(g_main_thread);
-          f_80017038_orig(c);
+          f_vi_wait_retrace_orig(c);
           void vi_det_frame_done(void);
           vi_det_frame_done();
           return;
       } }
-    f_80017038_orig(c);
+    f_vi_wait_retrace_orig(c);
 }
 
 static void stats(int drawn, int late) {
@@ -412,7 +421,7 @@ static void frame_end_body(Cpu* c) {
         int ppc_detclock(void); void vi_det_frame_end(uint32_t thread, int in);
         if (ppc_detclock()) {
             vi_det_frame_end(g_main_thread, 1);
-            f_8000610C_orig(c);
+            f_frame_end_orig(c);
             vi_det_frame_end(g_main_thread, 0);
             return;
         }
@@ -452,7 +461,7 @@ static void hle_frame_end_mode(Cpu* c, int mode, int skipped) {
 
     if (mode == FR_30) {
         st32(GAME_FRAME_MODE, 1);  /* the frame end toggles the skip flag: drawn and undrawn in turn */
-        f_8000610C_orig(c);
+        f_frame_end_orig(c);
         set_steps(2.0f);  /* scene resets set this too; a change in the middle of a race does not wait for one */
         stats(!skipped, 0);
         return;
@@ -460,7 +469,7 @@ static void hle_frame_end_mode(Cpu* c, int mode, int skipped) {
 
     if (mode == FR_60 && g_s30) {
         st32(GAME_FRAME_MODE, 1);  /* as FR_30 */
-        f_8000610C_orig(c);
+        f_frame_end_orig(c);
         set_steps(2.0f);
         g_n_s30_iter++;
         stats(!skipped, 0);
@@ -488,7 +497,7 @@ static void hle_frame_end_mode(Cpu* c, int mode, int skipped) {
         late = (int32_t)(vi_field_count() - (g_base + g_steps + 1)) >= 0;
         g_present_now = late ? ld32(OS_CURRENT_THREAD) : 0;
     }
-    f_8000610C_orig(c);
+    f_frame_end_orig(c);
     g_present_now = 0;
     g_steps++;
 

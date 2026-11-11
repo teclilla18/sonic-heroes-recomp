@@ -23,7 +23,9 @@ void ppc_dispatch(Cpu* c) {
         g_recomp_funcs[lo].fn(c);
         return;
     }
-    rt_fatal("dispatch to %08X: not a function entry (lr %08X)", a, c->lr);
+    void cpu_dump_trace(void);
+    if (g_ppc_trace) cpu_dump_trace();  /* SR_WATCHDOG: which functions led here */
+    rt_fatal("dispatch to %08X: not a function entry (lr %08X, r1 %08X)", a, c->lr, c->r[1]);
 }
 
 void ppc_host_call(Cpu* c, PpcFunc fn) { fn(c); }

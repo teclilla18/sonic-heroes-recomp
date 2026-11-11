@@ -1,23 +1,50 @@
-/* OSLink / OSLinkFixed. The bootstrap (main) reads _Main.rel into a buffer from its heap and links
- * it there; the recompiled module code instead lives at the fixed base it was translated for, linked
- * at boot by loader.c. So linking only finishes the game's header the way Link would (prolog,
- * epilog, unresolved become absolute addresses: here, those of the fixed image) and reports success.
- * The game then calls module->prolog, which reaches the recompiled code. */
+/* OSLink / OSLinkFixed / OSUnlink. The game reads a REL into a buffer from its heap and links it there;
+ * the recompiled module code instead lives at the fixed base it was translated for (g_rel_modules,
+ * tools/recomp/gcrecomp.py), first linked at boot by loader.c. So linking relinks that fixed image fresh
+ * (code, .data, cleared bss: a stage expects pristine data every time it loads), finishes the game's header
+ * the way Link would (prolog, epilog, unresolved become absolute addresses: here, those of the fixed image)
+ * and reports success. The game then calls module->prolog, which reaches the recompiled code.
+ * Not done: the OS module list (__OSModuleList); only debuggers read it. */
+#include <string.h>
+
 #include "recomp_table.h"
 #include "runtime.h"
 
+static const RecompModule* g_linked_mod;  /* the module OSLink last linked (for the log) */
+
+/* the game's header -> our module: same ID, fixSize (+0x48) and bss size (+0x20). Heroes' stale
+ * stage00D shares ID 3 with stage01D but has other sizes, so it is refused here. */
+static const RecompModule* find_module(uint32_t m) {
+    uint32_t id = ld32(m + 0x00), version = ld32(m + 0x1C), bss_size = ld32(m + 0x20);
+    uint32_t fix_size = version >= 3 ? ld32(m + 0x48) : 0;
+    for (unsigned i = 0; i < g_rel_module_count; i++) {
+        const RecompModule* r = &g_rel_modules[i];
+        if (r->id == id && r->bss_size == bss_size && (!fix_size || r->fix_size == fix_size)) return r;
+    }
+    rt_fatal("OSLink of a module that was not recompiled (id %u, version %u, bss %X, fixSize %X at %08X)", id,
+             version, bss_size, fix_size, m);
+    return 0;
+}
+
 void hle_OSLink(Cpu* c) {
     uint32_t m = c->r[3], bss = c->r[4];
-    uint32_t id = ld32(m + 0x00), version = ld32(m + 0x1C);
-    uint32_t want_id = ld32(g_rel_base + 0x00);
-    if (id != want_id || version != ld32(g_rel_base + 0x1C))
-        rt_fatal("OSLink of an unexpected module (id %u version %u at %08X); only _Main.rel is precompiled", id,
-                 version, m);
-    st32(m + 0x34, g_rel_prolog);  /* prolog */
-    st32(m + 0x38, 0);             /* epilog: none in this module */
-    st32(m + 0x3C, 0);             /* unresolved: none */
-    rt_log("[rel] OSLink(%08X, bss %08X): module %u runs from its fixed image at %08X (prolog %08X)", m, bss, id,
-           g_rel_base, g_rel_prolog);
-    game_mods_linked();
+    const RecompModule* r = find_module(m);
+    rel_link_module(r);
+    st32(m + 0x34, r->prolog);
+    st32(m + 0x38, r->epilog);
+    st32(m + 0x3C, r->unresolved);
+    rt_log("[rel] OSLink(%08X, bss %08X): %s (id %u) runs from its fixed image at %08X (prolog %08X)", m, bss,
+           r->name, r->id, r->base, r->prolog);
+    g_linked_mod = r;
+    if (!strcmp(r->name, "_Main")) game_mods_linked();  /* Sonic Riders' gameplay options; Heroes has none yet */
+    c->r[3] = 1;
+}
+
+/* nothing to undo: the fixed image stays until the next OSLink relinks it. The game has already called
+ * the module's epilog. */
+void hle_OSUnlink(Cpu* c) {
+    uint32_t m = c->r[3];
+    rt_log("[rel] OSUnlink(%08X): module %u%s%s", m, ld32(m + 0x00), g_linked_mod ? ", last linked " : "",
+           g_linked_mod ? g_linked_mod->name : "");
     c->r[3] = 1;
 }

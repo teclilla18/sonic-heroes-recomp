@@ -1,19 +1,20 @@
 #!/usr/bin/env python3
-"""Statically recompile a GameCube DOL plus its REL module into C.
+"""Statically recompile a GameCube DOL plus its REL modules into C.
 
 usage: gcrecomp.py CONFIG_DIR BASEROM_DIR OUTDIR [--insns-per-file N]
 
 Front end for the forked ZeldaWWHDRecomp translator (ppc2c.py, crlive.py, leaflocal.py):
 
-- Function entries come from decomp-toolkit's analysis (CONFIG_DIR/symbols.txt and
-  CONFIG_DIR/_Main/symbols.txt), which understands Metrowerks code: it finds functions through
+- Function entries come from decomp-toolkit's analysis (CONFIG_DIR/symbols.txt and each module's
+  symbols.txt from CONFIG_DIR/config.yml), which understands Metrowerks code: it finds functions through
   calls, data relocations and pointer tables. Branch targets that land inside another function are
   added as entries (a fixpoint, as upstream).
 - Switch jump tables: Metrowerks emits them as tables of absolute code addresses in .data/.rodata
   (dtk names them jumptable_*). Each table's targets become labels of the function containing
   them, and an indirect `bctr` in that function switches over its targets.
-- The REL is linked at a fixed address (REL_BASE): every relocation is applied here, the way
-  OSLink would, and the runtime links the module at the same address (runtime/src/rel.c).
+- Every REL listed in config.yml is linked at its own fixed address, side by side from REL_BASE:
+  every relocation is applied here, the way OSLink would, and the runtime links each module at the
+  same address (runtime/src/loader.c, rel.c). Distinct bases keep every guest code address unique.
 - Native replacements (HLE): CONFIG_DIR/hle.txt lists `ADDRESS NAME` lines; f_ADDRESS then calls the
   runtime's hle_NAME(c), and the game's code stays available as f_ADDRESS_orig.
 - Code patches: CONFIG_DIR/patches.txt lists `ADDRESS before|after C-STATEMENT` lines (the statement
@@ -35,7 +36,7 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.dirname(HERE))
-from gcbin import Dol, Rel, read_symbols  # noqa: E402
+from gcbin import Dol, Rel, read_modules, read_symbols, rel_section_names  # noqa: E402
 from ppc2c import translate, Unhandled  # noqa: E402
 import ppc2c  # noqa: E402
 import crlive  # noqa: E402
@@ -49,11 +50,30 @@ NONLEAF = ppc2c.pass_on("WWHD_RECOMP_NONLEAF")
 GQR_STATIC = ppc2c.pass_on("WWHD_RECOMP_GQR")
 HOT = os.environ.get("RECOMP_HOT", "1") != "0"
 
-# Where the REL module lives in guest memory: just above the 24 MiB of MEM1 (the runtime backs a few
-# extra MiB there; development hardware had 48 MiB at these addresses). The game still loads and
-# "links" its own copy from its heap, as on the console, so it keeps exactly its normal memory; the
-# native OSLink points that copy's header at this pre-linked image (runtime/src/rel.c).
+# Where the REL modules live in guest memory: from just above the 24 MiB of MEM1 (the runtime backs
+# extra MiB there, GUEST_RAM_SIZE; development hardware had 48 MiB at these addresses), one after the
+# other in config.yml order, each on a 64 KiB boundary. The game still loads and "links" its own copy
+# from its heap, as on the console, so it keeps exactly its normal memory; the native OSLink points
+# that copy's header at the pre-linked image (runtime/src/rel.c).
 REL_BASE = 0x81800000
+REL_ALIGN = 0x10000
+
+
+class Module:
+    """One REL linked at its fixed base."""
+
+    def __init__(self, info, rel, base, root):
+        self.name = info["name"]
+        self.rel = rel
+        self.base = base
+        self.img, self.addrs, self.bss, self.relocs = rel.link(base)
+        self.end = self.bss + rel.bss_size
+        self.symbols = os.path.join(root, info["symbols"])
+        self.secmap = rel_section_names(os.path.join(root, info["splits"]), rel)
+
+    def entry(self, section, off):
+        """An absolute address for a header entry (prolog/epilog/unresolved); 0 when absent."""
+        return self.addrs[section] + off if section else 0
 
 
 def sext(v, bits):
@@ -70,9 +90,9 @@ def branch_target(addr, w):
 
 
 class Image:
-    """All guest code: the DOL's text sections and the linked REL's executable section."""
+    """All guest code: the DOL's text sections and every linked REL's executable sections."""
 
-    def __init__(self, dol, rel_img, rel_addrs, rel):
+    def __init__(self, dol, mods):
         self.regions = []  # (lo, hi, bytes)
         for lo, data in sorted(dol.text_sections()):
             if self.regions and self.regions[-1][1] == lo:  # merge .init and .text
@@ -81,12 +101,13 @@ class Image:
             else:
                 self.regions.append((lo, lo + len(data), data))
         self.rel_text = []
-        for i, off, size, ex in rel.sections:
-            if ex and size:
-                lo = rel_addrs[i]
-                data = rel_img[off:off + size]
-                self.regions.append((lo, lo + size, data))
-                self.rel_text.append((lo, lo + size))
+        for m in mods:
+            for i, off, size, ex in m.rel.sections:
+                if ex and size:
+                    lo = m.addrs[i]
+                    data = m.img[off:off + size]
+                    self.regions.append((lo, lo + size, data))
+                    self.rel_text.append((lo, lo + size))
         self.regions.sort()
         self.los = [r[0] for r in self.regions]
 
@@ -111,16 +132,25 @@ class GcRecompiler:
     def __init__(self, config_dir, baserom):
         self.config_dir = config_dir
         self.dol = Dol(os.path.join(baserom, "main.dol"))
-        self.rel = Rel(os.path.join(baserom, "_Main.rel"))
-        rel_img, self.rel_addrs, self.rel_bss, self.rel_relocs = self.rel.link(REL_BASE)
-        self.rel_img = rel_img
-        self.img = Image(self.dol, rel_img, self.rel_addrs, self.rel)
+        root = os.path.normpath(os.path.join(config_dir, os.pardir, os.pardir))  # paths in config.yml
+        self.mods = []
+        base = REL_BASE
+        for info in read_modules(config_dir):
+            rel = Rel(os.path.join(baserom, os.path.basename(info["object"])))
+            if any(m.rel.id == rel.id and m.rel.fix_size == rel.fix_size and m.rel.bss_size == rel.bss_size
+                   for m in self.mods):
+                raise ValueError("%s: same module ID and sizes as an earlier module" % info["name"])
+            m = Module(info, rel, base, root)
+            self.mods.append(m)
+            base = (m.end + REL_ALIGN - 1) & ~(REL_ALIGN - 1)
+        self.img = Image(self.dol, self.mods)
 
         self.entries = set()
         self.jt_targets = collections.defaultdict(set)  # function start -> case targets
         self.jt_count = 0
-        self._load_dtk(os.path.join(config_dir, "symbols.txt"), rel=False)
-        self._load_dtk(os.path.join(config_dir, "_Main", "symbols.txt"), rel=True)
+        self._load_dtk(os.path.join(config_dir, "symbols.txt"), None)
+        for m in self.mods:
+            self._load_dtk(m.symbols, m)
         self.entries.add(self.dol.entry)
         self.hooks = {}  # address -> hle name
         hle = os.path.join(config_dir, "hle.txt")
@@ -154,19 +184,17 @@ class GcRecompiler:
         self._fixpoint()
         self._assign_jump_tables()
 
-    # REL section names in dtk's symbols.txt -> REL section index
-    REL_SECTIONS = {"text": 1, "rodata": 2, "data": 3, "bss": 4}
-
-    def _addr(self, sym, rel):
-        if not rel:
+    def _addr(self, sym, mod):
+        """A symbol's guest address: absolute in the DOL, section-relative in a module (dtk's section
+        names -> REL section index, from the module's splits.txt)."""
+        if mod is None:
             return sym["addr"]
-        sec = self.REL_SECTIONS[sym["section"]]
-        return self.rel_addrs[sec] + sym["addr"]
+        return mod.addrs[mod.secmap[sym["section"]]] + sym["addr"]
 
     NO_ABI_NAMES = ("__restore_fpr", "__init_registers", "__OSLoadFPUContext", "OSLoadContext", "OSSwitchFPUContext",
                     "TRKLoadContext")
 
-    def _load_dtk(self, path, rel):
+    def _load_dtk(self, path, rel):  # rel: the Module, None for the DOL
         self.pending_jts = getattr(self, "pending_jts", [])
         self.trk_ranges = getattr(self, "trk_ranges", [])
         for s in read_symbols(path):
@@ -189,8 +217,8 @@ class GcRecompiler:
                 self.pending_jts.append((self._addr(s, rel), s["size"], rel))
 
     def data_word(self, a, rel):
-        if rel:
-            return struct.unpack_from(">I", self.rel_img, a - REL_BASE)[0]
+        if rel is not None:
+            return struct.unpack_from(">I", rel.img, a - rel.base)[0]
         return self.dol.word(a)
 
     def _assign_jump_tables(self):
@@ -488,18 +516,25 @@ class GcRecompiler:
         t += ['    {0x%08Xu, "%s", f_%08X_orig},' % (a, n, a) for a, n in sorted(self.hooks.items())]
         t.append("    {0u, 0, 0}};\nconst unsigned g_recomp_hle_count = %d;" % len(self.hooks))
         t.append("const uint32_t g_recomp_entry_point = 0x%08Xu;" % self.dol.entry)
-        t.append("const uint32_t g_rel_base = 0x%08Xu, g_rel_bss = 0x%08Xu, g_rel_bss_size = 0x%08Xu;" % (
-            REL_BASE, self.rel_bss, self.rel.bss_size))
-        t.append("const uint32_t g_rel_prolog = 0x%08Xu;" % (self.rel_addrs[self.rel.prolog_section] + self.rel.prolog))
+        t.append("/* REL modules at their fixed bases: name, id, fix_size, bss_size, base, bss, prolog, epilog,\n"
+                 " * unresolved (absolute addresses at the fixed base; 0 = none) */")
+        t.append("const RecompModule g_rel_modules[] = {")
+        for m in self.mods:
+            r = m.rel
+            t.append('    {"%s", %du, 0x%Xu, 0x%Xu, 0x%08Xu, 0x%08Xu, 0x%08Xu, 0x%08Xu, 0x%08Xu},' % (
+                m.name, r.id, r.fix_size, r.bss_size, m.base, m.bss, m.entry(r.prolog_section, r.prolog),
+                m.entry(r.epilog_section, r.epilog), m.entry(r.unresolved_section, r.unresolved)))
+        t.append("    {0, 0, 0, 0, 0, 0, 0, 0, 0}};\nconst unsigned g_rel_module_count = %d;" % len(self.mods))
         t.append("const RecompRange g_code_ranges[] = {%s};\nconst unsigned g_code_range_count = %d;" % (
             ", ".join("{0x%08Xu, 0x%08Xu}" % (lo, hi) for lo, hi, _ in self.img.regions), len(self.img.regions)))
         open(os.path.join(outdir, "table.c"), "w").write("\n".join(t) + "\n")
 
     def write_report(self, outdir, nfiles):
         with open(os.path.join(outdir, "report.txt"), "w") as f:
-            f.write("REL linked at %08X (bss %08X, %d relocations), prolog %08X\n" % (
-                REL_BASE, self.rel_bss, len(self.rel_relocs),
-                self.rel_addrs[self.rel.prolog_section] + self.rel.prolog))
+            for m in self.mods:
+                f.write("REL %-12s id %2d linked at %08X-%08X (bss %08X, %d relocations), prolog %08X\n" % (
+                    m.name, m.rel.id, m.base, m.end, m.bss, len(m.relocs),
+                    m.entry(m.rel.prolog_section, m.rel.prolog)))
             for lo, hi, _ in self.img.regions:
                 f.write("code %08X-%08X\n" % (lo, hi))
             f.write("functions: %d (fixpoint rounds %d)\nfiles: %d\n" % (

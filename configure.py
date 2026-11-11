@@ -4,7 +4,7 @@
 usage: python configure.py [--target host|switch|android]
 
 Pipeline (everything under build/ is derived from the game and never committed):
-  1. dtk analysis       baserom/main.dol + _Main.rel -> config/G9SE8P/{,_Main/}symbols.txt
+  1. dtk analysis       baserom/main.dol + the RELs -> config/G9SE8P/{,<module>/}symbols.txt
                         (run once by hand: build/tools/dtk.exe dol split config/G9SE8P/config.yml build/G9SE8P)
   2. recompile          tools/recomp/gcrecomp.py -> build/gen/*.c
   3. compile + link     build/gen/*.c + runtime/src/* -> build/<target>/sonicheroes(.exe|.nro)
@@ -316,9 +316,13 @@ with open(os.path.join(ROOT, "build.ninja"), "w") as f:
     n.build("version_always", "phony")
     n.build(version_c, "version", implicit=["version_always"])
 
+    # every REL module's dtk output (config.yml lists them; Riders: _Main only)
+    sys.path.insert(0, os.path.join(ROOT, "tools"))
+    from gcbin import read_modules
+    rel_inputs = [p for m in read_modules(os.path.join(ROOT, "config/G9SE8P")) for p in (m["symbols"], m["splits"])]
     recomp_inputs = ["tools/recomp/gcrecomp.py", "tools/recomp/ppc2c.py", "tools/recomp/crlive.py",
-                     "tools/recomp/leaflocal.py", "tools/recomp/singleflow.py", "tools/gcbin.py", "config/G9SE8P/symbols.txt",
-                     "config/G9SE8P/_Main/symbols.txt"] + [p for p in ("config/G9SE8P/hle.txt", "config/G9SE8P/patches.txt", "config/G9SE8P/hot_functions.txt")
+                     "tools/recomp/leaflocal.py", "tools/recomp/singleflow.py", "tools/gcbin.py", "config/G9SE8P/config.yml",
+                     "config/G9SE8P/symbols.txt"] + rel_inputs + [p for p in ("config/G9SE8P/hle.txt", "config/G9SE8P/patches.txt", "config/G9SE8P/hot_functions.txt")
                                                            if os.path.exists(os.path.join(ROOT, p))]
     n.build(gen_c + [GEN + "/funcs.h"], "recomp", recomp_inputs)
 

@@ -3,6 +3,7 @@
 Shared by the analysis scripts and the recompiler front end. Reads files from baserom/
 (never committed); nothing here embeds game data.
 """
+import os
 import re
 import struct
 
@@ -155,3 +156,50 @@ def read_symbols(path):
             "size": int(attrs.get("size", "0"), 16), "type": attrs.get("type", ""), "attrs": attrs,
         })
     return out
+
+
+def read_modules(config_dir):
+    """The REL modules of a dtk config.yml, in file order: [{name, object, symbols, splits}].
+    A small line parser (no PyYAML needed): only `- object:` items under `modules:` with their
+    `name:`, `symbols:` and `splits:` keys. Commented-out items are skipped."""
+    mods, cur, inside = [], None, False
+    for line in open(os.path.join(config_dir, "config.yml"), encoding="utf-8"):
+        s = line.split("#", 1)[0].rstrip()
+        if not s.strip():
+            continue
+        if not s.startswith((" ", "-")):
+            inside = s.startswith("modules:")
+            continue
+        if not inside:
+            continue
+        item = s.lstrip()
+        if item.startswith("- "):
+            cur = {}
+            mods.append(cur)
+            item = item[2:].strip()
+        k, _, v = item.partition(":")
+        if cur is not None and k.strip() in ("object", "name", "symbols", "splits"):
+            cur[k.strip()] = v.strip()
+    for m in mods:
+        if "name" not in m:
+            m["name"] = os.path.splitext(os.path.basename(m["object"]))[0]
+    return mods
+
+
+def rel_section_names(splits_path, rel):
+    """{section name without the dot: REL section index}. dtk's splits.txt `Sections:` header lists the
+    module's non-empty sections in index order (Riders' _Main: text..bss = 1..4; Heroes' RELs:
+    text, ctors, dtors, rodata, data, bss = 2..7)."""
+    names = []
+    for line in open(splits_path, encoding="utf-8"):
+        if line.startswith("Sections:"):
+            continue
+        if not line.startswith("\t"):
+            if names:
+                break
+            continue
+        names.append(line.split()[0].lstrip("."))
+    idx = [i for i, o, s, _ in rel.sections if s]
+    if len(idx) != len(names):
+        raise ValueError("%s lists %d sections, the REL has %d non-empty ones" % (splits_path, len(names), len(idx)))
+    return dict(zip(names, idx))

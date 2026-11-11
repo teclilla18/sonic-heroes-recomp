@@ -39,7 +39,7 @@ _Noreturn void rt_fatal(const char* fmt, ...);
 
 /* memory.c: the guest physical window (see ppc.h) */
 #define MEM1_SIZE 0x01800000u        /* what the game sees */
-#define GUEST_RAM_SIZE 0x01C00000u   /* backed: MEM1 + room above it for the REL (see gcrecomp.py) */
+#define GUEST_RAM_SIZE 0x02800000u   /* backed: MEM1 + room above it for the RELs (see gcrecomp.py) */
 #define LOCKED_CACHE_PHYS 0x20000000u
 #define LOCKED_CACHE_SIZE 0x4000u
 void mem_init(void);
@@ -58,7 +58,10 @@ const char* disc_name_at(uint64_t off, uint32_t* rel);  /* the file at a disc of
 const uint8_t* disc_fst(uint32_t* size);
 
 /* loader.c */
-void load_game(void);   /* DOL sections, boot info, FST, the REL module linked at g_rel_base */
+PpcFunc hle_orig(const char* name);  /* hle_misc.c: the game's code behind an hle.txt NAME */
+void load_game(void);   /* DOL sections, boot info, FST, every REL module linked at its fixed base */
+struct RecompModule;
+void rel_link_module(const struct RecompModule* mod);  /* loader.c: (re)link one RecompModule from the disc, bss cleared */
 
 /* cpu.c */
 void cpu_init(Cpu* c);
