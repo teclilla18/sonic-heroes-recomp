@@ -12,27 +12,28 @@ Play **Sonic Heroes** (GameCube, USA) natively, with no emulator, on a modded **
 > **Work in progress. There is no release yet and nothing to download.** The first release, **v0.5.0**, comes
 > once the game is playable on the **Switch and Android**. Day-to-day status: [STATE.md](STATE.md).
 
-## Progress toward v1.0
+## Road to v1.0
 
-```
-[█████░░░░░░░░░░░░░░░]  25%
-```
+<p align="center"><img src="docs/images/progress.svg" width="720" alt="Road to v1.0: 24% done"></p>
 
-An estimate of the work left to a complete v1.0, updated as it moves:
+<details>
+<summary><b>What v1.0 means, and what each bar still needs</b></summary>
 
-| | Part | Status |
+v1.0 = the whole game (story, Challenge and extra missions, bosses, special stages, 2-player modes) plays like
+the GameCube original on every supported platform, and the Switch holds its frame rate. The first release,
+v0.5.0, comes once the game is playable on the Switch and Android. The overall number is a weighted average
+(game 25 %, the rest 15 % each), judged by hand after each step; `tools/make_progress.py` draws the card.
+
+| Area | Done | Left for v1.0 |
 |---|---|---|
-| ✅ | Recompiler: `main.dol` + all 17 usable `.rel` modules translated, each at its own address | done |
-| ✅ | Boot: logos, title screen, menus, story movie, first stage (Seaside Hill) on PC | done |
-| ✅ | Switch: first stage at 60 fps on the console (handheld), shaders built ahead of time | done |
-| 🔲 | Every stage, team, boss and special stage plays through; saves; sound and movies checked | |
-| 🔲 | 2-player modes (split screen) at full speed on the Switch | |
-| 🔲 | Android build | |
-| 🔲 | Setup tool (builds the game from your disc), installers → **v0.5.0** | |
-| 🔲 | Settings menu, widescreen, quality options, Windows / Linux / Steam Deck / iOS builds | |
-| 🔲 | Long play-tests on every platform → **v1.0** | |
+| Whole game playable | 10 % | Done: boot, menus, Team Sonic's story movie, Seaside Hill. Left: every other stage, the four teams, bosses, special stages, saving, endings |
+| Graphics match the GameCube | 55 % | First stage looks right; left: the other stages' effects, fog distance adjustment, indirect-texture effects, a 1-pixel line at the left edge |
+| Switch performance | 40 % | Seaside Hill at 60 fps (handheld); left: shaders for the rest of the game, big stages, movies, docked checks |
+| Platforms | 25 % | PC and Switch boot and play; left: Android, Linux / Steam Deck, iPhone / iPad, the setup tool |
+| 2-player modes | 0 % | Split-screen versus and battle modes not tried yet |
+| Features and polish | 20 % | HOME-screen icon done; left: settings for Heroes (Riders' game options are switched off), widescreen, launcher, installers |
 
-**You will need:** your own **Sonic Heroes (USA)** disc image (`G9SE8P`, revision 0, a full 1.4 GB `.iso`).
+</details>
 
 ## How it works
 

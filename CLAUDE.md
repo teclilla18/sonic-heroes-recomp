@@ -101,5 +101,8 @@ Run the `/wrap-up` skill (`.claude/skills/wrap-up/SKILL.md`). Never skip it. It 
    unproven; mark [confirmed] / [likely] / [uncertain]. Durable facts (addresses, variables, procedures) also go
    into the matching `docs/notes/` file (new topic: new note + a row in REFERENCE.md; superseded: `git mv` to
    `docs/archive/`). User-visible changes go in CHANGELOG.md.
+   **Road to v1.0 card (user's rule, 2026-11-11):** after every change that moves an area (a stage or mode plays,
+   a platform boots, a hardware fps change, a feature lands), update AREAS/UPDATED in `tools/make_progress.py`, run
+   it (redraws `docs/images/progress.svg`) and update README's "Road to v1.0" table and alt text in the same commit.
 3. Guard + `git status --ignored`, commit, push. PRs: one topic; say what changed, why and how it was tested (PC
    route and frames, emulator, hardware, `[perf]` numbers); end commit messages with your agent's co-author line.
