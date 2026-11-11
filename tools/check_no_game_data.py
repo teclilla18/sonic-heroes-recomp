@@ -72,7 +72,7 @@ HOME_OK = re.compile(r"(?i)(users[\\/](?:<[^>]+>|(?:you|name|username|me|public)
 # picture is refused until its SHA-1 is put here. Also the launcher banner (the user's OK, 2026-11-07): public
 # fan art the user chose, not from the game.
 OWN_ART = {
-    "docs/images/banner.jpg": "06ffe0808b9f58de8832d3b1b31e820b790cd45b",  # README banner (Sonic Heroes Recomp emblem, the user's choice, 2026-11-11)
+    "docs/images/banner.jpg": "06ffe0808b9f58de8832d3b1b31e820b790cd45b",  # README banner (Sonic Heroes Recomp emblem: the user's own AI-made art, no credit needed, 2026-11-11)
     "launcher/icon_256.png": "80541e60eb82d9440c001da3bc4c7240bda2b111",  # launcher icon (user's ChatGPT art, 2026-11-09)
     "launcher/icon_32.png": "24e3018e7e6651be4cbba8228f81364bf9d0a70e",
     "android/touch_icons/boost_b.png": "e91d748d8a99c76b0aad985ea40ae1437c10e982",
