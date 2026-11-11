@@ -175,6 +175,8 @@ static void pe_finish(void) {
     }
     PE_INTRSR |= 0x8;  /* finish status */
     int irq = (PE_INTRSR & 0x2) != 0;
+    {   static int logged;  /* first boots of a new game: does draw done reach the GP, is its interrupt on */
+        if (logged < 3) { logged++; rt_log("[pe] draw done reached the GP (INTRSR %04X: interrupt %s)", PE_INTRSR, irq ? "on" : "off"); } }
     mtx_unlock(&g_pe_lock);
     if (irq) os_raise_interrupt(OS_INTERRUPT_PI_PE_FINISH);
 }
@@ -559,6 +561,10 @@ static void tlut_watch(uint32_t v, int size) {
     if (size == 1) { g_prev_bp_prefix = (v & 0xFF) == 0x61; return; }
     if (size == 4 && g_prev_bp_prefix) {
         uint32_t reg = v >> 24;
+        if (reg == 0x45) {
+            static int logged;
+            if (logged < 3) { logged++; rt_log("[pe] the game issued draw done (CP_CR %04X)", CP_CR); }
+        }
         if (reg == 0x45 && (CP_CR & 0x11) == 0x11) atomic_store(&g_dd_issued, rt_ticks());  /* draw done, for [perf] */
         else if (reg == 0x64) g_store_v64 = v;
         else if (reg == 0x65 && (CP_CR & 0x11) == 0x11) tlut_snapshot(v);  /* immediate mode only: not recorded into a display list */
@@ -665,21 +671,57 @@ static void burst_out(const uint8_t* b, int size) {
     }
 }
 
+/* ---- CP FIFO breakpoint (GXEnableBreakPt: address in CP 0x3C/0x3E, CP_CR bit 1 enable, bit 5 interrupt).
+ * The GP stops when its read pointer reaches the address and raises the CP interrupt; RenderWare (Sonic
+ * Heroes) paces its frame-buffer ring with it. Here the GP keeps up with the write pointer, so it has
+ * passed any address the game recorded from the write pointer: the breakpoint is hit as soon as the GP
+ * has drained what was sent (no stall is modelled). Status bit 4 stays set until the game turns the
+ * breakpoint off. ---- */
+#define OS_INTERRUPT_PI_CP 17
+static atomic_int g_cp_bp_armed, g_cp_bp_hit, g_cp_bp_new_addr;
+static void cp_bp_poll(void) {
+    if (!atomic_load(&g_cp_bp_armed) || gx_gp_backlog()) return;
+    if (!atomic_exchange(&g_cp_bp_armed, 0)) return;
+    atomic_store(&g_cp_bp_hit, 1);
+    {   static int logged;
+        if (logged < 6) { logged++; rt_log("[cp] FIFO breakpoint %04X%04X hit (CP_CR %04X)", g_cp_mmio[0x3E >> 1],
+                                           g_cp_mmio[0x3C >> 1], CP_CR); } }
+    if (CP_CR & 0x20) os_raise_interrupt(OS_INTERRUPT_PI_CP);
+}
+static void cp_bp_control(uint16_t old_cr) {
+    if (!(CP_CR & 0x02)) {  /* breakpoint off: status clears */
+        atomic_store(&g_cp_bp_armed, 0);
+        atomic_store(&g_cp_bp_hit, 0);
+    } else if (!(old_cr & 0x02) || ((CP_CR & 0x20) && !(old_cr & 0x20)) || atomic_exchange(&g_cp_bp_new_addr, 0)) {
+        /* enabled, its interrupt re-enabled or a new address (the handler only turns the interrupt off):
+         * hit once the GP has drained */
+        atomic_store(&g_cp_bp_hit, 0);
+        atomic_store(&g_cp_bp_armed, 1);
+    }
+}
+
 /* ---- register blocks ---- */
 unsigned g_cp_reads, g_pe_reads;  /* [perf]: polling of GP status by the game */
 uint32_t gx_cp_read(uint32_t off, int size) {
     g_cp_reads++;
     pipe_flush();
     off &= 0x7F;
-    if (off == 0x00) return 0x000C;  /* SR: GP read idle + command idle */
+    cp_bp_poll();
+    if (off == 0x00) return 0x000C | (atomic_load(&g_cp_bp_hit) ? 0x10 : 0);  /* SR: read idle + command idle, breakpoint */
     if (size == 4) return (uint32_t)g_cp_mmio[off >> 1] << 16 | g_cp_mmio[(off >> 1) + 1];
     return g_cp_mmio[off >> 1];
 }
 void gx_cp_write(uint32_t off, uint32_t v, int size) {
     pipe_flush();
     off &= 0x7F;
+    uint16_t old_cr = CP_CR;
     if (size == 4) { g_cp_mmio[off >> 1] = (uint16_t)(v >> 16); g_cp_mmio[(off >> 1) + 1] = (uint16_t)v; }
     else g_cp_mmio[off >> 1] = (uint16_t)v;
+    if (off >= 0x3C && off < 0x40) atomic_store(&g_cp_bp_new_addr, 1);  /* breakpoint address */
+    if ((off & ~3u) == 0x00) {  /* CP_CR (0x02) */
+        cp_bp_control(old_cr);
+        cp_bp_poll();
+    }
 }
 
 uint32_t gx_pe_read(uint32_t off, int size) {
@@ -739,7 +781,10 @@ void gx_pi_write(uint32_t off, uint32_t v, int size) {
 
 int gx_async(void) { return g_gx_async; }
 /* the game thread has nothing to run (sched.c): what it wrote reaches the GP now */
-void gx_pipe_idle(void) { pipe_flush(); }
+void gx_pipe_idle(void) {
+    pipe_flush();
+    cp_bp_poll();
+}
 
 /* the CPU FIFO's bounds (PI FIFO base / end, physical): gx_dff.c */
 void gx_pi_fifo_range(uint32_t* base, uint32_t* end) { *base = g_pi_base & 0x03FFFFFF; *end = g_pi_end & 0x03FFFFFF; }

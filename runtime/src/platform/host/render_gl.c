@@ -358,6 +358,10 @@ static void apply_state(const GxUniforms* u) {
     uint32_t z = u->bp[0x40];
     static const GLenum zf[8] = {GL_NEVER, GL_LESS, GL_EQUAL, GL_LEQUAL, GL_GREATER, GL_NOTEQUAL, GL_GEQUAL, GL_ALWAYS};
     if (z & 1) { glEnable(GL_DEPTH_TEST); glDepthFunc(zf[(z >> 1) & 7]); } else glDisable(GL_DEPTH_TEST);
+    {   /* GX clamps depth to the viewport range instead of clipping at near/far (as Dolphin): RenderWare's
+         * full-screen clear quad (Sonic Heroes) lies outside the depth range and must still draw */
+        static int clamp;
+        if (!clamp) { clamp = 1; glEnable(0x864F /* GL_DEPTH_CLAMP */); } }
     glDepthMask((z >> 4) & 1 ? GL_TRUE : GL_FALSE);
     /* blending and write masks */
     uint32_t cm = u->bp[0x41];
@@ -1129,9 +1133,9 @@ static void execute(GxFrame* f) {
                         free(px);
                     }
                 }
-                rt_log("[gxdbg] draw prim %u verts %u stages %u genmode %06X ind %u%s | z %06X blend %06X dstalpha %06X pe %06X",
+                rt_log("[gxdbg] draw prim %u verts %u stages %u genmode %06X ind %u%s | z %06X blend %06X dstalpha %06X pe %06X clip %X",
                        c->prim, c->b, ((cur->bp[0] >> 10) & 15) + 1, cur->bp[0], (cur->bp[0] >> 16) & 7, t, cur->bp[0x40],
-                       cur->bp[0x41], cur->bp[0x42], cur->bp[0x43]);
+                       cur->bp[0x41], cur->bp[0x42], cur->bp[0x43], cur->xfr[0x05]);
                 /* the first draw of each genmode in full: TEV stages, channel controls, ambient/material */
                 static uint32_t seen[64];
                 static int nseen;

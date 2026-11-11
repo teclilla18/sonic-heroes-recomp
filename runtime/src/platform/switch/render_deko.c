@@ -486,6 +486,7 @@ static void apply_state(const GxUniforms* u) {
     uint32_t cull = (u->bp[0x00] >> 14) & 3;
     rs.cullMode = cull == 0 ? DkFace_None : cull == 1 ? DkFace_Back : cull == 2 ? DkFace_Front : DkFace_FrontAndBack;
     rs.frontFace = DkFrontFace_CW;  /* GX front faces are clockwise on screen (upper-left origin, no flip here) */
+    rs.depthClampEnable = 1;        /* GX clamps depth instead of clipping at near/far (render_gl.c) */
     if (ST_CHANGED(rs, rs)) dkCmdBufBindRasterizerState(g_cmd, &rs);
     g_st_valid = 1;
 }

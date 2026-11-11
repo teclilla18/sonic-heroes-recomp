@@ -155,6 +155,7 @@ static VkShaderModule g_spec_sm[GX_SPEC_COUNT > 0 ? GX_SPEC_COUNT : 1];
 static int g_spec_on = 1;
 static unsigned long long g_spec_hits, g_spec_misses;  /* states, for the log */
 static VkPipelineCache g_pcache;
+static VkBool32 g_depth_clamp;  /* device feature: GX depth is clamped, not clipped */
 static unsigned g_pipes_new, g_pipes_total;
 static uint64_t g_pcache_saved_ns;
 static uint64_t* g_keys;          /* the keys in PIPE_KEYS_FILE plus the ones first built this run */
@@ -413,6 +414,7 @@ static VkPipeline pipe_build(VkShaderModule vs, VkShaderModule fs, VkPipelineLay
     rs.polygonMode = VK_POLYGON_MODE_FILL;
     rs.cullMode = cull;
     rs.frontFace = VK_FRONT_FACE_CLOCKWISE;  /* GX front faces are clockwise on screen (as render_deko.c) */
+    rs.depthClampEnable = gx_vertices && g_depth_clamp ? VK_TRUE : VK_FALSE;  /* GX clamps depth (render_gl.c) */
     rs.lineWidth = 1.0f;
     VkPipelineMultisampleStateCreateInfo ms = {VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO, NULL, 0, VK_SAMPLE_COUNT_1_BIT};
     VkPipelineColorBlendStateCreateInfo cb = {VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO, NULL, 0, VK_FALSE, 0, 1, blend};
@@ -760,6 +762,7 @@ static void vk_setup(void) {
     VkPhysicalDeviceFeatures f;
     vkGetPhysicalDeviceFeatures(g_pd, &f);
     g_dual_src = f.dualSrcBlend;
+    g_depth_clamp = f.depthClamp;
     uint32_t nde = 0;
     vkEnumerateDeviceExtensionProperties(g_pd, NULL, &nde, NULL);
     VkExtensionProperties* de = calloc(nde ? nde : 1, sizeof *de);
@@ -818,6 +821,7 @@ static void device_setup(void) {
     VkPhysicalDeviceDynamicRenderingFeaturesKHR drf = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES_KHR, NULL, VK_TRUE};
     VkPhysicalDeviceFeatures want = {0};
     want.dualSrcBlend = g_dual_src;
+    want.depthClamp = g_depth_clamp;
     VkDeviceCreateInfo dci = {VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO, &drf, 0, 1, &qci, 0, NULL, ndx, dext, &want};
     VKC(vkCreateDevice(g_pd, &dci, NULL, &g_dev));
     vkGetDeviceQueue(g_dev, g_qfi, 0, &g_q);
