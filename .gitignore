@@ -96,6 +96,9 @@ objdiff.json
 config/*/symbols.txt
 config/*/splits.txt
 config/*/_Main/
+# Heroes: one folder per REL module (config/G9SE8P/<module>/symbols.txt, splits.txt)
+config/*/*/symbols.txt
+config/*/*/splits.txt
 
 # Save data (memory card images): personal, derived from playing the game
 saves/

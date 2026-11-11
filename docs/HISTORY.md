@@ -21,3 +21,20 @@ Dated sessions and hardware tests, oldest first. The Sonic Riders port's history
   fan art inherited from Riders' history (`--history` scans every version); fixed with `PAST_ART` (a09bbbb),
   green on GitHub [confirmed]. Riders' public guard fails on the same 3 pictures; the fix applies to riders/main
   cleanly and keeps its fan art (tested on a temporary copy) [confirmed]; not applied to Riders (user's call).
+
+## 2026-11-11 (later): dtk analysis of main.dol + the RELs
+
+- First dtk 1.8.4 split stopped on "Duplicate module ID 3": stage00D and stage01D share ID 3. Every REL imports
+  only itself and main.dol, so `links: []` on each module fixes the link step [confirmed].
+- Next stop: stage00D relocates against 0x8044AEA8, past main.dol's bss. stage00D is a stale build for a different
+  main.dol: 3,978 relocations past the DOL, 3.8% of its calls land on function starts (others 92-97%)
+  [confirmed]; the stage table maps it only to stage ID 1 (unused test level). Left out of config.yml.
+- Split then ran clean: main + 17 RELs, 39,075 functions, 4,680 objects, 11 s; 14 Rel14 warnings (one shared
+  object in every stage REL, branch to the previous instruction) [confirmed]; whether it matters for recompiling
+  [uncertain].
+- Loader found: OSLink 0x801D40EC / OSUnlink 0x801D4348, each with one caller (0x80042310 load, 0x800421C8 unload)
+  on one global loader object 0x8042C1C0, so one REL resident at a time [likely]. Stage ID -> REL table at
+  0x80240B10 (IDs 1..61). sigmatch named 1,369 of 6,223 main.dol functions. Multi-REL design proposed (17 fixed
+  bases side by side, 15.6 MB from 0x81800000; re-copy the pristine image on every OSLink): docs/notes/rel-modules.md.
+- `.gitignore`: per-module dtk outputs `config/*/*/symbols.txt`, `splits.txt` were not covered; added.
+- Nothing runs yet; no hardware or emulator test this session (nothing builds for Heroes).

@@ -10,6 +10,7 @@ This project is a fork of the Sonic Riders port (forked 2026-11-11, remote `ride
 | Note | Kind | What is in it |
 |---|---|---|
 | [notes/recon.md](notes/recon.md) | Current | Sonic Heroes disc recon: hashes, executables (main.dol + 18 RELs), SDK libraries, middleware, risks |
+| [notes/rel-modules.md](notes/rel-modules.md) | Current | dtk run, the 18 RELs (IDs, stale stage00D), how the game loads them (OSLink callers, stage table), multi-REL design |
 | [notes/build-and-test.md](notes/build-and-test.md) | Inherited | **Quick commands** (configure/build/run for every target), Switch / PC builds, setup, releases, Eden / Dolphin |
 | [notes/android.md](notes/android.md) | Inherited | Android build, install, test, touch controls, app icon, triggers, phone facts |
 | [notes/debug-variables.md](notes/debug-variables.md) | Inherited | every `SR_*` debug variable (names kept from Riders on purpose), `RECOMP_*` switches |

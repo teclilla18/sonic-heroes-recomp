@@ -15,8 +15,9 @@
 - `main.dol`: 2,740,672 bytes, entry 0x80005318 [confirmed].
 - 18 RELs, 21 MB in all [confirmed]: advertiseD, autosaveD, movieD, stage00D, 01D, 03D, 05D, 07D, 09D, 11D, 13D,
   26D, 27D, 28D, 31D, 32D, 33D, 40D (largest: stage07D, 2.2 MB). Riders had one REL, linked once at boot.
-  The game loads and unloads these at runtime [likely], so `rel.c`/`loader.c` (single REL at `REL_BASE`) must
-  handle many modules: each one recompiled at its own fixed base. **The biggest change from the Riders port.**
+  The game loads and unloads them one at a time through one loader object [confirmed from code, 2026-11-11]; no
+  REL imports another; stage00D is a stale leftover for a different main.dol. Details and the multi-REL design:
+  [rel-modules.md](rel-modules.md). **The biggest change from the Riders port.**
 - `TSonic.str`: 511 bytes (Riders' counterpart: `SonicR.str`) [confirmed].
 
 ## Libraries
@@ -36,6 +37,6 @@
 
 ## Next
 
-1. dtk analysis with `config/G9SE8P/config.yml` (DOL + 18 modules); check REL module IDs and how the game loads them.
+1. ~~dtk analysis~~ done 2026-11-11: [rel-modules.md](rel-modules.md).
 2. `tools/sigmatch.py` over main.dol for the SDK map; fill `config/G9SE8P/hle.txt`.
 3. Design the multi-REL layout (bases, OSLink/OSUnlink) before touching `rel.c`/`loader.c`.
