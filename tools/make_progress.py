@@ -15,10 +15,10 @@ UPDATED = "2026-11-11"
 AREAS = [
     ("Whole game playable",            25, 10),
     ("Graphics match the GameCube",    15, 55),
-    ("Switch performance",             15, 40),
+    ("Switch performance",             15, 45),
     ("Platforms",                      15, 25),
     ("2-player modes",                 15,  0),
-    ("Features and polish",            15, 20),
+    ("Features and polish",            15, 25),
 ]
 
 W = 720

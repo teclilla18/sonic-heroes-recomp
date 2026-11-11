@@ -99,3 +99,15 @@ Dated sessions and hardware tests, oldest first. The Sonic Riders port's history
   no-reply address), so they were rewritten to the no-reply address and the GitHub repo was deleted (by the user)
   and recreated public; guard green. Old -> new ids: a09bbbb -> 89e93e2, aa7cb5f -> 1cb9ac8, 3dd787e -> 9cc7934,
   8d5e14d -> 64086c6, 2b63b6d -> a7573d9, fb1459a -> 3020e9d.
+
+## 2026-11-11 (end): user's play test; widescreen patch started
+
+- User's play test (OLED, overclocked as Riders): first level runs very well, ~60 fps at 1.5x; terrain glitches
+  and discolouration here and there; overlay "Fit to screen" not like Riders [accepted: first level].
+- Icon: somegameicons' fan art as setup/icon.png + icon_256.jpg for every build (guard OWN_ART, README credit);
+  Road to v1.0 card from Riders' tool (24%), with the rule to update it per tested change.
+- Widescreen: RenderWare's RwCameraSetViewWindow is fn_8019D0CC [likely] (copies the view window to camera+0x68,
+  reciprocals at 0x70/0x74, frustum update); fn_801AC6A4 builds the projection from 0x70..0x84. Patch 8019D0F0
+  widens 0x68 by g_aspect_scale for screen-sized frame buffers only. Implemented, not built or run yet
+  [uncertain]. No published Heroes widescreen Gecko code was found.
+- sys-botbase's virtual controller blocked the user's controller until `detachController` (now in CLAUDE.local.md).
