@@ -2,10 +2,11 @@
 # Refuse to commit anything game-derived or private (see tools/check_no_game_data.py and .gitignore).
 # Enable once per clone with: git config core.hooksPath tools/git-hooks
 # The same check runs on GitHub for every push and pull request (.github/workflows/guard.yml).
-root=$(git rev-parse --show-toplevel)
+# git runs hooks from the repo root: a relative path works with any Python (devkitPro's MSYS2 python3
+# cannot open the Windows path that --show-toplevel gives).
 for py in python3 python py; do
     if "$py" -c 'import sys; sys.exit(sys.version_info[0] != 3)' >/dev/null 2>&1; then
-        exec "$py" "$root/tools/check_no_game_data.py" --staged
+        exec "$py" tools/check_no_game_data.py --staged
     fi
 done
 echo "pre-commit: Python 3 is needed for tools/check_no_game_data.py; commit blocked."
