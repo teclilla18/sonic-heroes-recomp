@@ -30,6 +30,7 @@ static int watchdog(void* arg) {
     rt_log("[watchdog] %d s elapsed", (int)(intptr_t)arg);
     cpu_dump_trace();
     mmio_dump();
+    { void vi_dump(void); vi_dump(); }
     sched_dump();
     fflush(stderr);
     _Exit(3);

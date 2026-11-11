@@ -56,6 +56,12 @@ uint32_t vi_xfb_address(void) {
 
 uint32_t vi_field_count(void) { return g_fields; }
 
+/* watchdog dump: retraces raised so far and the VI registers the retrace interrupt depends on */
+void vi_dump(void) {
+    rt_log("[vi] fields %u; DCR %04X DI0 %04X%04X DI1 %04X%04X TFBL %04X%04X", g_fields, g_vi[0x02 >> 1], g_vi[0x30 >> 1],
+           g_vi[0x32 >> 1], g_vi[0x34 >> 1], g_vi[0x36 >> 1], g_vi[0x1C >> 1], g_vi[0x1E >> 1]);
+}
+
 /* SR_DETCLOCK (online play groundwork): one retrace per game frame, handed over where the game's main
  * thread waits for it (VIWaitForRetrace, frame_pacing.c): vi_thread raises it once the main thread
  * sleeps in that wait (it checks every 2 ms), so the main thread never sees it arrive mid-work. Retraces that fall due while the game is still working on its frame wait (at

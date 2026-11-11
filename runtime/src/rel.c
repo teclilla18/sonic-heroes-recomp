@@ -33,8 +33,9 @@ void hle_OSLink(Cpu* c) {
     st32(m + 0x34, r->prolog);
     st32(m + 0x38, r->epilog);
     st32(m + 0x3C, r->unresolved);
-    rt_log("[rel] OSLink(%08X, bss %08X): %s (id %u) runs from its fixed image at %08X (prolog %08X)", m, bss,
-           r->name, r->id, r->base, r->prolog);
+    uint32_t vi_field_count(void);
+    rt_log("[rel] field %u: OSLink(%08X, bss %08X): %s (id %u) runs from its fixed image at %08X (prolog %08X)",
+           vi_field_count(), m, bss, r->name, r->id, r->base, r->prolog);
     g_linked_mod = r;
     if (!strcmp(r->name, "_Main")) game_mods_linked();  /* Sonic Riders' gameplay options; Heroes has none yet */
     c->r[3] = 1;

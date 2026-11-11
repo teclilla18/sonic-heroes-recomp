@@ -64,6 +64,9 @@ void os_raise_interrupt(int id) {
 void os_irq_dump(void) {
     rt_log("[irq] pending %08X posted %d, OS mask %08X user mask %08X", atomic_load(&g_pending), atomic_load(&g_posted),
            ld32(OS_INTERRUPT_MASK), ld32(OS_USER_MASK));
+    rt_log("[irq] handlers: PE token %08X, PE finish %08X, DI %08X, SI %08X, VI %08X",
+           ld32(OS_INTERRUPT_TABLE + 4 * 18), ld32(OS_INTERRUPT_TABLE + 4 * 19), ld32(OS_INTERRUPT_TABLE + 4 * 21),
+           ld32(OS_INTERRUPT_TABLE + 4 * 20), ld32(OS_INTERRUPT_TABLE + 4 * 24));
 }
 
 /* latched interrupts that were masked: try again (called when interrupts are re-enabled) */
