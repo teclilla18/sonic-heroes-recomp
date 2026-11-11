@@ -9,7 +9,28 @@ Play **Sonic Heroes** (GameCube, USA) natively, with no emulator, on a modded **
 **your own disc image**; this project contains no game files.
 
 > [!IMPORTANT]
-> **In development, not playable yet.** No downloads. Status: [STATE.md](STATE.md).
+> **Work in progress. There is no release yet and nothing to download.** The first release, **v0.5.0**, comes
+> once the game is playable on the **Switch and Android**. Day-to-day status: [STATE.md](STATE.md).
+
+## Progress toward v1.0
+
+```
+[█████░░░░░░░░░░░░░░░]  25%
+```
+
+An estimate of the work left to a complete v1.0, updated as it moves:
+
+| | Part | Status |
+|---|---|---|
+| ✅ | Recompiler: `main.dol` + all 17 usable `.rel` modules translated, each at its own address | done |
+| ✅ | Boot: logos, title screen, menus, story movie, first stage (Seaside Hill) on PC | done |
+| ✅ | Switch: first stage at 60 fps on the console (handheld), shaders built ahead of time | done |
+| 🔲 | Every stage, team, boss and special stage plays through; saves; sound and movies checked | |
+| 🔲 | 2-player modes (split screen) at full speed on the Switch | |
+| 🔲 | Android build | |
+| 🔲 | Setup tool (builds the game from your disc), installers → **v0.5.0** | |
+| 🔲 | Settings menu, widescreen, quality options, Windows / Linux / Steam Deck / iOS builds | |
+| 🔲 | Long play-tests on every platform → **v1.0** | |
 
 **You will need:** your own **Sonic Heroes (USA)** disc image (`G9SE8P`, revision 0, a full 1.4 GB `.iso`).
 
@@ -44,5 +65,8 @@ Licensed under the [Mozilla Public License 2.0](LICENSE), like the translator it
   [SDL2](https://www.libsdl.org/), [llvm-mingw](https://github.com/mstorsjo/llvm-mingw),
   [Dear ImGui](https://github.com/ocornut/imgui) (MIT),
   [AMD FidelityFX Super Resolution 1](https://github.com/GPUOpen-Effects/FidelityFX-FSR) (MIT).
+- Switch home-screen icon (on the maintainer's console, not in this repository): "Sonic Heroes icon" by
+  **somegameicons** on DeviantArt
+  ([CC BY-NC-ND 3.0](https://creativecommons.org/licenses/by-nc-nd/3.0/)).
 
 Sonic Heroes is © SEGA. This project is not affiliated with SEGA.

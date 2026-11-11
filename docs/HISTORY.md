@@ -62,3 +62,22 @@ Dated sessions and hardware tests, oldest first. The Sonic Riders port's history
   8042CA20) waiting for its VISetPostRetraceCallback (fn_801ABB9C) / GXSetDrawDoneCallback (fn_801AB9E0)
   wakers; the other threads wait in VIWaitForRetrace [confirmed from the watchdog dump]. Cause not looked at
   [uncertain]: retrace interrupts stop, or draw-done never signalled.
+
+## 2026-11-11 (night): boot blocker fixed; logos, title, menus, story movie and Seaside Hill on PC
+
+- Stall after frame 2: the main thread slept in RenderWare's GC video driver (fn_801ACC6C, queue 8042CA20) on
+  a full frame-buffer ring. Its wakers (fn_801AB9E0 via GXSetBreakPtCallback 801F24B4, fn_801ABB9C via
+  VISetPostRetraceCallback 801DBFC4) advance the ring when the **CP FIFO breakpoint** fires (GXEnableBreakPt
+  801F24F8 / GXDisableBreakPt 801F2584 [likely, by position in GXFifo.c]). Found by: SR_DETTRACE (VI delivered
+  ~60/s, no PE interrupts), SR_WATCH on the retrace queue (retrace threads fine), `[pe]` logs (no draw done
+  issued), reading the wakers. Fix: gx_fifo.c models the breakpoint (hit once the GP has drained, status bit 4,
+  OS interrupt 17) [confirmed: boot continues].
+- Then: advertiseD -> movieD -> title -> menus -> story movie (Sofdec renders) -> stage01D, OSLink/OSUnlink for
+  each [confirmed]. Stage frames showed the title card frozen over the HUD while the game ran: the 3D scene failed
+  the depth test because RenderWare's **full-screen clear quad** (first main-scene draw, z always + update) lies
+  outside the depth range and was clipped, leaving last frame's colour and depth. Found with SR_SKIPSAME (no
+  block of draws made the overlay), SR_GXDEBUG(_ALL) (copies: the XFB copy does not clear; the clear quad covers
+  0..640 x 0..480) and an SR_DEPTHCLAMP test. Fix: depth clamping instead of near/far clipping, as GX and Dolphin
+  (GL_DEPTH_CLAMP; deko3d depthClampEnable; Vulkan depthClamp feature) [confirmed on PC; Switch/Vulkan not run].
+- PC result: Seaside Hill at 60 fps, 2,600-2,700 draws/frame; START skips the story movie (the user's tip).
+  Not implemented yet (from `[perf]`): fog (~2,000 draws/frame use it), indirect textures, Z textures.

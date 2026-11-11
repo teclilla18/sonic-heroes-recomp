@@ -35,7 +35,7 @@ ROOT = os.path.dirname(os.path.dirname(HERE))
 sys.path.insert(0, os.path.dirname(HERE))
 import android_icon  # noqa: E402  (.png/.ico/save icon loader, resampling)
 
-TITLE_ID = "010053520d9a0000"   # the same id as the forwarder of 2026-10-18 (tools/nsp/sonicheroes.json)
+TITLE_ID = "010053480d9a0000"   # Sonic Heroes (tools/nsp/sonicheroes.json); Riders uses 010053520d9a0000
 NRO_PATH = "sdmc:/switch/sonicheroes/sonicheroes.nro"
 SOURCES = {
     "nx-hbloader": ("switchbrew/nx-hbloader", "82b95122c5ae8dc059bf23893ba7623c72c86773",
