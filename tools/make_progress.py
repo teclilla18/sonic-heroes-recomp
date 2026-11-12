@@ -18,7 +18,7 @@ AREAS = [
     ("Switch performance",             15, 45),
     ("Platforms",                      15, 25),
     ("2-player modes",                 15,  0),
-    ("Features and polish",            15, 30),
+    ("Features and polish",            15, 35),
 ]
 
 W = 720

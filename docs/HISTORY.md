@@ -111,3 +111,29 @@ Dated sessions and hardware tests, oldest first. The Sonic Riders port's history
   widens 0x68 by g_aspect_scale for screen-sized frame buffers only. Implemented, not built or run yet
   [uncertain]. No published Heroes widescreen Gecko code was found.
 - sys-botbase's virtual controller blocked the user's controller until `detachController` (now in CLAUDE.local.md).
+
+## 2026-11-11 (late): widescreen 3D, modern controls with camera tilt, pause A; user's play tests
+
+- Widescreen: the RwCameraSetViewWindow patch works: 16:9 and 21:9 PC route shots and Eden show a wider 3D
+  view, not stretched [confirmed PC, Eden]; the user played Fit window on the OLED. Menus are still stretched and
+  the HUD is not at the edges: Heroes draws 2D with perspective projections, the ortho anchoring path
+  (gx_render.c wide_anchor) sees ~10 draws/frame only [confirmed: SR_ANCHORLOG]. "In a stage" signal for the
+  edge flags: rel_stage_active() (stageNND linked) [confirmed log: stage 1 at stage01D].
+- Modern controls (setting, default on; si.c): L -> Y, R -> X (leader), right stick X -> R/L analog (turn),
+  C stick centred for the game (no first-person SURVEY). Camera RE (re-investigator, docs/notes/re/camera.md):
+  turn = 5 x analog trigger per frame (mulli sites in SARATOGA/JONES) -> cam_speed setting scales it [likely:
+  200% about doubled a turn]. Pitch is recomputed from eye/look-at every frame, so an offset on the camera state
+  did nothing [confirmed by a debug log]; the tilt is applied in the view builder (fn_8004E7EC -> fn_80050AB8):
+  the eye swings about the look-at point, view pitched to match, elevation -5..75 deg (-35 went under the
+  bridge) [confirmed PC shots, Eden]. Direction inverted at the user's request (stick up = view up).
+- Pause menu: A also confirms while 0x8029C334 = 1 (found by SR_RAMDUMPFIELD dumps, new: RAM by VI field since
+  Heroes has no frame_end hook) [confirmed PC: pause -> A -> running, twice, no reload].
+- PC: scripted runs ignore real gamepads (user plays another emulator meanwhile); a pad moves to port 1 when
+  port 1's pad goes away (the user's Pro Controller was taken by another program, the Xbox pad sat on port 2).
+  Switch build broke on vi.c without <stdlib.h> (fixed; the first upload was the older NRO).
+- User's OLED play tests (handheld, GPU 384 MHz, CPU/MEM overclocked as usual): first 60 fps median, dips to
+  43-55 fps are CPU-side (vertex decode, game code), fog "not implemented" on ~94% of stage draws; second (this
+  build): Seaside Hill median 59.9, p10 57.1, min 38.1 fps. User: camera "working fantastic", controls near
+  perfect [accepted]. 4 new shader keys merged (21).
+- User's visual goal: Wind Waker HD-like look; agreed order fog + terrain colours -> bloom/grade on Switch ->
+  own SSAO -> sun shadows (research), then the same for Riders.

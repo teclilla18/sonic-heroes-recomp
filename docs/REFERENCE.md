@@ -11,6 +11,7 @@ This project is a fork of the Sonic Riders port (forked 2026-11-11, remote `ride
 |---|---|---|
 | [notes/recon.md](notes/recon.md) | Current | Sonic Heroes disc recon: hashes, executables (main.dol + 18 RELs), SDK libraries, middleware, risks |
 | [notes/rel-modules.md](notes/rel-modules.md) | Current | dtk run, the 18 RELs (IDs, stale stage00D), how the game loads them (OSLink callers, stage table), multi-REL design |
+| [notes/re/camera.md](notes/re/camera.md) | Current | Heroes stage camera: pad record, L/R turn (mulli 5), camera state 802C218C, per-screen copy (*0x8042C208), view builder fn_80050AB8; pause flag 8029C334; the port's speed/tilt patches |
 | [notes/shader-compile-on-console.md](notes/shader-compile-on-console.md) | Investigation | plan: uam on the console for missed shader keys (after SwitchWakerHD), shared with Riders |
 | [notes/build-and-test.md](notes/build-and-test.md) | Inherited | **Quick commands** (configure/build/run for every target), Switch / PC builds, setup, releases, Eden / Dolphin |
 | [notes/android.md](notes/android.md) | Inherited | Android build, install, test, touch controls, app icon, triggers, phone facts |

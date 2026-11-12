@@ -23,7 +23,7 @@ functions or macros (line numbers drift). Sizes are approximate line counts.
 | Audio (AX / DSP) | ax.c (470), dsp.c (440), audio_out.c | |
 | Disc / DVD | di.c, disc.c | |
 | Memory card, RTC | exi.c (430) | |
-| Controllers into the game | si.c; scripted input input_script.c (`SR_INPUT`) | |
+| Controllers into the game | si.c (`get_pad`, Heroes `modern_controls` / `modern_tilt`: L/R leader, right stick camera, A in pause); camera patches config/G9SE8P/patches.txt (notes/re/camera.md); scripted input input_script.c (`SR_INPUT`, `CX=`/`CY=`) | |
 | Settings file | settings.c / settings.h | `g_settings`, `settings_apply` |
 | Settings menu (ImGui) | menu.cpp (760) | `tab_display`, `tab_controls`, `quit_row`, `close_menu`, `overlay_input`, `overlay_pointer`, `overlay_image` |
 | Menu software rasterizer | menu_raster.cpp | |

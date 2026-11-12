@@ -31,7 +31,7 @@ v0.5.0, comes once the game is playable on the Switch and Android. The overall n
 | Switch performance | 45 % | Seaside Hill at 60 fps (handheld; ~60 at 1.5x with an overclock, user-tested); left: shaders for the rest of the game, big stages, movies, docked checks |
 | Platforms | 25 % | PC and Switch boot and play; left: Android, Linux / Steam Deck, iPhone / iPad, the setup tool |
 | 2-player modes | 0 % | Split-screen versus and battle modes not tried yet |
-| Features and polish | 30 % | HOME-screen forwarder and game icon done; widescreen 3D (Hor+) and modern controls (L/R = leader, right stick = camera) tested on PC and Eden; left: menus and HUD in widescreen, launcher, installers |
+| Features and polish | 35 % | HOME-screen forwarder and game icon done; widescreen 3D (Hor+) tested on PC, Eden and the Switch; modern controls (leader on L/R, right-stick camera turn + tilt, speed slider, A in pause) accepted on the Switch; left: menus and HUD in widescreen, launcher, installers |
 
 </details>
 
