@@ -158,3 +158,14 @@ Dated sessions and hardware tests, oldest first. The Sonic Riders port's history
   Tested: PC 2x and 4x (4:3) and 16:9 match Dolphin; Eden v0.1.1 (16:9) clean, 17078 of 17078 states
   specialized, 12 dksh with per_warp_scratch 0. **Not yet on hardware.** Not checked: menus/other stages with
   the snapped untextured 2D (expected unchanged at 1x) [likely].
+- **Hardware (OLED handheld, GPU 384 MHz by the app, CPU/MEM overclocked; this NRO, logs build/hw6/)**: user:
+  "looks really good" [accepted for the ground]; whole log median 59.9, p10 50.3, min 33.8 fps (includes menus,
+  a quit and a reload), 18572 of 18572 states specialized, no new shader keys.
+- **Crash once on Pause -> Quit** (Atmosphere report build/hw6/atmo_crash.log, log crashrun.log): Data Abort
+  in ld32 <- record_backtrace (sched.c, profiler attribution) <- handoff <- hle_OSLoadContext <- the game's
+  exception handler (f_801D6994 -> f_801D676C) during an interrupt delivery; read of guest 0x80E687E4, inside
+  the mapped window (code memory, RW, never unmapped). Not reproduced on the next try (user) nor on PC (quit ->
+  Story select -> stage again). Cause unknown [uncertain]; recognise it by that stack.
+- **Team Blast gauge fill split into pieces** (cyan with gaps, dark/red chunks) on the Switch in 16:9: also in
+  screenshots of earlier builds, so not from this fix; suspect wide_anchor placing the fill's pieces apart
+  [likely, untested].

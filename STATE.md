@@ -1,4 +1,4 @@
-# State (2026-11-11, end: Seaside Hill terrain colours fixed on PC + Eden; next: hardware check, then HD look)
+# State (2026-11-11, end: Seaside Hill terrain fix accepted on Switch; next: Team Blast gauge, then HD look)
 
 Read this at the start of every session. Rewrite it in place at the end of each session (never append). Stories
 behind each line: `grep` the date or topic in [docs/HISTORY.md](docs/HISTORY.md) (Riders' history:
@@ -29,18 +29,25 @@ Repo public (teclilla18/sonic-heroes-recomp). Local `user.email` is the GitHub n
   PC means 93/108/88 vs Dolphin 92/106/87 on the matched frame.
 - Method that worked: SR_DFF frame -> Dolphin playback (notes/build-and-test.md), SR_SKIPSAME bisect,
   SR_GLTEXDUMP of the copy, SR_SCALE=1 control run.
-- Switch NRO built (12 dksh, per_warp_scratch 0; Eden: 17078 of 17078 states specialized). Not on the SD yet.
+- **On the console** (OLED handheld, GPU 384 MHz by the app, CPU/MEM overclocked; logs build/hw6/): user "looks
+  really good" [accepted for the ground]; median 59.9, p10 50.3, min 33.8 fps over a log with menus, a quit and
+  a reload; 18572 of 18572 states specialized; no new shader keys. SD has this NRO + sonicheroes.prev.nro.
+- **Crash once on Pause -> Quit** (build/hw6/atmo_crash.log): Data Abort in ld32 <- record_backtrace (sched.c)
+  <- handoff <- hle_OSLoadContext during an interrupt, reading guest 0x80E687E4 inside the mapped window. Not
+  reproduced (user retried; PC quit works). Cause unknown [uncertain].
 
 ## Next steps, in order (user's priorities)
 
-1. **Hardware check of the terrain fix** (ask before taking over the console): put build/switch/sonicheroes.nro
-   on the SD (keep the old one as sonicheroes.prev.nro), play Seaside Hill handheld; look for purple/dark ground,
-   watch fps (must stay ~60) and `[deko3d] specialized N of N`.
-2. **HD look** (memory "hd-lighting-goal"): bloom/grade on the Switch (PC has them), own SSAO (GTAO), sun
+1. **Team Blast gauge (top right) fill split into pieces** in 16:9 on the Switch (user's screenshots
+   build/hw6/shots/shot_9357.bmp new build, shot_12737.bmp older build: not from tonight). Suspect wide_anchor
+   splitting the fill's pieces; check PC 4:3 vs 16:9 with the gauge filled (poke its value in RAM; find it with
+   SR_RAMDUMPFIELD dumps) and SR_ANCHORLOG.
+2. If the Pause -> Quit crash returns: same stack? Then make record_backtrace safe or look at the window mapping.
+3. **HD look** (memory "hd-lighting-goal"): bloom/grade on the Switch (PC has them), own SSAO (GTAO), sun
    shadows (research: eye/look-at known, light from GX light regs). Then the same for Riders.
-3. Widescreen menus/HUD: Heroes draws 2D with perspective projections, so wide_anchor (ortho only) sees few
+4. Widescreen menus/HUD: Heroes draws 2D with perspective projections, so wide_anchor (ortho only) sees few
    draws; classify perspective 2D (Im2D: near-plane z, identity-ish modelview) or patch the menu/HUD cameras.
-4. More stages + shader keys; leftover Riders hooks (mods.c, netplay.c, perftest.c); Android.
+5. More stages + shader keys; leftover Riders hooks (mods.c, netplay.c, perftest.c); Android.
 
 ## Hardware / console notes
 
@@ -48,9 +55,11 @@ Repo public (teclilla18/sonic-heroes-recomp). Local `user.email` is the GitHub n
   the Riders switch-remote config (CLAUDE.local.md). From Git Bash set `MSYS_NO_PATHCONV=1` and pass sw.py as a
   Windows path (`cygpath -m`). After remote control: `detachController`. No env.txt on the SD.
 - SD `switch/sonicheroes/`: NRO, disc image, SonicHeroes.nsp (forwarder), saves, logs. Previous NRO backup:
-  build/hw4/sonicheroes.prev.nro. Logs of the play tests: build/hw4, build/hw5.
+  build/hw6/sonicheroes.prev.nro. Logs of the play tests: build/hw4, hw5, hw6 (+ Atmosphere report, user shots).
+- The user's menu screenshots land on the SD as shot_<field>.bmp; Atmosphere reports in /atmosphere/crash_reports
+  (Heroes title 010053480d9a0000); symbolise with devkitA64 addr2line -f -i -e build/switch/sonicheroes.elf.
 - Eden v0.1.1: start hidden (`Start-Process -WindowStyle Hidden`, never minimized); default keyboard input,
-  muted; env.txt in its sdmc folder holds the route (now SR_SHOTS=5000,5600, SR_SCREEN=3). The new NRO is there.
+  muted; env.txt in its sdmc folder holds the route (now SR_SHOTS=5000,5600, SR_SCREEN=3).
 
 ## Testing etiquette (user, 2026-11-11)
 
@@ -61,7 +70,7 @@ PC widescreen test: `SR_SCREEN=1 SR_WINDOW=1280x720` (SR_SCREEN=3 = fit window, 
 
 ## Waiting on the user
 
-- Go-ahead for the hardware check (step 1).
+- Report if Pause -> Quit crashes again (fetch build logs + /atmosphere/crash_reports).
 - Riders: Heroes fixes to cherry-pick are listed at the top of Riders' CLAUDE.local.md (user's call). New shared
   candidates: gx.vert native-grid snap of untextured 2D, wide_anchor clear -> stretch, the [perf] fog label;
   earlier: input_sdl.c, vi.c SR_RAMDUMPFIELD, input_script.c CX/CY, settings.c update_check.
@@ -82,10 +91,11 @@ build.ninja holds one target: reconfigure (configure.py) when switching PC <-> S
 ## Next session
 
 ```
-Continue Sonic Heroes: hardware check of the Seaside Hill terrain fix, then HD look step 2 (STATE next steps).
-Hardware result: <paste what you saw on the console, or say "go ahead" to let Claude copy the NRO by FTP>.
-Use /hw-test: build/switch/sonicheroes.nro is built; keep the old NRO as sonicheroes.prev.nro on the SD.
-Check the log with log-reader: fps vs build/hw5, [deko3d] specialized N of N, new shader keys.
-Then plan bloom/grade on the Switch (plan mode; render_deko.c vs render_gl.c post passes, docs/MAP.md).
-All PC/Eden runs in the background, muted and minimized; ask before taking over the console.
+Continue Sonic Heroes: the Team Blast gauge (top right) shows its fill in pieces on the Switch in 16:9 (STATE step 1).
+Screenshots: build/hw6/shots/shot_9357.bmp (new build) and shot_12737.bmp (older build, same fault).
+Suspect gx_render.c wide_anchor (docs/MAP.md); first reproduce on PC: find the gauge value with SR_RAMDUMPFIELD
+dumps, fill it, compare SR_SCREEN=0 vs SR_SCREEN=1 SR_WINDOW=1280x720 shots and SR_ANCHORLOG for that frame.
+Go straight to the fix if the anchor log shows the fill's pieces anchored differently; otherwise /render-bisect.
+Verify: PC 4:3 + 16:9, Eden, then console (ask first). Then HD look step 2 (bloom/grade on the Switch, plan mode).
+All PC/Eden runs in the background, muted and minimized.
 ```
