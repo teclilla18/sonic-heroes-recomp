@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 440" width="960" height="440" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+  <title>Original GameCube layout vs. the port's modern controls</title>
+  <rect width="960" height="440" rx="18" fill="#0f1b33"/>
+  <defs>
+    <g id="pad">
+      <!-- body -->
+      <path d="M70 120 Q70 70 130 66 L310 66 Q370 70 370 120 L395 250 Q402 300 355 300 Q325 300 300 255 L140 255 Q115 300 85 300 Q38 300 45 250 Z" fill="#26375c" stroke="#5d79b3" stroke-width="3"/>
+      <!-- shoulders -->
+      <rect x="92" y="44" width="80" height="22" rx="10" fill="#3a4f7d" stroke="#5d79b3" stroke-width="2"/>
+      <rect x="268" y="44" width="80" height="22" rx="10" fill="#3a4f7d" stroke="#5d79b3" stroke-width="2"/>
+      <!-- left stick -->
+      <circle cx="135" cy="140" r="30" fill="#1a2744" stroke="#8aa2d6" stroke-width="3"/>
+      <circle cx="135" cy="140" r="14" fill="#8aa2d6"/>
+      <!-- d-pad -->
+      <path d="M178 196 h14 v-14 h14 v14 h14 v14 h-14 v14 h-14 v-14 h-14 z" fill="#8aa2d6"/>
+      <!-- right stick -->
+      <circle cx="270" cy="205" r="26" fill="#1a2744" stroke="#8aa2d6" stroke-width="3"/>
+      <circle cx="270" cy="205" r="12" fill="#8aa2d6"/>
+      <!-- face buttons -->
+      <circle cx="320" cy="112" r="13" fill="#3d9a5b"/>
+      <circle cx="294" cy="138" r="13" fill="#c0463c"/>
+      <circle cx="346" cy="138" r="13" fill="#3f6fd1"/>
+      <circle cx="320" cy="164" r="13" fill="#d6a52a"/>
+    </g>
+  </defs>
+
+  <!-- left: original -->
+  <text x="240" y="34" text-anchor="middle" fill="#ffffff" font-size="22" font-weight="700">Original (GameCube)</text>
+  <g transform="translate(20,20)"><use href="#pad"/></g>
+  <g font-size="15" fill="#dfe7ff">
+    <text x="152" y="54" text-anchor="middle" fill="#ff9d7a" font-weight="700">L: camera</text>
+    <text x="328" y="54" text-anchor="middle" fill="#ff9d7a" font-weight="700">R: camera</text>
+    <text x="96" y="352">X / Y: switch leader</text>
+    <text x="96" y="376">Right stick (C stick): look (first person)</text>
+    <text x="96" y="400">Pause menu: START confirms</text>
+  </g>
+
+  <!-- arrow -->
+  <path d="M452 190 h44" stroke="#ffd34d" stroke-width="6" stroke-linecap="round"/>
+  <path d="M492 174 l22 16 l-22 16 z" fill="#ffd34d"/>
+
+  <!-- right: modern -->
+  <text x="720" y="34" text-anchor="middle" fill="#ffffff" font-size="22" font-weight="700">Modern controls (default)</text>
+  <g transform="translate(500,20)"><use href="#pad"/></g>
+  <g font-size="15" fill="#dfe7ff">
+    <text x="632" y="54" text-anchor="middle" fill="#7dffb0" font-weight="700">L: leader ◀</text>
+    <text x="808" y="54" text-anchor="middle" fill="#7dffb0" font-weight="700">▶ R: leader</text>
+    <!-- right stick callout -->
+    <path d="M790 250 L842 300" stroke="#7dffb0" stroke-width="2"/>
+    <text x="846" y="312" fill="#7dffb0" font-weight="700">camera</text>
+    <text x="580" y="352">L / R (triggers): switch leader (was Y / X)</text>
+    <text x="580" y="376">Right stick ◀ ▶: turn camera (was L / R)</text>
+    <text x="580" y="400">Right stick ▲ ▼: tilt camera (new)</text>
+    <text x="580" y="424">Pause menu: A confirms too (new)</text>
+  </g>
+  <text x="96" y="424" font-size="13" fill="#8aa2d6">A, B, X, Y, Z, START, D-pad, left stick: unchanged</text>
+</svg>

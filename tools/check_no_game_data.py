@@ -77,6 +77,10 @@ OWN_ART = {
     "setup/icon_256.jpg": "d9bfb4862ae3f44fbb021a575efabd0816a3756f",  # the same, 256 x 256 JPEG (Homebrew Menu / forwarder)
     "launcher/icon_256.png": "80541e60eb82d9440c001da3bc4c7240bda2b111",  # launcher icon (user's ChatGPT art, 2026-11-09)
     "launcher/icon_32.png": "24e3018e7e6651be4cbba8228f81364bf9d0a70e",
+    # 0.1.0-alpha.1 release page (docs/releases/): the port's own PC screenshots of Seaside Hill, cropped and labelled
+    # (the user's permission to have them in git, 2026-11-12)
+    "docs/images/alpha1/leader-wheel.jpg": "9ef9fccdfc641679a12a54910b30b5e8eaaf1818",
+    "docs/images/alpha1/camera.jpg": "1e8669dcf1e532126c95460f87378c836f9559c6",
     "android/touch_icons/boost_b.png": "e91d748d8a99c76b0aad985ea40ae1437c10e982",
     "android/touch_icons/drift_r.png": "45e1558994abaad8f85966ad7c8ff32ee5cde5ac",
     "android/touch_icons/jump_a.png": "d1ff0d81d64478b89993997059c635d42cd3c331",
