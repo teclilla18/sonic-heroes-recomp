@@ -10,7 +10,7 @@ Play **Sonic Heroes** (GameCube, USA) natively, with no emulator, on a modded **
 
 > [!IMPORTANT]
 > **Work in progress. There is no release yet and nothing to download.** The first release, **v0.5.0**, comes
-> once the game is playable on the **Switch and Android**. Day-to-day status: [STATE.md](STATE.md).
+> once the game is playable on the **Switch (Android, Linux, and iOS come later)**. Day-to-day status: [STATE.md](STATE.md).
 
 ## Road to v1.0
 
