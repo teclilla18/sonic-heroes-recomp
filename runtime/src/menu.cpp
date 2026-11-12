@@ -368,6 +368,9 @@ void tab_display() {
             settings_apply();
         }
     }
+    if (!settings_wide_k_fixed() && settings_screen_shown() != g_settings.screen)
+        note("Changed during a stage: the new screen applies from the next stage (the game lays out its HUD for "
+             "the screen as a stage loads).");
     if (settings_wide_k_fixed())
         note("Online (or a recording): the picture's shape is fixed for this session so every player's game "
              "matches; changes here apply to how it is shown, and fully after the session.");

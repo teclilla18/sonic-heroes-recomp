@@ -74,7 +74,7 @@ static GxFrame* frame(void) {
         int racing = in_race && menu_frames < 8;
         g_frame->in_race = in_race;
         g_gx.xf_reg[GX_XR_WIDE_FLAGS] =
-            g_settings.screen == SCREEN_FIT ? GX_WIDE_HUD_43 | (racing ? GX_WIDE_HUD_EDGES : 0u)
+            settings_screen_shown() == SCREEN_FIT ? GX_WIDE_HUD_43 | (racing ? GX_WIDE_HUD_EDGES : 0u)
             : g_settings.hud_stretch ? 0u : GX_WIDE_HUD_43;
         {
             static uint32_t last_fl = ~0u;
@@ -1025,6 +1025,13 @@ static void efb_copy(uint32_t v) {
                             if (*h == ',') poke_from = (uint32_t)atoi(h + 1);
                         }
                     }
+                    /* SR_SCREENAT=FRAME,MODE: switch the screen mode at the first [perf] block from that frame, not saved (debugging) */
+                    static int sa_init, sa_frame = -1, sa_mode;
+                    if (!sa_init++) {
+                        const char* sa = getenv("SR_SCREENAT");
+                        if (sa) sscanf(sa, "%d,%d", &sa_frame, &sa_mode);
+                    }
+                    if (sa_frame >= 0 && g_frames >= (uint32_t)sa_frame) { settings_debug_screen(sa_mode); sa_frame = -1; }
                     for (uint32_t k = 0; poke_addr && g_frames >= poke_from && k < poke_n; k++) *mem_phys((poke_addr + k) & 0x3FFFFFFF) = poke_val[k];
                     for (uint32_t o = 0; o < peek_len; o += 32) {
                         char line[128];

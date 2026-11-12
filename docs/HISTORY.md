@@ -193,3 +193,24 @@ Dated sessions and hardware tests, oldest first. The Sonic Riders port's history
   12 ms, game thread ~no idle: CPU bound in game code [likely]; next: SR_PROFILE on hardware). Switching to 4:3
   after 16:9 crops the picture (wide 3D view cut) [uncertain cause: view-window patch not re-applied].
 - User's decision: the first release only needs to be "decently runnable" on Switch and PC (criteria in STATE).
+
+## 2026-11-12 (later): screen-mode changes in a stage, character select in Fit, enemy fps profile (hw8)
+
+- 4:3 after 16:9 in a stage cut the HUD on the right; 4:3 -> 16:9 looked zoomed. Reproduced on PC with the new
+  SR_SCREENAT=FRAME,MODE [confirmed]. Not the view-window patch: the game calls RwCameraSetViewWindow for the stage
+  camera every frame (logged) [confirmed]. The HUD bakes the widened window into its objects as the stage loads
+  (RAM diff 16:9 vs 4:3: many floats scaled by exactly 854/640, e.g. k/640 pixel factors in REL data; poking one
+  copy, 803ECC20 = 2 x window, did not help) [likely]. Fix: settings.c settings_hold_view (rel.c, stage
+  link/unlink): a change during a stage applies at the next stage or when leaving it; menu note. Tested PC route
+  16:9->4:3 and 4:3->16:9 mid-stage (shape kept, HUD intact) and 16:9->4:3 before the stage (clean 4:3)
+  [confirmed PC]; applying on leaving the stage untested; console untested.
+- Character select in Fit: models outside their panels after returning from a stage (user, hw8 shot_9534). The
+  menu camera (advertiseD bss, 807C6F60) gets its window once as the module loads: first visit loaded at 4:3
+  (unwidened = matches the stretched 2D), the second in Fit (widened). Fix: the view-window patch widens only
+  while a stage REL is in (rel_stage_active) [likely; PC not re-run after this change; console pending].
+- Enemy fps (hw8 log, OLED, SR_PROFILE=1): 43 fps blocks are 1/2-vsync alternation at 59.9 retraces/s, so the
+  frame is only a little over 16.7 ms [likely]. Hot: GXReadDrawSync (801F37C0) from fn_801B2894 ("GP passed token
+  N?") polled in a loop at 801AE220 in fn_801ADE4C: waits until the GP is done with a resource before rewriting it
+  (flags +0x22, token +0x30; Egg Pawn shared skinned buffer? [uncertain]). PE reads 20k/frame on Switch vs 1.5k
+  PC; PC waits 7/frame, ~0.1 ms/frame. The 27% "801D32E4 from SelectThread" is probably the vsync wait [uncertain].
+  hw9 NRO on the SD carries temporary wait counters ([pewho] lines; local diffs build/temp_pewho_*.diff, not in git).

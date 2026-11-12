@@ -57,6 +57,9 @@ extern volatile double g_fov_scale;     /* camera field of view multiplier (conf
 
 void settings_load(void);   /* at start-up: reads the file, applies */
 int settings_handheld_pc(void);  /* Steam Deck / gamescope (first-run defaults, window size) */
+int settings_screen_shown(void);        /* the screen mode in use: a change during a stage waits for the next one */
+void settings_hold_view(int on);         /* rel.c: a stage is linked (1) / unlinked (0) */
+void settings_debug_screen(int mode);  /* SR_SCREENAT: change the screen mode, not saved */
 void settings_apply(void);  /* after a change: applies, saves and logs */
 float settings_display_aspect(void);  /* of the presented picture: 4/3, 16/9 or the window's */
 /* the wide modes draw a wider EFB instead of stretching: its width is 640 x this (1 = the original);

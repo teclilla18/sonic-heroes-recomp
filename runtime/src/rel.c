@@ -9,6 +9,7 @@
 
 #include "recomp_table.h"
 #include "runtime.h"
+#include "settings.h"
 
 static const RecompModule* g_linked_mod;  /* the module OSLink last linked (for the log) */
 /* Sonic Heroes: the module id of the stage REL (stageNND) that is linked, 0 when none. The wide screen
@@ -42,7 +43,10 @@ void hle_OSLink(Cpu* c) {
     rt_log("[rel] field %u: OSLink(%08X, bss %08X): %s (id %u) runs from its fixed image at %08X (prolog %08X)",
            vi_field_count(), m, bss, r->name, r->id, r->base, r->prolog);
     g_linked_mod = r;
-    if (!strncmp(r->name, "stage", 5)) g_stage_id = r->id;
+    if (!strncmp(r->name, "stage", 5)) {
+        g_stage_id = r->id;
+        settings_hold_view(1);  /* a screen change during the stage applies after it (settings.c) */
+    }
     if (!strcmp(r->name, "_Main")) game_mods_linked();  /* Sonic Riders' gameplay options; Heroes has none yet */
     c->r[3] = 1;
 }
@@ -51,7 +55,10 @@ void hle_OSLink(Cpu* c) {
  * the module's epilog. */
 void hle_OSUnlink(Cpu* c) {
     uint32_t m = c->r[3];
-    if (g_stage_id && ld32(m + 0x00) == g_stage_id) g_stage_id = 0;
+    if (g_stage_id && ld32(m + 0x00) == g_stage_id) {
+        g_stage_id = 0;
+        settings_hold_view(0);
+    }
     rt_log("[rel] OSUnlink(%08X): module %u%s%s", m, ld32(m + 0x00), g_linked_mod ? ", last linked " : "",
            g_linked_mod ? g_linked_mod->name : "");
     c->r[3] = 1;

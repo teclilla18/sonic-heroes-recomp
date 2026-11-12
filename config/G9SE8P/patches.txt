@@ -8,8 +8,15 @@
 # window by g_aspect_scale (target aspect / (4/3)) right after the copy, so projection and culling both follow.
 # Only cameras drawing into a screen-sized frame buffer (raster width at +0xC >= 512): the 128 x 128
 # render-to-texture cameras (reflections) keep theirs. 2026-11-11.
+# The game sets the stage camera's window every frame [confirmed PC log, 2026-11-12], but the HUD bakes the
+# widened window into its objects when the stage loads, so a screen change during a stage waits for the next
+# stage (settings.c settings_hold_view, rel.c).
+# Stage cameras only (rel_stage_active: a stageNND REL is in): the menus' 2D is stretched to the width, so their
+# 3D (character select models, advertiseD's camera, its window set once as the module loads) must stay unwidened
+# to line up with it; widened, the models sat inside the panels' 4:3 places after a stage (Switch, Fit, 2026-11-12).
 decl extern volatile double g_aspect_scale;
-8019D0F0 before { double k = g_aspect_scale; uint32_t fb = ld32(c->r[3] + 0x60); if (k != 1.0 && fb && (int32_t)ld32(fb + 0xC) >= 512) st32(c->r[3] + 0x68, f32_as_u32((float)(u32_as_f32(ld32(c->r[3] + 0x68)) * k))); }
+decl int rel_stage_active(void);
+8019D0F0 before { double k = g_aspect_scale; uint32_t fb = ld32(c->r[3] + 0x60); if (k != 1.0 && rel_stage_active() && fb && (int32_t)ld32(fb + 0xC) >= 512) st32(c->r[3] + 0x68, f32_as_u32((float)(u32_as_f32(ld32(c->r[3] + 0x68)) * k))); }
 
 # ---- Camera (docs/notes/re/camera.md; settings cam_speed and modern_controls, 2026-11-11).
 # Turn speed: the follow cameras turn by 5 x the analog trigger per frame (mulli 5 in SARATOGA fn_801348D0 and

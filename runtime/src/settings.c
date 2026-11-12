@@ -56,8 +56,16 @@ static float round_aspect(float a) {
     return w / 640.0f * (4.0f / 3.0f);
 }
 
+/* while a stage is in (rel.c), the screen mode it loaded with: Sonic Heroes' HUD bakes the camera's view window
+ * into its objects as the stage loads (config/G9SE8P/patches.txt), so a change waits for the next stage; -1 none */
+static int g_hold_screen = -1;
+static float g_hold_k;
+
+int settings_screen_shown(void) { return g_hold_screen >= 0 ? g_hold_screen : g_settings.screen; }
+
 float settings_display_aspect(void) {
     if (g_fixed_k >= 1.0f) return 4.0f / 3.0f * g_fixed_k;
+    if (g_hold_screen >= 0) return 4.0f / 3.0f * g_hold_k;
     switch (g_settings.screen) {
     case SCREEN_4_3: return 4.0f / 3.0f;
     /* 16:9 rounded like the fit mode's, so both give the game the same camera aspect (online play) */
@@ -84,7 +92,8 @@ static void settings_log(const char* when) {
 static void apply_view(void) {
     /* widescreen: the cameras' aspect ratio from 4:3 to the screen's, and an EFB as much wider */
     int wide = g_settings.screen == SCREEN_WIDE || g_settings.screen == SCREEN_FIT;
-    g_wide_k = g_fixed_k >= 1.0f ? g_fixed_k : wide ? settings_display_aspect() / (4.0f / 3.0f) : 1.0f;
+    g_wide_k = g_fixed_k >= 1.0f ? g_fixed_k : g_hold_screen >= 0 ? g_hold_k
+             : wide ? settings_display_aspect() / (4.0f / 3.0f) : 1.0f;
     g_aspect_scale = g_wide_k;
     g_fov_scale = g_settings.fov / 100.0;
     g_cam_turn_scale = g_settings.cam_speed / 100.0;
@@ -177,6 +186,18 @@ void settings_fix_wide_k(float k) {
 
 int settings_wide_k_fixed(void) { return g_fixed_k >= 1.0f; }
 
+/* rel.c: a stage REL is linked (on) or unlinked (off); a screen change made meanwhile applies now */
+void settings_hold_view(int on) {
+    int changed = !on && g_hold_screen >= 0 && g_hold_screen != g_settings.screen;
+    g_hold_screen = -1;
+    apply_view();
+    if (on) {
+        g_hold_screen = g_settings.screen;
+        g_hold_k = g_wide_k;
+    }
+    if (changed) settings_log("applied after the stage: ");
+}
+
 void settings_set_window_aspect(float aspect) {
     if (!(aspect > 0.1f) || fabsf(aspect - g_window_aspect) < 0.001f) return;
     g_window_aspect = aspect;
@@ -184,6 +205,13 @@ void settings_set_window_aspect(float aspect) {
         apply_view();
         rt_log("[settings] window aspect %.3f: picture %.3f, EFB width x%.3f", aspect, settings_display_aspect(), g_wide_k);
     }
+}
+
+/* SR_SCREENAT (gx_render.c): a screen-mode change in a test run, applied and logged but not saved */
+void settings_debug_screen(int mode) {
+    g_settings.screen = mode;
+    apply();
+    settings_log("debug: ");
 }
 
 void settings_apply(void) {

@@ -1,4 +1,4 @@
-# State (2026-11-12, end: Team Blast gauge fixed on Switch (accepted); next: enemy fps profile, 4:3 crop, stage sweep)
+# State (2026-11-12, end: screen-mode fixes on PC; enemy fps cause narrowed; hw9 test running on the console)
 
 Read this at the start of every session. Rewrite it in place at the end of each session (never append). Stories
 behind each line: `grep` the date or topic in [docs/HISTORY.md](docs/HISTORY.md) (Riders' history:
@@ -28,44 +28,42 @@ Repo public (teclilla18/sonic-heroes-recomp). Local `user.email` is the GitHub n
 5. Release procedure: cold Windows Sandbox test (PC), hardware test from the release zip (Switch).
 Estimate (2026-11-12): after the enemy-fps work and a stage sweep of 2-3 sessions; not yet.
 
-## Done 2026-11-12 (HISTORY "2026-11-12")
+## Done 2026-11-12 (HISTORY "2026-11-12" and "2026-11-12 (later)")
 
-- **Team Blast gauge fill in pieces on Switch: fixed** (render_deko.c make_image). Cause [confirmed Eden]: deko3d
-  block-linear images 8 rows tall or less (the fill: C4 64x8) were written and sampled with different block
-  heights: every second 64-byte GOB column came from outside the image. Fix: explicit DkTileSize_OneGob for h <= 8
-  (non render targets). Tested Eden 4:3 + 16:9 (gauge poked to 75), whole-frame diff vs before = animation only;
-  console (OLED handheld): user "z bar looked fine" in 16:9 and Fit window [accepted]; 4:3 not checked (crop bug).
-  It was never a wide_anchor problem: Heroes' HUD is perspective, z always; PC was always fine.
-- Debug tools: **F9 on PC** (RAM dump + shot + draw log of that frame), **SR_POKE=ADDR,HEXBYTES[,FROM]**
-  (multi-byte, from frame FROM; from boot it stalls the logos), double-retire check (`[tex] id N retired twice`).
-  Gauge value: float at **0x80303D94** (0..100; 100 = TEAM BLAST ready) [confirmed PC]. 0x803FEC38 is not it.
-- Test runs must pass `SR_FPS=0 SR_FRAMERATE=0`: the user's saves/settings.ini now has pc_fps=-1 (300 pictures/s
-  moves SR_SCREENSHOT's frame clock) and fullscreen=1 (ignored with SR_MINIMIZED).
+- Team Blast gauge fill fixed on Switch (render_deko.c OneGob tiling for h <= 8) [accepted 16:9/Fit].
+- **Screen change during a stage** (4:3 crop / zoom): the HUD is laid out as the stage loads, so a change now
+  waits for the next stage (settings.c settings_hold_view, called from rel.c on stage link/unlink; menu note).
+  The game re-sets the stage camera's view window every frame (the old suspect was wrong). Tested PC route both
+  directions [confirmed PC]; "applies after leaving the stage" and console untested.
+- **Character select in Fit after a stage** (models outside panels): view-window widening now only while a stage
+  REL is in (patches.txt, rel_stage_active). Implemented; console test pending (hw9).
+- Debug: `SR_SCREENAT=FRAME,MODE` (screen change at the first [perf] block from FRAME, not saved).
+- Enemy fps (hw8, OLED, SR_PROFILE): 43 fps = 1/2-vsync alternation, frame only slightly over budget [likely].
+  Suspect: token waits in fn_801ADE4C (loop at 801AE220 calling fn_801B2894 -> GXReadDrawSync 801F37C0) before
+  the game rewrites a resource the GP may still use; Switch 20k PE reads/frame vs PC 1.5k (PC: 7 waits/frame,
+  0.1 ms/frame). Measuring on hardware now.
 
 ## Next steps, in order
 
-1. **Enemy fps drop on Switch** (user: drops as soon as enemies appear, back to 60 once they are defeated).
-   build/hw7/sonicheroes.log: 41-55 fps with enemies, draws/frame unchanged (~1850), GPU 12 ms (fine), game thread
-   idle 1.2 ms/frame -> game-thread CPU bound [likely]. Do: env.txt `SR_PROFILE=1` on the SD over FTP (ask first),
-   user plays to the first Egg Pawns and stays ~30 s; read the `[profile]` lines (callee charged with the caller's
-   work after a call). Then check whether a hot function is an HLE/runtime cost (PE reads 34k/frame, collision math,
-   paired-single code) vs plain game code.
-2. **4:3 after 16:9/Fit window crops the picture** (shot build/hw7/shots/shot_8045.bmp: wide 3D view, right side
-   cut). Suspect the RwCameraSetViewWindow patch (patches.txt) keeps the widened view window until the camera is set
-   again; fix: apply the scale every frame or when the setting changes. Check PC first (change screen in the menu).
+1. **Read hw9** (console log after the user's test; fetch over FTP, sw.py): `[pewho] waits:` lines give waits per
+   frame, avg/max us and ms/frame in the enemy scene. If ~1-3 ms/frame: cut GP drain latency on Switch (GP thread
+   wake/batching, gx_fifo.c ring_kick/gp_thread, vertex decode) or avoid the wait (what resource is r26 in
+   fn_801ADE4C: re-investigator). If small: look elsewhere in the profile (8022A650 from 80226F5C ~5%).
+   Then remove the temporary counters (they are not in git; local diffs build/temp_pewho_*.diff to re-apply).
+2. Check the user's hw9 results for the character select (Fit) and 4:3-during-stage fixes; mark accepted or fix.
 3. **Stage sweep** PC + Eden (+ console): story stages 2-4 of each team, shader keys, crashes, rendering vs Dolphin.
 4. If the Pause -> Quit crash returns (build/hw6/atmo_crash.log): same stack? Then record_backtrace / window mapping.
-5. Later (after the first release): HD look (bloom/grade on Switch, SSAO, shadows), widescreen menus/HUD edges,
-   Android.
+5. Later (after the first release): HD look, widescreen menus/HUD edges, Android.
 
 ## Hardware / console notes
 
 - Remote: scratchpad `sw.py` (FTP + sys-botbase; copy from an older session's scratchpad: the 0c83d772 one has it),
   settings from the Riders switch-remote config (CLAUDE.local.md). Git Bash: `MSYS_NO_PATHCONV=1`, sw.py as a
-  Windows path (`cygpath -m`); `py` has Pillow. After remote control: `detachController`. No env.txt on the SD now.
-- SD `switch/sonicheroes/`: NRO (gauge fix), sonicheroes.prev.nro (before it), disc image, forwarder, saves, logs.
+  Windows path (`cygpath -m`); `py` has Pillow. After remote control: `detachController`. 
+- SD `switch/sonicheroes/`: NRO = hw9 (screen fixes + temp [pewho] counters, not in git), sonicheroes.prev.nro
+  (gauge fix build), sonicheroes.hw8.log (profile run), env.txt = SR_PROFILE=1 (remove after hw9), disc, saves.
   The user's hekate UMS mounts the SD as a drive (<sd>; ask each time).
-- Logs: build/hw7 (gauge fix session: log, shots 7632 16:9 / 8045 4:3), hw6, hw5, hw4.
+- Logs: build/hw8 (enemy profile log, shot_9534 character select), hw7 (gauge fix), hw6, hw5, hw4.
 - Atmosphere reports in /atmosphere/crash_reports (title 010053480d9a0000); addr2line on build/switch/sonicheroes.elf.
 - Eden v0.1.1: start hidden, never minimized: `Start-Process eden.exe -ArgumentList '-g',"<sdmc>\switch\sonicheroes\sonicheroes.nro" -WindowStyle Hidden`,
   ~165 s, then Stop-Process; shots land in its sdmc folder. env.txt there now: title route, SR_SCREEN=1,
@@ -80,10 +78,10 @@ PC widescreen: `SR_SCREEN=1 SR_WINDOW=1280x720`. For "play until it happens": `p
 
 ## Waiting on the user
 
-- Go-ahead to put the profiling env.txt on the SD and play to the first enemies (next step 1).
-- Riders: candidates to cherry-pick (user's call): this deko3d small-image tile fix (Riders uses the same
-  render_deko.c), F9/SR_POKE tools, gx.vert 2D native-grid snap, wide_anchor clear -> stretch; earlier ones in
-  Riders' CLAUDE.local.md.
+- hw9 console test (running): Fit -> character select -> Seaside Hill, 30 s at the first Egg Pawns, quit to
+  character select (models in panels?), 4:3 switch during a stage (shape kept + note) then next stage (clean 4:3).
+- Riders cherry-pick candidates (user's call): deko3d small-image tile fix, F9/SR_POKE/SR_SCREENAT tools, gx.vert
+  2D native-grid snap, wide_anchor clear -> stretch; earlier ones in Riders' CLAUDE.local.md.
 
 ## Risks
 
@@ -100,12 +98,10 @@ needs `DEVKITPRO=<tools>/devkitpro` in the environment or the link fails); llvm-
 ## Next session
 
 ```
-Continue Sonic Heroes (STATE.md). First release goal: "decently runnable" on Switch + PC (criteria in STATE).
-1) Enemy fps drop on Switch (41-55 fps while Egg Pawns are in view, Seaside Hill, game-thread bound per
-   build/hw7/sonicheroes.log). Ask me, then put env.txt with SR_PROFILE=1 on the SD over FTP (scratchpad sw.py);
-   I play to the first enemies for ~30 s; fetch the log and read the [profile] lines; find what is hot and fix it.
-2) 4:3 after 16:9/Fit window crops the picture (build/hw7/shots/shot_8045.bmp): check on PC, likely the
-   RwCameraSetViewWindow patch not re-applied on a setting change.
-3) Then a stage sweep (PC routes + Eden) toward the first release; tell me when you think it is ready.
-All PC/Eden runs in the background, muted and minimized; test runs pass SR_FPS=0 SR_FRAMERATE=0.
+Continue Sonic Heroes (STATE.md). hw9 console results: <paste: character select in Fit after the stage OK?, 4:3
+switch during a stage OK?, anything else seen>. Fetch /switch/sonicheroes/sonicheroes.log over FTP (scratchpad sw.py;
+copy it from the fc12b70e scratchpad) into build/hw9/ and have log-reader summarise it vs build/hw8 (fps, [pewho] waits
+lines, [profile] top). If the token waits (fn_801ADE4C loop at 801AE220) cost ~1-3 ms/frame with enemies, plan the cut
+(plan mode: gx_fifo.c GP wake/drain, or what resource the game waits on: re-investigator). Then remove the temp counters
+and env.txt from the SD (ask first). Verify: PC route + a console run, fps in the Egg Pawn area. Then the stage sweep.
 ```
