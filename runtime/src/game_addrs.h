@@ -25,6 +25,10 @@
  * Seaside Hill, 3 + 2 dumps): 0 while a stage runs, 1 while its pause menu is open [likely]. Next to it
  * 8029C31C went 5 -> 6 (a game state number?) [uncertain]. */
 #define HEROES_PAUSED        0x8029C334u
+/* the game manager's state (0x8029C310 +0x0C, docs/notes/re/stage-select.md): 5 while a stage plays, 6 while
+ * paused (PC RAM dumps in Seaside Hill: 24 x 5, 4 x 6, 2026-11-12) [confirmed]; others in loads, results, saves */
+#define HEROES_GM_STATE      0x8029C31Cu
+#define HEROES_GM_PLAYING    5u
 
 /* Sonic Riders' game data (GXEE8P), not found for Heroes: inert here (GAME_UNKNOWN).
  * Riders: _Main.rel: the unlock data (REL bss at the runtime's fixed 819FF380; a GameCube runs it from 805FB080,

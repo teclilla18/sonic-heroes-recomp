@@ -17,6 +17,9 @@ static const RecompModule* g_linked_mod;  /* the module OSLink last linked (for 
 static volatile uint32_t g_stage_id;
 
 int rel_stage_active(void) { return g_stage_id != 0; }
+/* Sonic Heroes: the special and bonus stages (stage40D: stage numbers 40-46, 80-89) are linked */
+static volatile int g_special;
+int rel_special_stage(void) { return g_stage_id != 0 && g_special; }
 
 /* the game's header -> our module: same ID, fixSize (+0x48) and bss size (+0x20). Heroes' stale
  * stage00D shares ID 3 with stage01D but has other sizes, so it is refused here. */
@@ -45,6 +48,7 @@ void hle_OSLink(Cpu* c) {
     g_linked_mod = r;
     if (!strncmp(r->name, "stage", 5)) {
         g_stage_id = r->id;
+        g_special = !strcmp(r->name, "stage40D");
         settings_hold_view(1);  /* a screen change during the stage applies after it (settings.c) */
     }
     if (!strcmp(r->name, "_Main")) game_mods_linked();  /* Sonic Riders' gameplay options; Heroes has none yet */

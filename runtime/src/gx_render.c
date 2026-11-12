@@ -71,8 +71,12 @@ static GxFrame* frame(void) {
         menu_frames = ld32(GAME_MENU_FLAG) || ld32(GAME_RACE_PHASE) == GAME_RACE_FINISHED ? menu_frames + 1 : 0;
         /* Sonic Heroes: "in a race" = a stage REL is linked (rel.c); its game-state words are unknown */
         int in_race = ld32(GAME_TOP_MODE) == GAME_TOP_MODE_RACE || rel_stage_active();
-        int racing = in_race && menu_frames < 8;
-        g_frame->in_race = in_race;
+        /* Sonic Heroes: the HUD goes to the edges only while the stage plays (manager state 5): the pause menu
+         * (special stages) and the saving box after a stage came apart at the edges (Switch, Fit, 2026-11-12) */
+        int racing = in_race && menu_frames < 8 && (!rel_stage_active() || ld32(HEROES_GM_STATE) == HEROES_GM_PLAYING);
+        int rel_special_stage(void);
+        /* bloom (in_race) not in the special stages: their bright tube and spheres went white (Switch, 2026-11-12) */
+        g_frame->in_race = in_race && !rel_special_stage();
         g_gx.xf_reg[GX_XR_WIDE_FLAGS] =
             settings_screen_shown() == SCREEN_FIT ? GX_WIDE_HUD_43 | (racing ? GX_WIDE_HUD_EDGES : 0u)
             : g_settings.hud_stretch ? 0u : GX_WIDE_HUD_43;

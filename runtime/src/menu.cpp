@@ -30,6 +30,10 @@ int mods_count(void);
 const char* mods_title(int i);
 int mods_enabled(int i);
 void mods_set_enabled(int i, int on);
+#ifdef SR_DEV_MENU
+int dev_stage_get(void);
+void dev_stage_set(int key);
+#endif
 /* phones (Android, iOS): always full screen, touch controls, no PC picture options */
 #if defined(__ANDROID__) || defined(SR_IOS)
 #define SR_PHONE 1
@@ -645,6 +649,53 @@ void tab_gameplay() {
         g_settings.cam_speed = 100;
         settings_apply();
     }
+    heading("Special stage steering");
+    ImGui::SetNextItemWidth(ImGui::GetFontSize() * 14);
+    ImGui::SliderInt("##specialsteer", &g_settings.special_steer, SPECIAL_STEER_MIN, 100, "%d%%");
+    help("How far the control stick steers the team in the special stages. Lower is gentler; 100% is the game's own.");
+    if (ImGui::IsItemDeactivatedAfterEdit()) settings_apply();
+    ImGui::SameLine();
+    if (ImGui::Button("Reset##specialsteer") && g_settings.special_steer != SPECIAL_STEER_DEFAULT) {
+        g_settings.special_steer = SPECIAL_STEER_DEFAULT;
+        settings_apply();
+    }
+#ifdef SR_DEV_MENU
+    /* developer test builds only (configure.py --dev-menu, then SR_DEVMENU=1; dev_stage.c): stage keys from
+     * docs/notes/re/stage-select.md. Never in releases (user's decision, 2026-11-12). */
+    static int dev = -1;
+    if (dev < 0) dev = getenv("SR_DEVMENU") && atoi(getenv("SR_DEVMENU")) ? 1 : 0;
+    if (!dev) return;
+    heading("Developer: story starts at");
+    struct Stage { int key; const char* name; };
+    static const Stage stages[] = {
+        {0x00, "Off (the game's own order)"},
+        {0x1D, "Special stage 40"}, {0x1E, "Special stage 41"}, {0x1F, "Special stage 42"},
+        {0x20, "Special stage 43"}, {0x21, "Special stage 44"}, {0x22, "Special stage 45"},
+        {0x23, "Special stage 46"}, {0x34, "Bonus stage 80"},
+        {0x02, "01 Seaside Hill"}, {0x03, "02 Ocean Palace"}, {0x04, "03 Grand Metropolis"},
+        {0x05, "04 Power Plant"}, {0x06, "05 Casino Park"}, {0x07, "06 BINGO Highway"},
+        {0x08, "07 Rail Canyon"}, {0x09, "08 Bullet Station"}, {0x0A, "09 Frog Forest"},
+        {0x0B, "10 Lost Jungle"}, {0x0C, "11 Hang Castle"}, {0x0D, "12 Mystic Mansion"},
+        {0x0E, "13 Egg Fleet"}, {0x0F, "14 Final Fortress"},
+        {0x10, "Boss 20"}, {0x11, "Boss 21"}, {0x12, "Boss 22"}, {0x13, "Boss 23"}, {0x14, "Boss 24"},
+        {0x15, "Boss 25"}, {0x16, "Boss 26 (Egg Emperor)"}, {0x17, "Boss 27 (Metal Madness)"},
+        {0x18, "Boss 28 (Metal Overlord)"},
+    };
+    const int n = (int)(sizeof stages / sizeof stages[0]);
+    int cur = 0;
+    for (int i = 0; i < n; i++)
+        if (stages[i].key == dev_stage_get()) cur = i;
+    ImGui::SetNextItemWidth(ImGui::GetFontSize() * 16);
+    if (ImGui::BeginCombo("##devstage", stages[cur].name)) {
+        for (int i = 0; i < n; i++) {
+            if (ImGui::Selectable(stages[i].name, i == cur)) dev_stage_set(stages[i].key);
+            if (i == cur) ImGui::SetItemDefaultFocus();
+        }
+        ImGui::EndCombo();
+    }
+    note("Testing only, not saved. Start or continue a story (any team): it goes straight to this stage, and "
+         "after it to the same stage again. Choose Off for the normal order.");
+#endif
 }
 
 void tab_mods() {

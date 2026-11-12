@@ -57,6 +57,13 @@ static void get_pad(int ch, GcPad* p) {
     else if (ppc_detclock()) *p = g_det_latch[ch & 3];
     else {
         input_get_pad(ch, p);
+        /* special stages steer by the main stick alone; at full range the team was very hard to control on the
+         * Switch (user, 2026-11-12): its range is scaled there (Gameplay tab, special_steer) */
+        int rel_special_stage(void);
+        if (rel_special_stage() && g_settings.special_steer < 100) {
+            p->stick_x = (uint8_t)(0x80 + ((int)p->stick_x - 0x80) * g_settings.special_steer / 100);
+            p->stick_y = (uint8_t)(0x80 + ((int)p->stick_y - 0x80) * g_settings.special_steer / 100);
+        }
         if (g_settings.modern_controls) {
             modern_tilt(ch, p);
             modern_controls(p);

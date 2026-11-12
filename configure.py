@@ -38,6 +38,7 @@ ap.add_argument("--llvm-mingw", default="", help="llvm-mingw folder (host, --too
 ap.add_argument("--sdl", default="", help="SDL2 development folder (host; default: build/ext/SDL2-*)")
 ap.add_argument("--devkitpro", default="", help="devkitPro folder (switch)")
 ap.add_argument("--imgui", default="", help="Dear ImGui v1.92.9b source folder (default: build/ext/imgui-1.92.9b; the setup downloads it)")
+ap.add_argument("--dev-menu", action="store_true", help="developer test builds: the Gameplay tab's \"story starts at\" stage select (runtime/src/dev_stage.c, shown with SR_DEVMENU=1); never in releases")
 ap.add_argument("--no-base-reg", action="store_true", help="switch: keep the guest memory base out of x28 (for comparisons)")
 ap.add_argument("--android-sdk", default="", help="android: SDK folder (build-tools, platforms; default $ANDROID_HOME)")
 ap.add_argument("--ndk", default="", help="android: NDK folder (default: the newest in <sdk>/ndk)")
@@ -125,6 +126,8 @@ if os.path.normcase(os.path.abspath(_imgui_src)) != os.path.normcase(os.path.joi
         if not os.path.exists(dst) or open(src, "rb").read() != open(dst, "rb").read():
             shutil.copyfile(src, dst)
 inc = "-Iruntime/include -Iruntime/src -I%s -DIMGUI_DISABLE_DEMO_WINDOWS -DIMGUI_DISABLE_DEFAULT_SHELL_FUNCTIONS -I%s -I%s/gen" % (IMGUI, GEN, OUT)
+if args.dev_menu:
+    inc += " -DSR_DEV_MENU"
 # generated code: no FMA contraction (Gekko rounds the product of fmadds; ppc.h models it exactly)
 gen_flags = "-O2 -ffp-contract=off -fno-strict-aliasing -fwrapv -w"
 

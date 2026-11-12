@@ -16,6 +16,8 @@ void game_mods_apply(void) {}
 
 /* once a presented frame */
 void game_mods_frame(void) {
+    void dev_stage_frame(void);  /* dev_stage.c (Sonic Heroes, developer menu) */
+    dev_stage_frame();
     if (!g_linked) return;  /* before OSLink the REL's bss is other memory (the OS arena) */
     mods_apply_frame();  /* Gecko codes from mods (mods_data.c) */
     /* the Chaos Emerald gear unlocked: its status byte kept "owned" as the save loads */
