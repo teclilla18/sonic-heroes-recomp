@@ -83,7 +83,7 @@ def sext(v, bits):
 def branch_target(addr, w):
     op = w >> 26
     if op == 18 and not (w & 1):
-        return (sext(w & 0x03FFFFFC, 26) + (0 if w & 2 else addr)) & 0xFFFFFFFF
+        return ppc2c.FAR_TARGETS.get(addr, (sext(w & 0x03FFFFFC, 26) + (0 if w & 2 else addr)) & 0xFFFFFFFF)
     if op == 16 and not (w & 1):
         return (sext(w & 0xFFFC, 16) + (0 if w & 2 else addr)) & 0xFFFFFFFF
     return None
@@ -142,6 +142,12 @@ class GcRecompiler:
                 raise ValueError("%s: same module ID and sizes as an earlier module" % info["name"])
             m = Module(info, rel, base, root)
             self.mods.append(m)
+            # A module far from main.dol (bases past ~0x82000000) calls it by b/bl relocations whose
+            # displacement does not fit 26 bits; the real loader puts it in low RAM, in range. The linked
+            # word then decodes 64 MB off, so the real target is kept for the decoders (FAR_TARGETS).
+            for where, t, target, _ in m.relocs:
+                if t == 10 and not -0x2000000 <= ((target - where + 0x80000000) & 0xFFFFFFFF) - 0x80000000 < 0x2000000:
+                    ppc2c.FAR_TARGETS[where] = target
             base = (m.end + REL_ALIGN - 1) & ~(REL_ALIGN - 1)
         self.img = Image(self.dol, self.mods)
 
@@ -255,7 +261,7 @@ class GcRecompiler:
             for i in range(0, hi - lo, 4):
                 w = struct.unpack_from(">I", data, i)[0]
                 if (w >> 26) == 18 and (w & 1):
-                    t = (sext(w & 0x03FFFFFC, 26) + (0 if w & 2 else lo + i)) & 0xFFFFFFFF
+                    t = ppc2c.FAR_TARGETS.get(lo + i, (sext(w & 0x03FFFFFC, 26) + (0 if w & 2 else lo + i)) & 0xFFFFFFFF)
                     if self.img.in_text(t):
                         self.entries.add(t)
         rounds = 0
@@ -541,6 +547,7 @@ class GcRecompiler:
                 len(self.sorted_entries), self.fixpoint_rounds, nfiles))
             f.write("jump tables: %d, case targets: %d\n" % (self.jt_count, sum(len(v) for v in self.jt_targets.values())))
             f.write("native replacements: %d\n" % len(self.hooks))
+            f.write("far module branches (out of b/bl range, real target kept): %d\n" % len(ppc2c.FAR_TARGETS))
             f.write("switch dispatches without a jump table: %d%s\n" % (
                 len(self.untabled_switches), "".join(" %08X" % a for a in self.untabled_switches[:40])))
             f.write("CR writers rewritten: %d\nleaf functions in locals: %d\nnon-leaf in locals: %d\n" % (

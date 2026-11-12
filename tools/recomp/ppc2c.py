@@ -79,6 +79,10 @@ def ram_suffix(a):
     return "r" if STACKRAM and a in (1, 13) else ""
 
 
+# b/bl at an address -> the real target, for module relocations out of the 26-bit range (gcrecomp.py)
+FAR_TARGETS = {}
+
+
 def translate(addr, w, ctx):
     """Return C source for the instruction word `w` at `addr`."""
     op = w >> 26
@@ -97,7 +101,7 @@ def translate(addr, w, ctx):
         uimm = value
 
     if op == 18:  # b / ba / bl / bla
-        tgt = (sext(w & 0x03FFFFFC, 26) + (0 if w & 2 else addr)) & 0xFFFFFFFF
+        tgt = FAR_TARGETS.get(addr, (sext(w & 0x03FFFFFC, 26) + (0 if w & 2 else addr)) & 0xFFFFFFFF)
         if w & 1:
             return "c->lr = 0x%08Xu; %s" % (addr + 4, ctx.call(addr, tgt))
         return ctx.branch(addr, tgt)
