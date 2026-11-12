@@ -49,6 +49,7 @@ functions or macros (line numbers drift). Sizes are approximate line counts.
 | Android Java activity | `android/java/net/srnative/sonicheroes/SonicRidersActivity.java` | `onCreate` (crash report before SDL starts) |
 | Android crash report (next launch) | `android/java/.../CrashReport.java` | `collect` (exit record + crash.txt + log → Download/SonicRiders), `show`, `share` |
 | Native crash handler (Android, Linux) | host/platform_host.c | `crash_signal` (crash.txt, logcat, log), `crash_install` |
+| "Save a bug report" zip (PC, Switch) | bug_report.c, host/platform_host.c, switch/platform_switch.c | `bug_report_zip`, `platform_bug_report`, `log_snapshot` (Switch: the open log) |
 | Android manifest template | `android/AndroidManifest.xml.in` | `@ICON@` |
 | Switch input | switch/input_hid.c | |
 | Switch renderer (deko3d) | switch/render_deko.c (1100) | |

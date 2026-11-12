@@ -565,7 +565,8 @@ void platform_set_handheld_gpu(int on) { (void)on; }
  * CrashReport.java). Returns 0 and the file's name, or -1. */
 #ifndef __ANDROID__
 extern const char g_build_version[];
-int bug_report_zip(const char* zip_path, const char* dir, const char* info, const char* const* files, int nfiles);
+int bug_report_zip(const char* zip_path, const char* dir, const char* info, const char* log, size_t log_len,
+                   const char* const* files, int nfiles);
 static void system_info(char* out, size_t n) {
     size_t k = (size_t)snprintf(out, n, "Sonic Heroes native port bug report\r\nversion: %s\r\n", g_build_version);
     time_t t = time(NULL);
@@ -608,7 +609,7 @@ int platform_bug_report(char* name, size_t n) {
                                         "saves/settings.ini", "crash.txt"};
     char info[4096];
     system_info(info, sizeof info);
-    return bug_report_zip(name, "", info, files, (int)(sizeof files / sizeof files[0])) < 0 ? -1 : 0;
+    return bug_report_zip(name, "", info, NULL, 0, files, (int)(sizeof files / sizeof files[0])) < 0 ? -1 : 0;
 }
 /* show the game folder (the bug report is there) */
 void platform_open_game_folder(void) {

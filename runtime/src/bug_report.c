@@ -32,22 +32,26 @@ static uint8_t* slurp(const char* path, size_t* n) {
     return b;
 }
 
-/* Writes zip_path holding info.txt (the text `info`) and every file of `files` that exists (missing files are
+/* Writes zip_path holding info.txt (the text `info`), sonicheroes.log from `log` when that is not NULL (the
+ * Switch: the SD card cannot open the log for reading while it is open for writing), and every file of `files` that exists (missing files are
  * skipped). A name is relative to `dir` ("" or ending in '/') and stored as it is, unless it is an absolute path
  * (holds ':', e.g. "sdmc:/atmosphere/..."): that one is read as given and stored by its last part. Returns the
  * number of files stored, or -1. */
-int bug_report_zip(const char* zip_path, const char* dir, const char* info, const char* const* files, int nfiles) {
+int bug_report_zip(const char* zip_path, const char* dir, const char* info, const char* log, size_t log_len,
+                   const char* const* files, int nfiles) {
     fflush(stderr);  /* the log is stderr: this run's lines up to now */
     FILE* z = fopen(zip_path, "wb");
     if (!z) return -1;
     struct { const char* name; uint32_t crc, size, off; } ent[32];
     int ne = 0;
-    for (int i = -1; i < nfiles && ne < 32; i++) {
-        const char* name = i < 0 ? "info.txt" : files[i];
+    for (int i = -2; i < nfiles && ne < 32; i++) {
+        const char* name = i == -2 ? "info.txt" : i == -1 ? "sonicheroes.log" : files[i];
         size_t len = 0;
         uint8_t* data;
-        if (i < 0) {
+        if (i == -2) {
             data = (uint8_t*)info, len = strlen(info);
+        } else if (i == -1) {
+            data = (uint8_t*)log, len = log_len;
         } else {
             char path[512];
             snprintf(path, sizeof path, "%s%s", strchr(name, ':') ? "" : dir, name);

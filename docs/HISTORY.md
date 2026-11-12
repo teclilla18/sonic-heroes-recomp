@@ -242,3 +242,17 @@ Dated sessions and hardware tests, oldest first. The Sonic Riders port's history
   camera as the stage loads, so moving the icon/gauge/pause menu needs their position code [likely]. Saving box
   after a stage (split in three) untested with the change.
 - User decisions: 0.1.0-alpha.1 test build (PC + Switch) for bug reports, not for playing; dev stage select out of it.
+
+## 2026-11-12 (late): alpha prep, Switch "Save a bug report"
+
+- Switch settings menu, About: "Save a bug report" writes bug-report-<date>.zip in switch/sonicheroes/ (info.txt:
+  version, firmware, Atmosphere, docked/handheld, title/applet mode; this and the last run's log, settings.ini,
+  env.txt, newest atmosphere/crash_reports file). Zip writer shared with PC (runtime/src/bug_report.c).
+- Found on the console (not in Eden): the SD card cannot open the log for reading while stderr has it open for
+  writing (same as FTP "550 busy"), so the first hw13 zip lacked this run's log. Fix: log_snapshot()
+  (platform_switch.c) reopens stderr for reading under flockfile, copies it, reopens for appending. Console
+  handheld (CPU 1785 / GPU 614 / MEM 2133): zip complete, 6 files, logging continues after [confirmed]; the save is
+  one ~150 ms frame with the menu open. PC (SR_BUGREPORT=1) and Eden pass.
+- README + docs/releases/0.1.0-alpha.1.md: big TEST BUILD warning and how to report; alpha/beta zips get the banner
+  in README-FIRST.txt (make_release.py). SD env.txt cleared (old SR_PROFILE/SR_DEVMENU in build/hw13/env.txt.old).
+- Dev builds report "v0.8.0-..." (git describe sees the inherited Riders tags); release zips use their VERSION file.

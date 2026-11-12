@@ -85,6 +85,8 @@ void platform_set_handheld_gpu(int on) {
     rt_log("[switch] handheld performance configuration -> 0x%08X (%s): rc 0x%X", want, on ? "GPU 384 MHz" : "system default", rc);
 }
 
+static char g_logbuf[64 * 1024];
+
 void platform_init(void) {
     appletHook(&g_hook, applet_hook, NULL);  /* before the render thread runs appletMainLoop */
     mkdir(BASE_DIR, 0777);
@@ -93,8 +95,7 @@ void platform_init(void) {
     remove(BASE_DIR "/sonicheroes.prev.log");
     rename(BASE_DIR "/sonicheroes.log", BASE_DIR "/sonicheroes.prev.log");
     if (!freopen(BASE_DIR "/sonicheroes.log", "w", stderr)) return;
-    static char logbuf[64 * 1024];
-    setvbuf(stderr, logbuf, _IOFBF, sizeof logbuf);  /* flushed by rt_log at most once a second */
+    setvbuf(stderr, g_logbuf, _IOFBF, sizeof g_logbuf);  /* flushed by rt_log at most once a second */
     rt_log("[switch] Sonic Heroes native port; log started");
     /* debugging switches (SR_WATCHDOG, ...) as KEY=VALUE lines in env.txt, there being no environment */
     FILE* f = fopen(BASE_DIR "/env.txt", "r");
@@ -156,7 +157,26 @@ void platform_local_time(int* year, int* month, int* day, int* hour, int* minute
  * settings.ini, env.txt and the newest Atmosphere crash report (a FATAL from the last run is there). The zip
  * writer is bug_report.c. Returns 0 and the file's name (without the folder), or -1. */
 extern const char g_build_version[];
-int bug_report_zip(const char* zip_path, const char* dir, const char* info, const char* const* files, int nfiles);
+int bug_report_zip(const char* zip_path, const char* dir, const char* info, const char* log, size_t log_len,
+                   const char* const* files, int nfiles);
+/* this run's log so far: the SD card cannot open the log for reading while stderr has it open for writing
+ * (FTP gets "550 busy" too), so stderr is reopened for reading, read, and reopened for appending, while
+ * holding stderr's lock (other threads' rt_log waits). Returns a malloc'd copy, or NULL. */
+static char* log_snapshot(size_t* len) {
+    char* buf = NULL;
+    *len = 0;
+    flockfile(stderr);
+    fflush(stderr);
+    if (freopen(BASE_DIR "/sonicheroes.log", "rb", stderr)) {
+        fseek(stderr, 0, SEEK_END);
+        long n = ftell(stderr);
+        fseek(stderr, 0, SEEK_SET);
+        if (n > 0 && n < 64L * 1024 * 1024 && (buf = malloc((size_t)n))) *len = fread(buf, 1, (size_t)n, stderr);
+    }
+    if (freopen(BASE_DIR "/sonicheroes.log", "ab", stderr)) setvbuf(stderr, g_logbuf, _IOFBF, sizeof g_logbuf);
+    funlockfile(stderr);
+    return buf;
+}
 int platform_bug_report(char* name, size_t n) {
     int y, mo, d, h, mi, s;
     platform_local_time(&y, &mo, &d, &h, &mi, &s);
@@ -184,10 +204,14 @@ int platform_bug_report(char* name, size_t n) {
     }
     snprintf(crash, sizeof crash, "sdmc:/atmosphere/crash_reports/%s", newest);
     if (newest[0]) snprintf(info + k, sizeof info - (size_t)k, "newest crash report: %s (may be from another program)\r\n", newest);
-    const char* files[] = {"sonicheroes.log", "sonicheroes.prev.log", "settings.ini", "env.txt", newest[0] ? crash : "-"};
+    const char* files[] = {"sonicheroes.prev.log", "settings.ini", "env.txt", newest[0] ? crash : "-"};
     char path[128];
     snprintf(path, sizeof path, BASE_DIR "/%s", name);
-    return bug_report_zip(path, BASE_DIR "/", info, files, (int)(sizeof files / sizeof files[0])) < 0 ? -1 : 0;
+    size_t log_len;
+    char* log = log_snapshot(&log_len);
+    int rc = bug_report_zip(path, BASE_DIR "/", info, log, log_len, files, (int)(sizeof files / sizeof files[0]));
+    free(log);
+    return rc < 0 ? -1 : 0;
 }
 
 /* ---- threads: libnx gives threads created without attributes a 128 KiB stack ---- */

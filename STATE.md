@@ -1,4 +1,4 @@
-# State (2026-11-12, end: special stage crash fixed, enemy fps waits cut, alpha requested)
+# State (2026-11-12, late: alpha.1 prepared, Switch bug report button works; user runs /release)
 
 Read this at the start of every session. Rewrite it in place at the end of each session (never append). Stories
 behind each line: `grep` the date or topic in [docs/HISTORY.md](docs/HISTORY.md) (Riders' history:
@@ -19,12 +19,10 @@ Repo public (teclilla18/sonic-heroes-recomp). Local `user.email` is the GitHub n
 
 ## Releases (user's decisions, 2026-11-12)
 
-- **0.1.0-alpha.1 test build (requested now)**: PC + Switch, GitHub pre-release, for testing and bug/crash reports,
-  NOT for playing. README and release page: VERY BIG, CLEAR "THIS IS A TEST BUILD for development" + how to report
-  bugs and crashes (log files, Switch: switch/sonicheroes/sonicheroes.log + .prev.log; PC: F1 > About > Save a bug
-  report). No dev stage select in it (configure `--dev-menu` is off by default). Planned but NOT built yet: a Switch
-  "Save a bug report" button like PC's (user wanted it; ask whether alpha.1 waits for it). The user starts `/release`
-  (model cannot invoke it); cold Windows Sandbox test before publishing (ask before launching).
+- **0.1.0-alpha.1 test build: ready for the user's `/release`** (PC + Switch, GitHub pre-release, for bug/crash
+  reports, NOT for playing; no dev stage select). Page text: docs/releases/0.1.0-alpha.1.md; README has the big
+  TEST BUILD warning + how to report; alpha zips get the banner in README-FIRST.txt. Switch "Save a bug report"
+  [confirmed on console, handheld]. Cold Windows Sandbox test before publishing (ask before launching).
 - First real release later: "decently runnable" on Switch + PC (criteria: memory first-release-scope).
 
 ## Done 2026-11-12 (HISTORY "2026-11-12 (evening)")
@@ -40,8 +38,7 @@ Repo public (teclilla18/sonic-heroes-recomp). Local `user.email` is the GitHub n
 
 ## Open items, in order
 
-1. **Alpha 0.1.0-alpha.1**: README/release text (big test-build warning + how to report), Switch report button
-   (if the user wants it in alpha.1), then the user's `/release` (Sandbox test PC, hardware test from the zip).
+1. **Alpha 0.1.0-alpha.1**: the user's `/release` (Sandbox test PC, hardware test from the Switch zip).
 2. **Fit HUD layout** (user, hw12 shots build/hw12/shot_6435, 12977): pause menu off-centre everywhere; the team
    switch icon and Team Blast gauge stay near the centre instead of the right edge. Heroes' stage HUD is placed from
    the widened stage camera when the stage loads (not per-piece 2D: SR_ANCHORLOG sees only the shadow corner), so
@@ -58,8 +55,8 @@ Repo public (teclilla18/sonic-heroes-recomp). Local `user.email` is the GitHub n
 - Remote: scratchpad `sw.py` (FTP + sys-botbase; copy from this session's scratchpad 9921978d or fc12b70e), settings
   from the Riders switch-remote config (CLAUDE.local.md). Git Bash: `MSYS_NO_PATHCONV=1`, sw.py as a Windows path;
   FTP login sometimes times out: retry. The log is locked while the game runs (550 busy): ask the user to close it.
-- SD `switch/sonicheroes/`: NRO = hw12 build (far fix, shadows, special stage options, dev menu, temp counters);
-  env.txt = SR_PROFILE=1 + SR_DEVMENU=1 (remove both after the alpha: ask first). The user's other SD on F: is for
+- SD `switch/sonicheroes/`: NRO = hw13 build (alpha code, bug report button, no dev menu); env.txt empty (old one
+  in build/hw13/env.txt.old). Logs/zips: build/hw13. The user's other SD on F: is for
   Sonic Riders (his son's console): do not touch.
 - Temp wait counters ([pewho]/[rlock]) are out of git: local build/temp_pewho_rlock_gx_fifo.diff and
   build/temp_pewho_rlock_patches.txt to re-apply.
@@ -84,10 +81,7 @@ far-branch recompiler fix (Riders' single REL is in range, low value), deko3d sm
 ## Next session
 
 ```
-Continue Sonic Heroes (STATE.md): prepare 0.1.0-alpha.1 (PC + Switch test build, not for playing).
-Ask me first: does alpha.1 wait for a Switch "Save a bug report" button (menu.cpp tab_about has the PC one)?
-Then write the README / release-page section: a very big "THIS IS A TEST BUILD" warning and step-by-step bug and
-crash reporting (which log files, where, the issue form), and remove env.txt SR_PROFILE/SR_DEVMENU from the SD
-(ask). I then run /release myself. After that: Fit HUD layout (team icon, gauge, pause menu; re-investigator on
-the HUD position code, Dolphin 4:3 reference), then the stage sweep with SR_DEVSTAGE.
+Continue Sonic Heroes (STATE.md). If 0.1.0-alpha.1 is out, read new GitHub issues first. Then Fit HUD layout
+(team icon, Team Blast gauge, pause menu; re-investigator on the HUD position code, Dolphin 4:3 reference), then
+the stage sweep with SR_DEVSTAGE (every story stage + bosses on PC, then Eden / console).
 ```
