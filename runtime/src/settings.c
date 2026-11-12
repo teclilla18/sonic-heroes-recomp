@@ -11,7 +11,7 @@
 Settings g_settings = {SCREEN_4_3, 0, RES_1X, 0, 0, FR_AUTO, 1, 0, 100, 2, 1, 0, 0, 100, 100, 0, 0, 0, 1, 0, 1, 1, 100};
 volatile double g_aspect_scale = 1.0;
 /* Sonic Heroes camera (config/G9SE8P/patches.txt, docs/notes/re/camera.md): turn speed factor (setting
- * cam_speed) and the right stick's up/down (-127..127, si.c modern_controls; + = stick down) */
+ * cam_speed) and the right stick's up/down (-127..127, si.c modern_tilt; + = stick up) */
 volatile double g_cam_turn_scale = 1.0;
 volatile int g_cam_pitch_in;
 volatile double g_cam_pitch_deg;  /* the tilt in degrees (+-40) from the right stick (patches.txt) */

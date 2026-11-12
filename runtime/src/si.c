@@ -43,11 +43,11 @@ static void modern_controls(GcPad* p) {
     p->c_x = p->c_y = 0x80;
 }
 
-/* the right stick's up/down for the camera tilt patch (port 1 only; + = stick down, which tilts the view up) */
+/* the right stick's up/down for the camera tilt patch (port 1 only; + = stick up, which tilts the view up) */
 static void modern_tilt(int ch, const GcPad* p) {
     extern volatile int g_cam_pitch_in;
     if (ch != 0) return;
-    int dy = 0x80 - (int)p->c_y;
+    int dy = (int)p->c_y - 0x80;  /* stick up = + = the view tilts up (the user's choice after playing, 2026-11-11) */
     g_cam_pitch_in = dy > 0x18 || dy < -0x18 ? dy : 0;
 }
 

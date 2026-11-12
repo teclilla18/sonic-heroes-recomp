@@ -76,7 +76,7 @@ Found 2026-11-11 by static reading of dtk's asm (tools/showfn.py). No runtime ch
   full stick went -123 deg at 100% and about -241 deg (read +119 after the wrap) at 200%].
 - Tilt (modern controls, right stick up/down): in `fn_8004E7EC` before the call at 8004EA74 the block's eye is
   swung about the look-at point (`*0x8042C208` + 0x24) and the view pitch (f1 at 80050B78) changed by the same
-  angle [confirmed: stick up = camera high looking down at the team, stick down = low looking up]. Elevation is
+  angle [confirmed: with the first sign, stick up = camera high looking down; the user then asked for the inverse: stick up = camera low looking up]. Elevation is
   kept within -5..75 deg (-35 went under the bridge). Negative frame pitch = looking down.
 - A value added to the state's pitch (+0x1C) around `fn_800519B8` does nothing (recomputed from eye/look-at)
   [confirmed]; the mode call in `fn_800519B8` is skipped while the camera idles.
