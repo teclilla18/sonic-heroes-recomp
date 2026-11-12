@@ -120,7 +120,7 @@ def readme_first(flavor, version):
     ]
     if flavor == "switch":
         body = [
-            "PLAY ON A NINTENDO SWITCH (custom firmware + Homebrew Menu; 30 fps at stock clocks, overclock for 60)",
+            "PLAY ON A NINTENDO SWITCH (custom firmware + Homebrew Menu; tested overclocked: about 60 fps)",
             "",
             "1. Extract this whole zip to a folder (for example C:\\SonicHeroes). Its path must use only",
             "   English letters and digits (not your Downloads folder if your Windows user name has accents).",
