@@ -41,3 +41,11 @@ decl extern volatile int g_cam_tilt_on;
 8004EA74 before { double o = g_cam_pitch_deg + g_cam_pitch_in * (2.0 / 127.0) * g_cam_turn_scale; o = o > 40.0 ? 40.0 : o < -40.0 ? -40.0 : o; g_cam_pitch_deg = o; g_cam_view_add = 0.0; g_cam_tilt_on = 1; if (o != 0.0) { uint32_t cp = ld32(0x8042C208u), b = c->r[3]; double tx = ldf32(cp + 0x24), ty = ldf32(cp + 0x28), tz = ldf32(cp + 0x2C); double vx = ldf32(b) - tx, vy = ldf32(b + 4) - ty, vz = ldf32(b + 8) - tz; double h = __builtin_sqrt(vx * vx + vz * vz), dist = __builtin_sqrt(h * h + vy * vy); if (h > 0.001) { double e = __builtin_atan2(vy, h) * 57.29578, e2 = e - o; if (e2 > 75.0) e2 = e > 75.0 ? e : 75.0; if (e2 < -5.0) e2 = e < -5.0 ? e : -5.0; double k = dist * __builtin_cos(e2 / 57.29578) / h; stf32(b, tx + vx * k); stf32(b + 4, ty + dist * __builtin_sin(e2 / 57.29578)); stf32(b + 8, tz + vz * k); g_cam_view_add = e - e2; } } }
 8004EA74 after { g_cam_tilt_on = 0; }
 80050B78 after { if (g_cam_tilt_on) c->f[1].ps0 += g_cam_view_add; }
+
+# ---- Character shadows (docs/notes/re/rw-gcn-raster.md, 2026-11-12). fn_800B7C88 draws each team member's soft
+# shadow by EFB copies into two 128x128 textures and locks both for WRITE first (RwRasterLock fn_801A1AC8, flags
+# 0x9 / 0xB) only to wait until the GP has finished sampling them; the CPU never touches the pixels. Our GP thread
+# runs the FIFO in order and keeps copies GPU-side, so the wait protects nothing, and it drained the whole GP queue
+# 6 times a frame (1.5-2.6 ms/frame on the Switch). The WRITE bit is dropped: no wait, the lock still happens.
+800B7CE4 before { c->r[5] &= ~1u; }
+800B7E70 before { c->r[5] &= ~1u; }
