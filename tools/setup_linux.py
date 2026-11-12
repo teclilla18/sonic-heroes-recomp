@@ -32,7 +32,7 @@ import urllib.request
 import zipfile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-ISO_SHA1 = "ce0cecf57034bef8bab7d6f588ce92c85a849613"
+ISO_SHA1 = "dd752c8aa64f2f043c32be0f0bd5b8617357bfe6"
 LOG = os.path.join(ROOT, "setup.log")
 STEPS = 6
 
@@ -118,7 +118,7 @@ def check_iso(iso):
     disc_id = hdr[:6].decode("ascii", "replace")
     if disc_id != "G9SE8P":
         fail("This image's game ID is '%s'; Sonic Heroes (USA) is G9SE8P." % disc_id,
-             "Only the USA release is supported (PAL GXEP8P and Japanese GXEJ8P are not).")
+             "Only the USA release is supported (PAL G9SP8P and Japanese G9SJ8P are not).")
     if hdr[7] != 0:
         fail("This is revision %d of the disc; revision 0 is supported." % hdr[7])
     log("Checking the image's SHA-1 (about 10-30 seconds)...")

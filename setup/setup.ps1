@@ -53,7 +53,7 @@ $ProgressPreference = "SilentlyContinue"  # Invoke-WebRequest's progress bar slo
 
 $Root = (Resolve-Path "$PSScriptRoot\..").Path
 $LogFile = Join-Path $Root "setup.log"
-$IsoSha1 = "ce0cecf57034bef8bab7d6f588ce92c85a849613"
+$IsoSha1 = "dd752c8aa64f2f043c32be0f0bd5b8617357bfe6"
 $SdSub = "switch\sonicheroes"
 
 # ---------------------------------------------------------------- logging, errors
@@ -145,7 +145,7 @@ $fs = [IO.File]::OpenRead($Iso)
 try { $hdr = New-Object byte[] 8; [void]$fs.Read($hdr, 0, 8) } finally { $fs.Close() }
 $discId = [Text.Encoding]::ASCII.GetString($hdr, 0, 6)
 if ($discId -ne "G9SE8P") {
-    Fail "This image's game ID is '$discId'; Sonic Heroes (USA) is G9SE8P." "Only the USA release is supported (PAL GXEP8P and Japanese GXEJ8P are not)."
+    Fail "This image's game ID is '$discId'; Sonic Heroes (USA) is G9SE8P." "Only the USA release is supported (PAL G9SP8P and Japanese G9SJ8P are not)."
 }
 if ($hdr[7] -ne 0) { Fail ("This is revision {0} of the disc; revision 0 is supported." -f $hdr[7]) }
 Log "Checking the image's SHA-1 (about 10-30 seconds)..."
