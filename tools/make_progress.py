@@ -16,9 +16,9 @@ AREAS = [
     ("Whole game playable",            25, 15),
     ("Graphics match the GameCube",    15, 60),
     ("Switch performance",             15, 50),
-    ("Platforms",                      15, 25),
+    ("Platforms",                      15, 30),
     ("2-player modes",                 15,  0),
-    ("Features and polish",            15, 35),
+    ("Features and polish",            15, 38),
 ]
 
 W = 720

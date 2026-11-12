@@ -267,3 +267,6 @@ Dated sessions and hardware tests, oldest first. The Sonic Riders port's history
   junction to SonicRidersSetup/tools was used. Launcher art: Reckoman12 banner (1800x519 crop), Nibroc.Rock icon.
 - Published v0.1.0-alpha.1 (pre-release, 2fcaac6c). The --history guard scan still lists 5 old Riders pictures
   (docs/images/compare/*, settings-display.jpg) from before the fork [pre-existing].
+- Road to v1.0 card 29 -> 30 %: Platforms 30 (release zips: PC installs cold in the Sandbox, Switch zip builds),
+  Features 38 (Switch bug report, console-tested). User's request for the next release: replace the launcher's
+  plain blue with an image the user will provide then.
