@@ -169,3 +169,27 @@ Dated sessions and hardware tests, oldest first. The Sonic Riders port's history
 - **Team Blast gauge fill split into pieces** (cyan with gaps, dark/red chunks) on the Switch in 16:9: also in
   screenshots of earlier builds, so not from this fix; suspect wide_anchor placing the fill's pieces apart
   [likely, untested].
+
+## 2026-11-12: Team Blast gauge fill in pieces on the Switch (deko3d small-image tiling); first-release goal
+
+- What was wrong: on the Switch the Team Blast gauge fill showed as cyan pieces with gaps and foreign red/black
+  (console) or blue/white (Eden) chunks; PC drew it solid. Not a wide_anchor problem: Heroes' HUD is drawn with
+  perspective cameras (only ~5 ortho draws/frame, SR_ANCHORLOG) and depth func "always" (z 0x1F) [confirmed].
+- How it was found: gauge value located by RAM dumps: the user played the PC build and pressed the new F9 capture
+  twice (fills 58% / 72%), dumps matched the float at 0x80303D94 (64.0 / 79.0; 100 = TEAM BLAST) [confirmed PC by
+  SR_POKE]. Eden + SR_POKE 75: fault reproduced, also in 4:3. Ruled out one by one in Eden: decode helper, GP
+  thread (SR_GX_SYNC), shader specialization (SR_NOSPEC), stale uploads (re-upload every frame), double texture
+  retires (new check). The fill is one quad, texture C4 64x8, UV 0..1; its decoded RGBA (SR_DUMPTEX) was right.
+  256 KB padding after every image turned the bad parts transparent: they were read from outside the image;
+  alternating 16-texel (64-byte = one GOB) columns -> block-height mismatch between the copy and the sampler.
+- Fix: render_deko.c make_image: images 8 rows tall or less (not render targets) get DkImageFlags_CustomTileSize
+  + DkTileSize_OneGob. Tested Eden 4:3 and 16:9 (solid to 75%; frame diff vs before: animation only)
+  [confirmed]; console OLED handheld (GPU 384 MHz by the app, CPU/MEM overclocked): user "z bar looked fine" in
+  16:9 and Fit window [accepted]; 4:3 not checked because of the crop bug below.
+- New tools: F9 on PC (RAM dump + screenshot + draw log of that frame), SR_POKE multi-byte with a start frame,
+  `[tex] id N retired twice` check. Test runs now pass SR_FPS=0 SR_FRAMERATE=0 (the user's settings.ini has
+  pc_fps=-1, which moved the screenshot clock).
+- Found on the console, open: fps 41-55 while enemies are in view in Seaside Hill (draws/frame unchanged, GPU
+  12 ms, game thread ~no idle: CPU bound in game code [likely]; next: SR_PROFILE on hardware). Switching to 4:3
+  after 16:9 crops the picture (wide 3D view cut) [uncertain cause: view-window patch not re-applied].
+- User's decision: the first release only needs to be "decently runnable" on Switch and PC (criteria in STATE).

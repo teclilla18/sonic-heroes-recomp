@@ -9,3 +9,4 @@ Sonic Heroes native port. Nothing released yet. (The Sonic Riders port's changel
 - Widescreen ("Fit window"): the 3D view is wider instead of stretched (Hor+). Work in progress: menus are still stretched and the HUD is not at the edges yet.
 - Modern controls (Gameplay tab, on by default): L / R switch the leader, the right stick turns and tilts the camera (up looks up), A confirms in the pause menu; camera speed slider (50-200%).
 - Fixed purple and dark patches on the ground in Seaside Hill at higher resolutions and in widescreen (the characters' shadow pictures picked up leftovers of the previous frame at their edges).
+- Switch: fixed the Team Blast gauge, whose fill showed in pieces with stray coloured blocks.

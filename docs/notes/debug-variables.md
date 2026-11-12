@@ -32,6 +32,7 @@ to 8 KB). "PC" = desktop build only. Details: grep the variable in this file and
   `SR_INPUT` / `SR_PERFTEST` runs); `SR_UPDATECHECK=1`: check even in those runs (update_check.c, update_core.h).
 - `SR_NOAUDIO=1`: silent host output. `SR_AUDIO=0`: mixer off. `SR_WAVOUT=<file>`: record the mixed output.
 - `SR_SCREENSHOT=<frame>[,...]` / `list` (PC): `build/shot_<frame>.png`, up to 512 frames. `SR_SHOTSTEP`: capture by frame end (from 1).
+- **F9** (PC, while playing): capture the frame on screen: `build/f9_<frame>.bin` (guest RAM at the key press), `build/shot_<frame>.png` and that frame's draw log (`[gxdbg]`, as `SR_GXDEBUG`) in the run's stdout. Two presses at different moments let RAM dumps be compared (render_gl.c).
 - `SR_SCREEN=0..3` (4:3, 16:9, 2 = 16:9 (old stretched mode, removed), fit window); `SR_ANCHORLOG=<frame>`: that frame's 2D draws and their wide-screen anchors (notes/ultrawide-fov.md), `SR_FOV=80..130`, `SR_HUDSTRETCH=0/1`: screen settings for one run, not saved (notes/ultrawide-fov.md). `SR_WINDOW=WxH` (PC): the window's first size (wide captures, e.g. 3440x1440).
 - `SR_SHOTS=1` or `SR_SHOTS=a,b,c` (Switch): `shot_<frame>.bmp` at 300 … 7200, or those frames. Off by default.
 - Android only: `SR_TOUCH=0` hides the touch controls (picture compares); `SR_VK_TINYSCISSOR=1` (1-pixel scissor: GPU cost without pixels) and `SR_VK_FULLAREA=1` (whole-EFB render area) are GPU cost tests; `SR_VK_NOPUSH=1` no push descriptors. Device-lost tools (2026-11-06): `SR_VK_FAKELOST=<frame>[,...]` acts as if the device were lost after those frames (tests the rebuild); `SR_VK_DRAWS=lo-hi` sends only those draws of each frame; `SR_VK_ONEPIPE=1` keeps each pass's first pipeline; `SR_VK_FORCE=cull,depth,dtest,dwrite,dalways,blend` fixes those pipeline fields (wrong picture); `SR_VK_SWAPIMAGES=<n>` swapchain length; `SR_VK_PRETRANSFORM=1` renders pre-rotated to the panel (swapchain transform = current).
@@ -48,7 +49,7 @@ to 8 KB). "PC" = desktop build only. Details: grep the variable in this file and
 - `SR_LOGSYNC=1`: flush every log line. `SR_DVDLOG=1`: every disc read by file name, completions, ARAM DMAs.
 - `SR_DVD_ATEND=1`: old disc model (data only at completion; test). `SR_DVD_MBPS=<n>`: modelled disc speed.
 - `SR_WATCH=ADDR,VALUE` / `ADDR,~VALUE` / `ADDR,*[,A2,A3,A4]` (PC): watch guest memory, sample host threads.
-- `SR_PEEK`, `SR_POKE` (per present, one byte), `SR_POKEAT=<frame>:<addr>:<hex>[,...]` (deterministic), `SR_DUMPRAM` (PC).
+- `SR_PEEK`, `SR_POKE=ADDR,HEXBYTES[,FROM]` (kept set with each [perf] block from frame FROM on; from boot it can stall the logos), `SR_POKEAT=<frame>:<addr>:<hex>[,...]` (deterministic), `SR_DUMPRAM` (PC).
 - `SR_GPTL=<field>`: timeline of game idle / PE finish / tokens / retraces. `SR_GPSLOW=<factor>`: slower GP thread (imitates the Switch).
 - `SR_GX_SYNC=1`: no GP thread (old path). `SR_DSP_SYNC=1`: AX mixing on the game thread (old path). `SR_DECODE_HELPER=0`: no vertex-decode helper thread.
 - `SR_DECODECHECK=1`: run old and new vertex decoders and compare. `SR_NOTLUTSNAP=1`: no palette snapshot at issue time.

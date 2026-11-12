@@ -203,6 +203,13 @@ static void make_image(DkImage* img, uint32_t* off, uint32_t* size, uint32_t w, 
     lm.format = fmt;
     lm.dimensions[0] = w;
     lm.dimensions[1] = h;
+    /* textures one GOB (8 rows) tall or less get that tile size explicitly: with the automatic one, the
+     * upload and the sampler disagreed for wider ones (Sonic Heroes' Team Blast gauge fill, 64x8: every
+     * second 64-byte column came from outside the image, so the fill showed in pieces) */
+    if (h <= 8 && !(flags & DkImageFlags_UsageRender)) {
+        lm.flags |= DkImageFlags_CustomTileSize;
+        lm.tileSize = DkTileSize_OneGob;
+    }
     DkImageLayout layout;
     dkImageLayoutInitialize(&layout, &lm);
     *size = (uint32_t)dkImageLayoutGetSize(&layout);

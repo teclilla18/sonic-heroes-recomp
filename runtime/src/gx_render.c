@@ -95,6 +95,8 @@ static GxFrame* frame(void) {
 }
 
 void gx_frame_retire(int id) {
+    void gx_texture_note_retire(int id);
+    gx_texture_note_retire(id);
     GxFrame* f = frame();
     f->retired = grow(f->retired, &f->cap_retired, f->nretired + 1, sizeof(int));
     f->retired[f->nretired++] = id;
@@ -1006,14 +1008,24 @@ static void efb_copy(uint32_t v) {
                         const char* pk = getenv("SR_PEEK");
                         if (pk) sscanf(pk, "%x,%x", &peek_addr, &peek_len);
                     }
-                    /* SR_POKE=ADDR,BYTE (hex): keep a guest byte set (debugging) */
+                    /* SR_POKE=ADDR,BYTES[,FROM] (hex, FROM decimal): keep guest bytes set (debugging) from frame FROM
+                     * on (frames as SR_GXDEBUG), e.g. 80303D94,42C80000,4800 (the Team Blast gauge in Seaside Hill) */
                     static int poke_init;
-                    static uint32_t poke_addr, poke_val;
+                    static uint32_t poke_addr, poke_n, poke_from;
+                    static uint8_t poke_val[16];
                     if (!poke_init++) {
                         const char* pk = getenv("SR_POKE");
-                        if (pk) sscanf(pk, "%x,%x", &poke_addr, &poke_val);
+                        const char* h = pk ? strchr(pk, ',') : NULL;
+                        if (h) {
+                            poke_addr = (uint32_t)strtoul(pk, NULL, 16);
+                            for (h++; h[0] && h[1] && h[0] != ',' && poke_n < sizeof poke_val; h += 2) {
+                                char b[3] = {h[0], h[1], 0};
+                                poke_val[poke_n++] = (uint8_t)strtoul(b, NULL, 16);
+                            }
+                            if (*h == ',') poke_from = (uint32_t)atoi(h + 1);
+                        }
                     }
-                    if (poke_addr) *mem_phys(poke_addr & 0x3FFFFFFF) = (uint8_t)poke_val;
+                    for (uint32_t k = 0; poke_addr && g_frames >= poke_from && k < poke_n; k++) *mem_phys((poke_addr + k) & 0x3FFFFFFF) = poke_val[k];
                     for (uint32_t o = 0; o < peek_len; o += 32) {
                         char line[128];
                         int n = snprintf(line, sizeof line, "[peek] %08X:", peek_addr + o);

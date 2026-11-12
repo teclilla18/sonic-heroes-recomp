@@ -2,6 +2,7 @@
  * keyed by (address, format, size, palette) plus a hash of the bytes, so textures the game rewrites
  * are decoded again. EFB copies made to an address are found here too (gx_texture_set_copy).
  * Formats: YAGCD "Texture formats", Dolphin's TextureDecoder. */
+#include <stdatomic.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -16,6 +17,16 @@ const uint8_t* gx_tmem(void) { return g_tmem; }  /* gx_dff.c */
 
 #define MAX_TEX 65536
 static GxTexture* g_tex[MAX_TEX];
+static _Atomic unsigned char g_retire_pending[MAX_TEX];  /* retired, not yet freed by the backend (double-retire check) */
+void gx_texture_note_retire(int id) {
+    if (id < 0 || id >= MAX_TEX) return;
+    if (atomic_exchange(&g_retire_pending[id], 1)) {
+        static int n;
+        GxTexture* t = g_tex[id];
+        if (n++ < 20) rt_log("[tex] id %d retired twice before it was freed (%ux%u%s)", id, t ? t->width : 0, t ? t->height : 0,
+                             t && t->is_copy ? ", copy" : "");
+    }
+}
 static int g_ntex;
 /* ids freed by the backend (render thread), reused by new_texture (GX thread) */
 static int g_free_ids[MAX_TEX];
@@ -56,6 +67,7 @@ GxTexture* gx_texture_get(int id) { return id >= 0 && id < g_ntex ? g_tex[id] : 
 /* backend: the frame that retired `id` is done */
 void gx_texture_free(int id) {
     if (id < 0 || id >= g_ntex || !g_tex[id]) return;
+    atomic_store(&g_retire_pending[id], 0);
     free(g_tex[id]->rgba);
     free(g_tex[id]);
     g_tex[id] = NULL;

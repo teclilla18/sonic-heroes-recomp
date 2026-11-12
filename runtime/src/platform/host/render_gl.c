@@ -115,6 +115,10 @@ static int g_scan_at, g_scan_step;  /* SR_SCREENSHOT=N[,N...]: the presented fra
  * block, each saved as build/same_N_<block>.png: which draws make a difference, on one exact frame */
 static int g_same_at, g_same_step, g_same_first, g_same_k = -1;  /* ,FIRST: start at draw FIRST */
 static unsigned g_presented;
+/* F9 (testing): capture the frame on screen when a bug shows up in play: guest RAM at the key press
+ * (build/f9_<frame>.bin, taken off the game thread like SR_RAMDUMPFIELD), and the next frame's draw log
+ * (as SR_GXDEBUG) and screenshot (build/shot_<frame>.png) */
+static unsigned g_f9_frame;
 
 static GLuint compile(GLenum type, const char* src) {
     const char* parts[2] = {"#version 330 core\n", src};
@@ -507,6 +511,7 @@ static void efb_copy(const GxCmd* c, const GxUniforms* u) {
             int menu_shot = menu_px != NULL;
             int listed = 0;
             for (int k = 0; k < g_nshots; k++) listed |= g_presented == (unsigned)g_shot_list[k];
+            listed |= g_f9_frame && g_presented == g_f9_frame;
             if (listed) g_shot_at = (int)g_presented;
             if (menu_shot || (g_shot_at && g_presented == (unsigned)g_shot_at)) {
                 uint8_t* px = menu_px;
@@ -1346,6 +1351,15 @@ static void handle_event(const SDL_Event* e) {
         g_settings.fullscreen = !g_settings.fullscreen;
         settings_apply();
     }
+    if (e->type == SDL_KEYDOWN && !e->key.repeat && e->key.keysym.scancode == SDL_SCANCODE_F9) {
+        g_f9_frame = g_presented + 1;  /* the frame executed right after these events */
+        char path[64];
+        snprintf(path, sizeof path, "build/f9_%u.bin", g_f9_frame);
+        FILE* f = fopen(path, "wb");
+        if (f) { fwrite(mem_phys(0), 1, GUEST_RAM_SIZE, f); fclose(f); }
+        rt_log("[f9] capture: frame %u, RAM %s%s, screenshot build/shot_%u.png, draw log [gxdbg]", g_f9_frame, path,
+               f ? "" : " (not written)", g_f9_frame);
+    }
 }
 
 /* the window follows g_settings.fullscreen (changed by a key or the menu); in fullscreen the cursor
@@ -1560,7 +1574,7 @@ static int render_thread(void* arg) {
             sync_fullscreen();
             input_pump();
             const char* dbg = getenv("SR_GXDEBUG");
-            g_debug_frame = dbg && (unsigned)atoi(dbg) == g_presented + 1;
+            g_debug_frame = (dbg && (unsigned)atoi(dbg) == g_presented + 1) || (g_f9_frame && g_f9_frame == g_presented + 1);
             if (g_same_at && g_presented + 1 == (unsigned)g_same_at) {
                 uint32_t nd = 0;
                 for (uint32_t i = 0; i < f->ncmds; i++) nd += f->cmds[i].type == GXC_DRAW;
