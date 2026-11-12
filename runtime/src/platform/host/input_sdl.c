@@ -232,6 +232,20 @@ static void update_gamepads(void) {
             SDL_GameControllerClose(g_ctl[i]);
             g_ctl[i] = NULL;
         }
+    /* port 1 lost its gamepad (unplugged, asleep, or taken by another program) while another one is still
+     * connected: that one moves to port 1, or one player would be left with a pad the game does not listen to
+     * (2026-11-11: a Pro Controller went to another emulator, the Xbox pad stayed on port 2) */
+    if (!g_ctl[0])
+        for (int i = 1; i < PORTS; i++)
+            if (g_ctl[i]) {
+                g_ctl[0] = g_ctl[i];
+                g_ctl[i] = NULL;
+                memcpy(g_trig_peak[0], g_trig_peak[i], sizeof g_trig_peak[0]);
+                memcpy(g_trig_press[0], g_trig_press[i], sizeof g_trig_press[0]);
+                memcpy(g_trig_logged[0], g_trig_logged[i], sizeof g_trig_logged[0]);
+                rt_log("[input] gamepad %s moved from port %d to port 1", SDL_GameControllerName(g_ctl[0]), i + 1);
+                break;
+            }
     static uint32_t last_scan;
     uint32_t now = SDL_GetTicks();
     if (now - last_scan < 1000 && last_scan) return;

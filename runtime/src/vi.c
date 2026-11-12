@@ -3,6 +3,7 @@
  * A host thread raises the retrace interrupt (DI0) at the NTSC field rate, 59.94 Hz. */
 #include <stdatomic.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <threads.h>
 #include <time.h>
