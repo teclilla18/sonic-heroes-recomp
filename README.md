@@ -8,9 +8,40 @@ Play **Sonic Heroes** (GameCube, USA) natively, with no emulator, on a modded **
 **Windows**, **Android**, **Linux / Steam Deck** and **iPhone / iPad**. The game is rebuilt on your own PC from
 **your own disc image**; this project contains no game files.
 
-> [!IMPORTANT]
-> **Work in progress. There is no release yet and nothing to download.** The first release, **v0.5.0**, comes
-> once the game is playable on the **PC & Switch (Android, Linux, and iOS come later)**. Day-to-day status: [STATE.md](STATE.md).
+# ⚠️ THIS IS A TEST BUILD ⚠️
+
+> [!CAUTION]
+> ## 0.1.0-alpha.1 is a TEST BUILD for development. It is NOT for playing.
+>
+> - It is here so testers can **find bugs and crashes and report them**. Most of the game has **not been tried
+>   yet**: expect crashes, wrong graphics, missing sound, frame-rate drops and **lost saves**.
+> - Only **Seaside Hill** and the **special stage** have been played through. Everything after that is untested.
+> - **PC (Windows) and Switch only.** Android, Linux / Steam Deck and iPhone / iPad come later.
+> - If you just want to play Sonic Heroes, **wait for the first real release**. Day-to-day status: [STATE.md](STATE.md).
+
+## How to report a bug or a crash
+
+Every report helps, even a short one. **Never attach game files** (the disc image, `.iso`, `.nro`, `.exe` or
+anything built from your disc).
+
+**1. Save the report right after the problem**, before you start the game again (each start moves the last log
+aside, and only one older log is kept on the Switch).
+
+| | If the game still runs | If the game crashed or froze |
+|---|---|---|
+| **Switch** | Hold **− (Minus)** for the settings menu → **About** → **Save a bug report**. It writes `bug-report-<date>.zip` to `switch/sonicheroes/` on the SD card. | Don't start the game again. Put the SD card in a PC and copy `sonicheroes.log` and `sonicheroes.prev.log` from `switch/sonicheroes/`. After an Atmosphère error screen, also copy the newest file in `atmosphere/crash_reports/`. (Or start the game once and use **Save a bug report**: the crashed run is then in `sonicheroes.prev.log` in the zip.) |
+| **PC** | Hold **F1** (or the controller's Back/View button) → **About** → **Save a bug report**. It writes `bug-report-<date>.zip` to the game's folder and opens that folder. | Start the game once more, then **Save a bug report**: the crashed run is in `sonicheroes.prev.log` inside the zip (the crash itself is written into the log). Or copy `sonicheroes.log` and `sonicheroes.prev.log` from the game's folder by hand. |
+| **Setup** (building fails) | | Attach `setup.log` from the folder you extracted the zip to. |
+
+**2. A picture helps for anything visual**: settings menu → **Save screenshot** (`shot_<number>.bmp`, next to
+the log). GitHub doesn't take `.bmp`: open it in Paint and save it as PNG, or put it in a zip.
+
+**3. Open a report:** [**New bug report**](https://github.com/teclilla18/sonic-heroes-recomp/issues/new?template=bug_report.yml).
+The form asks for the version, Switch or PC, the console and its clocks (overclocked or not), where in the game
+it happened and what you did just before. Drag the `.zip` and pictures into the **Logs** field.
+
+The logs hold folder names from your PC and nothing else personal; look through the zip first if that matters
+to you.
 
 ## Road to v1.0
 

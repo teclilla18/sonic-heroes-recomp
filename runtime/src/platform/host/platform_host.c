@@ -561,32 +561,11 @@ void platform_set_handheld_gpu(int on) { (void)on; }
 
 /* ---- "Save a bug report" (settings menu, About): one zip in the game folder with what a report needs:
  * sonicheroes.log (this run, flushed first), sonicheroes.prev.log (.prev2-.prev4 on PC), setup.log, saves/settings.ini, crash.txt
- * and info.txt (version, system). Stored (uncompressed) zip: no library needed. Not on Android (its own
- * crash reports, CrashReport.java). Returns 0 and the file's name, or -1. */
+ * and info.txt (version, system); the zip writer is bug_report.c. Not on Android (its own crash reports,
+ * CrashReport.java). Returns 0 and the file's name, or -1. */
 #ifndef __ANDROID__
 extern const char g_build_version[];
-static uint32_t zip_crc(const uint8_t* p, size_t n) {
-    uint32_t c = 0xFFFFFFFFu;
-    for (size_t i = 0; i < n; i++) {
-        c ^= p[i];
-        for (int k = 0; k < 8; k++) c = (c >> 1) ^ (0xEDB88320u & (0u - (c & 1)));
-    }
-    return ~c;
-}
-static void put16(FILE* f, unsigned v) { fputc(v & 0xFF, f); fputc((v >> 8) & 0xFF, f); }
-static void put32(FILE* f, uint32_t v) { put16(f, v & 0xFFFF); put16(f, v >> 16); }
-static uint8_t* slurp(const char* path, size_t* n) {
-    FILE* f = fopen(path, "rb");
-    if (!f) return NULL;
-    fseek(f, 0, SEEK_END);
-    long len = ftell(f);
-    fseek(f, 0, SEEK_SET);
-    if (len < 0 || len > 64L * 1024 * 1024) { fclose(f); return NULL; }
-    uint8_t* b = malloc((size_t)len + 1);
-    *n = b ? fread(b, 1, (size_t)len, f) : 0;
-    fclose(f);
-    return b;
-}
+int bug_report_zip(const char* zip_path, const char* dir, const char* info, const char* const* files, int nfiles);
 static void system_info(char* out, size_t n) {
     size_t k = (size_t)snprintf(out, n, "Sonic Heroes native port bug report\r\nversion: %s\r\n", g_build_version);
     time_t t = time(NULL);
@@ -622,48 +601,14 @@ static void system_info(char* out, size_t n) {
     (void)k;
 }
 int platform_bug_report(char* name, size_t n) {
-    fflush(stderr);
     time_t t = time(NULL);
     strftime(name, n, "bug-report-%Y%m%d-%H%M%S.zip", localtime(&t));
-    FILE* z = fopen(name, "wb");
-    if (!z) return -1;
-    static const char* files[] = {"info.txt", "sonicheroes.log", "sonicheroes.prev.log", "sonicheroes.prev2.log",
-                                  "sonicheroes.prev3.log", "sonicheroes.prev4.log", "setup.log",
-                                  "saves/settings.ini", "crash.txt"};
-    struct { const char* name; uint32_t crc, size, off; } ent[sizeof files / sizeof files[0]];
-    int ne = 0;
+    static const char* const files[] = {"sonicheroes.log", "sonicheroes.prev.log", "sonicheroes.prev2.log",
+                                        "sonicheroes.prev3.log", "sonicheroes.prev4.log", "setup.log",
+                                        "saves/settings.ini", "crash.txt"};
     char info[4096];
     system_info(info, sizeof info);
-    for (size_t i = 0; i < sizeof files / sizeof files[0]; i++) {
-        size_t len = 0;
-        uint8_t* data = i == 0 ? (uint8_t*)info : slurp(files[i], &len);
-        if (i == 0) len = strlen(info);
-        if (!data) continue;
-        uint32_t crc = zip_crc(data, len), off = (uint32_t)ftell(z);
-        size_t nl = strlen(files[i]);
-        put32(z, 0x04034b50); put16(z, 10); put16(z, 0); put16(z, 0); put16(z, 0); put16(z, 0x21);
-        put32(z, crc); put32(z, (uint32_t)len); put32(z, (uint32_t)len); put16(z, (unsigned)nl); put16(z, 0);
-        fwrite(files[i], 1, nl, z);
-        fwrite(data, 1, len, z);
-        if (i) free(data);
-        ent[ne].name = files[i], ent[ne].crc = crc, ent[ne].size = (uint32_t)len, ent[ne].off = off, ne++;
-    }
-    uint32_t cd = (uint32_t)ftell(z);
-    for (int i = 0; i < ne; i++) {
-        size_t nl = strlen(ent[i].name);
-        put32(z, 0x02014b50); put16(z, 20); put16(z, 10); put16(z, 0); put16(z, 0); put16(z, 0); put16(z, 0x21);
-        put32(z, ent[i].crc); put32(z, ent[i].size); put32(z, ent[i].size); put16(z, (unsigned)nl);
-        put16(z, 0); put16(z, 0); put16(z, 0); put16(z, 0); put32(z, 0); put32(z, ent[i].off);
-        fwrite(ent[i].name, 1, nl, z);
-    }
-    uint32_t cdlen = (uint32_t)ftell(z) - cd;
-    put32(z, 0x06054b50); put16(z, 0); put16(z, 0); put16(z, (unsigned)ne); put16(z, (unsigned)ne);
-    put32(z, cdlen); put32(z, cd); put16(z, 0);
-    int bad = ferror(z);
-    fclose(z);
-    if (bad) return -1;
-    rt_log("[report] saved %s (%d files)", name, ne);
-    return 0;
+    return bug_report_zip(name, "", info, files, (int)(sizeof files / sizeof files[0])) < 0 ? -1 : 0;
 }
 /* show the game folder (the bug report is there) */
 void platform_open_game_folder(void) {

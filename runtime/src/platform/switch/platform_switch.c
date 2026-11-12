@@ -151,6 +151,45 @@ void platform_local_time(int* year, int* month, int* day, int* hour, int* minute
     *hour = ct.hour; *minute = ct.minute; *second = ct.second;
 }
 
+/* ---- "Save a bug report" (settings menu, About): bug-report-<date>.zip in sdmc:/switch/sonicheroes/ with
+ * info.txt (version, firmware, docked/handheld, applet or title mode), this run's and the previous run's log,
+ * settings.ini, env.txt and the newest Atmosphere crash report (a FATAL from the last run is there). The zip
+ * writer is bug_report.c. Returns 0 and the file's name (without the folder), or -1. */
+extern const char g_build_version[];
+int bug_report_zip(const char* zip_path, const char* dir, const char* info, const char* const* files, int nfiles);
+int platform_bug_report(char* name, size_t n) {
+    int y, mo, d, h, mi, s;
+    platform_local_time(&y, &mo, &d, &h, &mi, &s);
+    snprintf(name, n, "bug-report-%04d%02d%02d-%02d%02d%02d.zip", y, mo, d, h, mi, s);
+    char info[2048];
+    int k = snprintf(info, sizeof info, "Sonic Heroes native port bug report\r\nversion: %s\r\n"
+                     "saved: %04d-%02d-%02d %02d:%02d:%02d\r\nsystem: Nintendo Switch, firmware %u.%u.%u%s\r\n",
+                     g_build_version, y, mo, d, h, mi, s, HOSVER_MAJOR(hosversionGet()),
+                     HOSVER_MINOR(hosversionGet()), HOSVER_MICRO(hosversionGet()),
+                     hosversionIsAtmosphere() ? " (Atmosphere)" : "");
+    AppletType at = appletGetAppletType();
+    k += snprintf(info + k, sizeof info - (size_t)k, "mode: %s, %s\r\n",
+                  appletGetOperationMode() == AppletOperationMode_Console ? "docked" : "handheld",
+                  at == AppletType_Application || at == AppletType_SystemApplication ? "title mode" : "applet mode");
+    /* the newest crash report: Atmosphere names them <seconds since 1970>_<program id>.log */
+    static char crash[300];
+    char newest[64] = "";
+    DIR* dir = opendir("sdmc:/atmosphere/crash_reports");
+    if (dir) {
+        struct dirent* e;
+        while ((e = readdir(dir)))
+            if (strlen(e->d_name) < sizeof newest && strstr(e->d_name, ".log") && strcmp(e->d_name, newest) > 0)
+                strcpy(newest, e->d_name);
+        closedir(dir);
+    }
+    snprintf(crash, sizeof crash, "sdmc:/atmosphere/crash_reports/%s", newest);
+    if (newest[0]) snprintf(info + k, sizeof info - (size_t)k, "newest crash report: %s (may be from another program)\r\n", newest);
+    const char* files[] = {"sonicheroes.log", "sonicheroes.prev.log", "settings.ini", "env.txt", newest[0] ? crash : "-"};
+    char path[128];
+    snprintf(path, sizeof path, BASE_DIR "/%s", name);
+    return bug_report_zip(path, BASE_DIR "/", info, files, (int)(sizeof files / sizeof files[0])) < 0 ? -1 : 0;
+}
+
 /* ---- threads: libnx gives threads created without attributes a 128 KiB stack ---- */
 typedef struct { int (*fn)(void*); void* arg; } Start;
 static void* trampoline(void* p) {

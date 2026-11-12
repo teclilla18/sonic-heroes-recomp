@@ -61,10 +61,12 @@ void dev_stage_set(int key);
 #define PIC_BLOOM 1
 #define PIC_GRADE 1
 #endif
-#if !defined(__SWITCH__) && !defined(SR_PHONE)
+#if !defined(SR_PHONE)
 #define HAVE_BUG_REPORT 1
-int platform_bug_report(char* name, size_t n);  /* platform_host.c */
+int platform_bug_report(char* name, size_t n);  /* platform_host.c, platform_switch.c */
+#ifndef __SWITCH__
 void platform_open_game_folder(void);
+#endif
 #endif
 #ifdef _WIN32
 const char* update_available(void);  /* update_check.c: the newer release's tag, or NULL */
@@ -754,8 +756,21 @@ void tab_about() {
     ImGui::SameLine();
     if (ImGui::Button("Save a bug report")) {
         report_failed = platform_bug_report(report, sizeof report) != 0;
+#ifndef __SWITCH__
         if (!report_failed) platform_open_game_folder();
+#endif
     }
+#ifdef __SWITCH__
+    help("Puts the game's log (this run and the last one), your settings, the newest Atmosphere crash report and "
+         "system information into one .zip in switch/sonicheroes/ on the SD card. Copy it to a PC and attach it "
+         "(and screenshots) to your report on GitHub.");
+    if (report_failed) note("Could not write the bug report on the SD card.");
+    else if (report[0]) {
+        char line[160];
+        snprintf(line, sizeof line, "Saved switch/sonicheroes/%s on the SD card.", report);
+        note(line);
+    }
+#else
     help("Puts the game's log, the setup log, your settings and system information into one .zip in the game's "
          "folder and opens that folder. Attach the .zip (and screenshots) to your report on GitHub. It holds "
          "folder names from your PC (in the logs): look through it first if that matters to you.");
@@ -765,6 +780,7 @@ void tab_about() {
         snprintf(line, sizeof line, "Saved %s in the game's folder (the folder is open now).", report);
         note(line);
     }
+#endif
 #endif
 }
 

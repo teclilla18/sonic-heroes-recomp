@@ -16,3 +16,4 @@ Sonic Heroes native port. Nothing released yet. (The Sonic Riders port's changel
 - Switch: fewer frame-rate dips with enemies in view (the characters' shadows no longer make the game wait for the GPU 6 times a frame).
 - Special stages: no bloom (the bright tube went white), and a "Special stage steering" slider (Gameplay tab, 30-100 %, default 60 %) for gentler steering.
 - Fit window: the HUD moves to the screen edges only while a stage plays (dialogs such as the saving box should keep their shape; untested).
+- Switch: "Save a bug report" in the settings menu (About): one zip on the SD card with this run's and the last run's log, settings and the newest Atmosphère crash report.

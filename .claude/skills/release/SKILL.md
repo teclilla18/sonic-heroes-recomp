@@ -23,6 +23,7 @@ The exact commands live in `docs/notes/build-and-test.md`. Grep it for "release"
 ## Publish
 
 6. Only after both sandbox tests pass, ask the user before tagging and before uploading anything. Never publish on your own.
+   The release page text is `docs/releases/<version>.md` when it exists (`gh release create ... --notes-file`); alpha and beta versions go up as pre-releases (`--prerelease`).
 7. Update STATE.md: the shipped items are now **released** in $ARGUMENTS.
 
 ## If a release turns out broken

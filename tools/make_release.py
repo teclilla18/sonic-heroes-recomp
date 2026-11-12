@@ -76,12 +76,39 @@ exit $rc
 """
 
 
+def test_build_banner(flavor, version):
+    """A big warning on top of README-FIRST.txt for alpha / beta versions (test builds, not for playing)."""
+    if "alpha" not in version and "beta" not in version:
+        return []
+    bar = "!" * 78
+    lines = [bar, "!!", "!!   THIS IS A TEST BUILD FOR DEVELOPMENT. IT IS NOT FOR PLAYING.",
+             "!!", "!!   It is here to find bugs and crashes. Most of the game is untested: expect crashes,",
+             "!!   wrong graphics, frame-rate drops and lost saves. Only Seaside Hill and the special stage",
+             "!!   have been played through. To play Sonic Heroes, wait for the first real release.", "!!", bar, "",
+             "HOW TO REPORT A BUG OR A CRASH (save it right after the problem, before starting the game again):"]
+    if flavor == "switch":
+        lines += ["- Game still running: hold Minus > About > Save a bug report. Then copy",
+                  "  switch/sonicheroes/bug-report-<date>.zip from the SD card to a PC.",
+                  "- Crash or freeze: copy sonicheroes.log and sonicheroes.prev.log from switch/sonicheroes/",
+                  "  on the SD card (and after an Atmosphere error screen, the newest file in",
+                  "  atmosphere/crash_reports/)."]
+    else:
+        lines += ["- Hold F1 (or the controller's Back/View button) > About > Save a bug report. It writes",
+                  "  bug-report-<date>.zip in the game's folder. After a crash, start the game once more and",
+                  "  save the report then: the crashed run is in sonicheroes.prev.log inside the zip."]
+    lines += ["- Setup problems: setup.log in this folder.",
+              "- Pictures: settings menu > Save screenshot (shot_<number>.bmp next to the log).",
+              "- Open a report and attach the zip / logs (never game files):",
+              "  https://github.com/teclilla18/sonic-heroes-recomp/issues/new?template=bug_report.yml", "", ""]
+    return lines
+
+
 def readme_first(flavor, version):
     if flavor == "linux":
         return readme_linux(version)
     if flavor == "ios":
         return readme_ios(version)
-    common = [
+    common = test_build_banner(flavor, version) + [
         "Sonic Heroes native port %s - unofficial fan project, not affiliated with SEGA or Nintendo." % version,
         "",
         "This download contains NO game files. You need your own Sonic Heroes (USA) disc image:",
