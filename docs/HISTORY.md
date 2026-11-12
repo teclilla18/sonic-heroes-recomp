@@ -214,3 +214,31 @@ Dated sessions and hardware tests, oldest first. The Sonic Riders port's history
   (flags +0x22, token +0x30; Egg Pawn shared skinned buffer? [uncertain]). PE reads 20k/frame on Switch vs 1.5k
   PC; PC waits 7/frame, ~0.1 ms/frame. The 27% "801D32E4 from SelectThread" is probably the vsync wait [uncertain].
   hw9 NRO on the SD carries temporary wait counters ([pewho] lines; local diffs build/temp_pewho_*.diff, not in git).
+
+## 2026-11-12 (evening): enemy-scene GPU waits, special stage crash (far REL calls), special stage options
+
+- hw9 (OLED docked, CPU 1785 / GPU 1152 / MEM 2133, SR_PROFILE): character select in Fit after a stage and the
+  4:3 change during a stage [accepted]. Token waits with Egg Pawns: 7/frame, 1.5-2.65 ms/frame (open areas 0.1-0.2).
+- Cause: RasterLock (fn_801ADE4C, RW GCN) write locks; a temp caller tally showed 6 of 7 from the character-shadow
+  pass fn_800B7C88 (two 128x128 EFB-copy textures, 3 shadows), which never touches the pixels: the lock is only a
+  wait [confirmed static, notes/re/rw-gcn-raster.md]. Patch: 800B7CE4/800B7E70 drop the WRITE bit. PC: 7 -> 1
+  waits/frame, 0.50 -> 0.18 ms/frame; shadows look right (PC frames) and on the console (user) [accepted].
+  hw10: 1 wait/frame, <= 0.41 ms/frame; fps blocks < 50: 3 of 333 (hw9: 15 of 142) [likely; different play].
+  The remaining wait is the 64x64 distortion map (fn_800BEEF0, CPU-written: the wait is real).
+- hw10: entering the special stage: FATAL dispatch to 841B8F18 (lr 826D2C90, stage40D). The REL at the fixed base
+  82690000 calls main.dol by b/bl relocations whose displacement exceeds 26 bits; the linked word decodes 64 MB
+  off (801B8F18 + 0x4000000). Fix: gcrecomp.py keeps the real target of every out-of-range REL24 (ppc2c.FAR_TARGETS,
+  used by translate, branch_target and the entry fixpoint): 71027 such calls (modules above ~0x82000000). NRO 1.5 MB
+  smaller. PC: special stage 40 and Egg Fleet (stage13D) play at 60 fps [confirmed PC]; console: special stage plays
+  through (hw11/hw12, user) [accepted]. Other far stages untested on hardware.
+- Stage select for tests: story tables at 8028CA48 (notes/re/stage-select.md); dev_stage.c writes a chosen key into
+  every stage entry and the running sequence (SR_DEVSTAGE; menu only with configure --dev-menu + SR_DEVMENU=1, user:
+  never in releases). Console [accepted] (switching mid-story and Off work).
+- Special stages (rel_special_stage = stage40D linked): bloom off [accepted]; stick range scaled by special_steer
+  (default 60 %) [accepted, "good"].
+- HUD in Fit: edges only while the manager state (8029C31C) is 5 = playing [implemented]; did NOT fix the special
+  stage pause menu (user: menu still off-centre everywhere; team-switch icon not at the right edge). Found: Heroes'
+  stage HUD is not per-piece 2D (SR_ANCHORLOG shows only the shadow-corner draws): it is placed from the widened stage
+  camera as the stage loads, so moving the icon/gauge/pause menu needs their position code [likely]. Saving box
+  after a stage (split in three) untested with the change.
+- User decisions: 0.1.0-alpha.1 test build (PC + Switch) for bug reports, not for playing; dev stage select out of it.

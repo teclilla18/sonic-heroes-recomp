@@ -12,3 +12,7 @@ Sonic Heroes native port. Nothing released yet. (The Sonic Riders port's changel
 - Switch: fixed the Team Blast gauge, whose fill showed in pieces with stray coloured blocks.
 - Changing the screen mode during a stage no longer cuts off the HUD or zooms the picture: the new mode applies from the next stage.
 - Fit window: the character select models stay inside their panels after coming back from a stage.
+- Fixed the crash when a special stage loads ("dispatch to 841B8F18"); the same fault would have crashed most later stages (Egg Fleet and on): calls from those stages to the main program were 64 MB off.
+- Switch: fewer frame-rate dips with enemies in view (the characters' shadows no longer make the game wait for the GPU 6 times a frame).
+- Special stages: no bloom (the bright tube went white), and a "Special stage steering" slider (Gameplay tab, 30-100 %, default 60 %) for gentler steering.
+- Fit window: the HUD moves to the screen edges only while a stage plays (dialogs such as the saving box should keep their shape; untested).

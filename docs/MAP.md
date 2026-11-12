@@ -28,6 +28,8 @@ functions or macros (line numbers drift). Sizes are approximate line counts.
 | Settings menu (ImGui) | menu.cpp (760) | `tab_display`, `tab_controls`, `quit_row`, `close_menu`, `overlay_input`, `overlay_pointer`, `overlay_image` |
 | Menu software rasterizer | menu_raster.cpp | |
 | Mods | mods.c, mods_data.c, game_mods.c | |
+| Heroes: test stage select (story starts at a stage key) | dev_stage.c (`dev_stage_frame`; menu in menu.cpp `tab_gameplay`, `SR_DEV_MENU` builds only) | `SR_DEVSTAGE`, `SR_DEVMENU` |
+| Heroes: stage / special stage linked (bloom gate, steering scale) | rel.c `rel_stage_active`, `rel_special_stage`; gx_render.c (`in_race`), si.c `get_pad` | |
 | Online / lockstep | netplay.c (600) | `SR_NET` |
 | Perf test | perftest.c | `SCENE_KEY` |
 
@@ -63,7 +65,8 @@ vk_*.frag / vk_quad.vert: Vulkan helpers (copies, fills, touch controls).
 
 | Topic | File |
 |---|---|
-| Build file generator (all targets) | configure.py (`--target host/switch/android`, `--icon`) |
+| Build file generator (all targets) | configure.py (`--target host/switch/android`, `--icon`, `--dev-menu`) |
+| REL calls out of b/bl range (modules above ~0x82000000) | tools/recomp/gcrecomp.py (`FAR_TARGETS`), ppc2c.py `translate` |
 | Android APK steps (no Gradle), icon into resources | tools/android_build.py (`step_apk`, `add_apk`) |
 | Android app icon | tools/android_icon.py |
 | Phone test runs over adb | tools/android_run.py |

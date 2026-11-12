@@ -14,7 +14,7 @@ Play **Sonic Heroes** (GameCube, USA) natively, with no emulator, on a modded **
 
 ## Road to v1.0
 
-<p align="center"><img src="docs/images/progress.svg" width="720" alt="Road to v1.0: 27% done"></p>
+<p align="center"><img src="docs/images/progress.svg" width="720" alt="Road to v1.0: 29% done"></p>
 
 <details>
 <summary><b>What v1.0 means, and what each bar still needs</b></summary>
@@ -26,9 +26,9 @@ v0.5.0, comes once the game is playable on the Switch and Android. The overall n
 
 | Area | Done | Left for v1.0 |
 |---|---|---|
-| Whole game playable | 10 % | Done: boot, menus, Team Sonic's story movie, Seaside Hill. Left: every other stage, the four teams, bosses, special stages, saving, endings |
+| Whole game playable | 15 % | Done: boot, menus, Team Sonic's story movie, Seaside Hill, the special stage (Switch), Egg Fleet starts (PC). Left: every other stage, the four teams, bosses, saving, endings |
 | Graphics match the GameCube | 60 % | Seaside Hill matches Dolphin (terrain shadows fixed at every resolution and in widescreen); left: the other stages' effects, indirect-texture effects, a 1-pixel line at the left edge, an HD look (bloom, shadows) |
-| Switch performance | 45 % | Seaside Hill at 60 fps (handheld; ~60 at 1.5x with an overclock, user-tested); left: shaders for the rest of the game, big stages, movies, docked checks |
+| Switch performance | 50 % | Seaside Hill at 60 fps (handheld; ~60 at 1.5x with an overclock, user-tested), fewer dips with enemies in view; left: shaders for the rest of the game, big stages, movies, docked checks |
 | Platforms | 25 % | PC and Switch boot and play; left: Android, Linux / Steam Deck, iPhone / iPad, the setup tool |
 | 2-player modes | 0 % | Split-screen versus and battle modes not tried yet |
 | Features and polish | 35 % | HOME-screen forwarder and game icon done; widescreen 3D (Hor+) tested on PC, Eden and the Switch; modern controls (leader on L/R, right-stick camera turn + tilt, speed slider, A in pause) accepted on the Switch; left: menus and HUD in widescreen, launcher, installers |

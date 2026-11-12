@@ -9,13 +9,13 @@ from pathlib import Path
 
 VERSION = ""            # the current release; "" = none yet (Sonic Heroes: v0.5.0 comes first)
 FIRST_RELEASE = "v0.5.0"
-UPDATED = "2026-11-11"
+UPDATED = "2026-11-12"
 
 # (label, weight, percent done). Sonic Heroes; keep README's "Road to v1.0" table in step.
 AREAS = [
-    ("Whole game playable",            25, 10),
+    ("Whole game playable",            25, 15),
     ("Graphics match the GameCube",    15, 60),
-    ("Switch performance",             15, 45),
+    ("Switch performance",             15, 50),
     ("Platforms",                      15, 25),
     ("2-player modes",                 15,  0),
     ("Features and polish",            15, 35),

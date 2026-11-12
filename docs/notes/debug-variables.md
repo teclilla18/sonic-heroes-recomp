@@ -50,6 +50,10 @@ to 8 KB). "PC" = desktop build only. Details: grep the variable in this file and
 - `SR_LOGSYNC=1`: flush every log line. `SR_DVDLOG=1`: every disc read by file name, completions, ARAM DMAs.
 - `SR_DVD_ATEND=1`: old disc model (data only at completion; test). `SR_DVD_MBPS=<n>`: modelled disc speed.
 - `SR_WATCH=ADDR,VALUE` / `ADDR,~VALUE` / `ADDR,*[,A2,A3,A4]` (PC): watch guest memory, sample host threads.
+- `SR_DEVSTAGE=<hex key>` (Sonic Heroes): every story starts at that stage key (1D = special stage 40, 0E = Egg Fleet;
+  keys in notes/re/stage-select.md), any team, with a save that has progress too (runtime/src/dev_stage.c). The menu
+  version (Gameplay tab, "Developer: story starts at") exists only in builds configured with `--dev-menu`, shown with
+  `SR_DEVMENU=1`; never in releases.
 - `SR_PEEK`, `SR_POKE=ADDR,HEXBYTES[,FROM]` (kept set with each [perf] block from frame FROM on; from boot it can stall the logos), `SR_POKEAT=<frame>:<addr>:<hex>[,...]` (deterministic), `SR_DUMPRAM` (PC).
 - `SR_GPTL=<field>`: timeline of game idle / PE finish / tokens / retraces. `SR_GPSLOW=<factor>`: slower GP thread (imitates the Switch).
 - `SR_GX_SYNC=1`: no GP thread (old path). `SR_DSP_SYNC=1`: AX mixing on the game thread (old path). `SR_DECODE_HELPER=0`: no vertex-decode helper thread.
