@@ -75,8 +75,9 @@ OWN_ART = {
     "docs/images/banner.jpg": "06ffe0808b9f58de8832d3b1b31e820b790cd45b",  # README banner (Sonic Heroes Recomp emblem: the user's own AI-made art, no credit needed, 2026-11-11)
     "setup/icon.png": "62d5e9ea02ad59f823e0fab11e22100acc0bc4d9",  # game icon: somegameicons' fan-made Sonic Heroes icon on a dark blue (user's OK, 2026-11-11; README credits)
     "setup/icon_256.jpg": "d9bfb4862ae3f44fbb021a575efabd0816a3756f",  # the same, 256 x 256 JPEG (Homebrew Menu / forwarder)
-    "launcher/icon_256.png": "80541e60eb82d9440c001da3bc4c7240bda2b111",  # launcher icon (user's ChatGPT art, 2026-11-09)
-    "launcher/icon_32.png": "24e3018e7e6651be4cbba8228f81364bf9d0a70e",
+    "launcher/banner.jpg": "da4b8f9e158ed03cca31c70c9b84cb7bdb6d9538",  # launcher banner: fan art by Reckoman12 (user's choice, README credits, 2026-11-12)
+    "launcher/icon_256.png": "1430a989b155d9e1f92d5720449bdf41ef932fed",  # launcher icon: fan art by Nibroc.Rock (user's choice, README credits, 2026-11-12)
+    "launcher/icon_32.png": "df1946811ffce518fd460d62c5f14298ceac6e04",  # the same, a crop of Sonic's face
     # 0.1.0-alpha.1 release page (docs/releases/): the port's own PC screenshots of Seaside Hill, cropped and labelled
     # (the user's permission to have them in git, 2026-11-12)
     "docs/images/alpha1/leader-wheel.jpg": "9ef9fccdfc641679a12a54910b30b5e8eaaf1818",
@@ -97,6 +98,8 @@ OWN_ART = {
 PAST_ART = {
     "docs/images/banner.jpg": {"54c9de3ff1b1c31237fc9649449e1f4bdfae4f9b"},
     "launcher/banner.jpg": {"a1d51fb7890668be5dfd126311b946aec8744339"},
+    "launcher/icon_256.png": {"80541e60eb82d9440c001da3bc4c7240bda2b111"},  # the Riders launcher's Super Sonic (user's ChatGPT art)
+    "launcher/icon_32.png": {"24e3018e7e6651be4cbba8228f81364bf9d0a70e"},
     "setup/icon.png": {"b84f997daba5df2563d0c3526cf633aa87151ebf", "b42362f551138986cd53dda64721510c101a80e2"},
     "setup/icon_256.jpg": {"4ab58b2f4da4418a9febadea57937eae7f2da5a6", "849b075587a60443ed7ac41ab4cbf3f61736b4a0"},
     "android/touch_icons/stick_knob.png": {"0c95f1650e2502ae0522a3da1351c9961b19b472"},

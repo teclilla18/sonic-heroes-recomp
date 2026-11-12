@@ -101,5 +101,9 @@ Licensed under the [Mozilla Public License 2.0](LICENSE), like the translator it
   [Sonic Heroes icon](https://www.deviantart.com/somegameicons/art/Sonic-Heroes-icon-422952372) by
   [somegameicons](https://www.deviantart.com/somegameicons) on DeviantArt, used with credit, shown on a plain dark
   blue background. somegameicons, if you'd like it changed or removed, open an issue and we'll do it right away.
+- Launcher banner (`launcher/banner.jpg`): fan art of Sonic, Tails and Knuckles by **Reckoman12**
+  ([@Reckoman12](https://x.com/Reckoman12)), used with credit.
+- Launcher icon (`launcher/icon_*.png`): fan art of Team Sonic by digital artist **Nibroc.Rock**, used with credit.
+- Reckoman12, Nibroc.Rock: if you'd like your art changed or removed, open an issue and we'll do it right away.
 
 Sonic Heroes is © SEGA. This project is not affiliated with SEGA.

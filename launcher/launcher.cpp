@@ -8,7 +8,7 @@
  *   - edits saves\settings.ini (the in-game F1 menu's settings) and mods\mods.ini (order and on/off),
  *   - starts and stops build\host-mingw\sonicheroes.exe.
  * As "Install Sonic Heroes (Switch|Android).exe" it is the installer for those builds (installer mode below).
- * Banner: launcher\banner.jpg, public fan art chosen by the project owner (not from the game).
+ * Banner: launcher\banner.jpg, fan art by Reckoman12 chosen by the project owner (not from the game; README credits).
  * Win32 + Direct3D 11 + Dear ImGui, linked statically (tools/build_launcher.py). */
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX

@@ -59,8 +59,8 @@ def main():
     out_dir = os.path.join(ROOT, "build", "launcher")
     os.makedirs(out_dir, exist_ok=True)
     out = os.path.join(out_dir, "SonicHeroesLauncher.exe")
-    # the program icon as resource APPICON: launcher/icon_256.png + icon_32.png (Super Sonic art the user made with
-    # ChatGPT, 2026-11-09; the small one a tighter face crop) as PNG entries of an .ico, else the gold ring
+    # the program icon as resource APPICON: launcher/icon_256.png + icon_32.png (Team Sonic fan art by Nibroc.Rock,
+    # the user's choice 2026-11-12, README credits; the small one a crop of Sonic's face) as PNG entries of an .ico, else the gold ring
     # tools/launcher_icon.py draws
     ico = os.path.join(out_dir, "launcher.ico")
     pngs = [os.path.join(ROOT, "launcher", "icon_%d.png" % n) for n in (256, 32)]
