@@ -14,7 +14,7 @@ UPDATED = "2026-11-11"
 # (label, weight, percent done). Sonic Heroes; keep README's "Road to v1.0" table in step.
 AREAS = [
     ("Whole game playable",            25, 10),
-    ("Graphics match the GameCube",    15, 55),
+    ("Graphics match the GameCube",    15, 60),
     ("Switch performance",             15, 45),
     ("Platforms",                      15, 25),
     ("2-player modes",                 15,  0),

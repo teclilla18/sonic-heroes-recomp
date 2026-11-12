@@ -45,7 +45,7 @@ static unsigned long long g_verts_total;  /* vertices emitted (after primitive e
 static uint64_t g_draw_total;              /* time in gx_draw (decode, state, lookups) */
 static uint64_t g_decode_ticks, g_state_ticks;  /* parts of it: vertex decode, state snapshots ([perf]) */
 static unsigned g_state_pushes;
-static unsigned long long g_feat_ind, g_feat_fog, g_feat_ztex;  /* draws using unimplemented features */
+static unsigned long long g_feat_ind, g_feat_fog, g_feat_fogra, g_feat_ztex;  /* draws using unimplemented features */
 static unsigned long long g_feat_copies, g_feat_copy_z;            /* EFB copies to textures, from depth */
 static uint32_t g_feat_copy_fmts;                                   /* their target formats seen (bit per code) */
 
@@ -653,7 +653,11 @@ static void wide_anchor(GxFrame* f, uint32_t v0, uint32_t count) {
         for (uint32_t i = 0; i < count; i++) v[i].nrm[3] = (float)GX_ANCHOR_MIDDLE;
         return;
     }
-    if (lo <= -0.99f && hi >= 0.99f) code = GX_ANCHOR_STRETCH;
+    /* a clear (no texture, depth compare "always" with update: RenderWare's clear quad) covers what the 3D
+     * draws and EFB copies use, which are stretched in a wide mode: Sonic Heroes clears its 128x128 shadow
+     * corner this way, and kept 4:3 the corner's left part held the old picture (purple ground, Eden) */
+    if ((lo <= -0.99f && hi >= 0.99f) || ((g_gx.xf_reg[0x3F] & 15) == 0 && (g_gx.bp[0x40] & 0x1F) == 0x1F))
+        code = GX_ANCHOR_STRETCH;
     else if (fl & GX_WIDE_HUD_EDGES) {
         float mid = 0.5f * (lo + hi);
         code = mid < -ANCHOR_DEAD_ZONE ? GX_ANCHOR_LEFT : mid > ANCHOR_DEAD_ZONE ? GX_ANCHOR_RIGHT : GX_ANCHOR_MIDDLE;
@@ -801,7 +805,7 @@ static void draw_impl(int prim, int vat, uint32_t count, const uint8_t* vertices
     /* unimplemented features in use, for the [perf] line: indirect stages (genmode bits 16-18),
      * fog (BP 0xF1 bits 21-23, the fog type), Z textures (BP 0xF4 bits 2-3) */
     if ((g_gx.bp[0x00] >> 16) & 7) g_feat_ind++;
-    if ((g_gx.bp[0xF1] >> 21) & 7) g_feat_fog++;
+    if ((g_gx.bp[0xF1] >> 21) & 7) { g_feat_fog++; if ((g_gx.bp[0xE8] >> 10) & 1) g_feat_fogra++; }  /* + range adjust (BP 0xE8 bit 10) */
     if ((g_gx.bp[0xF4] >> 2) & 3) g_feat_ztex++;
     /* textures used by the enabled TEV stages, looked up first: a lookup may queue a texture blit,
      * which must come before the draw */
@@ -946,8 +950,8 @@ static void efb_copy(uint32_t v) {
                 double ms = 1000.0 / 40500000.0 / 120;
                 uint64_t idle, late_avg, late_max;
                 sched_stats(&idle, &late_avg, &late_max);
-                rt_log("[perf]   draws/frame using indirect textures %llu (dynamic matrices not implemented), fog %llu (not implemented), Z textures %llu (not implemented)",
-                       g_feat_ind / 120, g_feat_fog / 120, g_feat_ztex / 120);
+                rt_log("[perf]   draws/frame using indirect textures %llu (dynamic matrices not implemented), fog %llu (with range adjust, not implemented: %llu), Z textures %llu (not implemented)",
+                       g_feat_ind / 120, g_feat_fog / 120, g_feat_fogra / 120, g_feat_ztex / 120);
                 extern unsigned long long g_pipe_stores, g_pipe_bytes;
                 static unsigned long long st0, by0;
                 static uint64_t draw_t0;
@@ -975,7 +979,7 @@ static void efb_copy(uint32_t v) {
                 g_state_pushes = 0;
                 rt_log("[perf]   EFB copies to textures/frame %.1f, from depth %.1f, target format codes seen %04X",
                        g_feat_copies / 120.0, g_feat_copy_z / 120.0, g_feat_copy_fmts);
-                g_feat_ind = g_feat_fog = g_feat_ztex = g_feat_copies = g_feat_copy_z = 0;
+                g_feat_ind = g_feat_fog = g_feat_fogra = g_feat_ztex = g_feat_copies = g_feat_copy_z = 0;
                 g_feat_copy_fmts = 0;
                 rt_log("[perf]   ms/frame: textures %.2f, render wait %.2f, disc %.2f, guest idle %.2f; timer late avg %.3f max %.3f ms",
                        g_tex_ticks * ms, g_wait_ticks * ms, (di_read_ticks() - disc0) * ms, idle * ms, late_avg * ms * 120,

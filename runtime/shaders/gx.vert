@@ -75,6 +75,17 @@ void main() {
   float P3 = uintBitsToFloat(XR(0x23)), P4 = uintBitsToFloat(XR(0x24)), P5 = uintBitsToFloat(XR(0x25));
   vec4 clip = XR(0x26) == 0u ? vec4(P0 * pv.x + P1 * pv.z, P2 * pv.y + P3 * pv.z, P4 * pv.z + P5, -pv.z)
                              : vec4(P0 * pv.x + P1, P2 * pv.y + P3, P4 * pv.z + P5, 1.0);
+  /* untextured screen-space fills (clears, fades, bars) cover the same native pixels as on the GameCube
+     at every internal resolution: edges snapped to the native pixel grid by the console's coverage rule
+     (pixel centre at 7/12). Sonic Heroes clears its shadow corner with a quad from 0.5 to 128.5: at 2x the
+     half-covered first column kept the old picture, the shadow copies carried it at their edges, and the
+     terrain subtracted it (purple and dark streaks). Textured 2D keeps its sub-pixel placement. */
+  if (XR(0x26) != 0u && bits(XR(0x3F), 0, 4) == 0u) {
+    float vxs = uintBitsToFloat(XR(0x1A)), vys = uintBitsToFloat(XR(0x1B));
+    float vxo = uintBitsToFloat(XR(0x1D)) - 342.0, vyo = uintBitsToFloat(XR(0x1E)) - 342.0;
+    if (vxs != 0.0) clip.x = (ceil(vxs * clip.x + vxo - 7.0 / 12.0) - vxo) / vxs;
+    if (vys != 0.0) clip.y = (ceil(vys * clip.y + vyo - 7.0 / 12.0) - vyo) / vys;
+  }
   /* wide screen modes (gx_render.h GX_XR_WIDE_K): the backend widened the viewport k times; 2D
      (orthographic) draws keep their 4:3 proportions, placed per draw (GX_ANCHOR_* in the normal's w,
      gx_render.c wide_anchor): in the middle, at the left or right edge, or stretched to the width */

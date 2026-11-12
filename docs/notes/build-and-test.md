@@ -143,6 +143,10 @@ compiling shaders, and its numbers (JIT) are indicative only.
   analog bytes). Player Entry with Sonic at Dolphin frame ~2590 from an empty card.
 - `SR_DFF` frames play in Dolphin with `Dolphin.exe -b -e frame.dff`; needs `Core.RAMOverrideEnable=True`,
   `Core.MEM1Size=29360128` (our REL sits above 24 MB).
+  Heroes (2026-11-11): `-C Dolphin.Core.RAMOverrideEnable=True -C Dolphin.Core.MEM1Size=29360128 -C
+  Dolphin.Movie.DumpFrames=True`, minimized window, kill after ~25 s; it writes AVIs to `User/Dump/Frames`
+  (`DumpFramesAsImages` did nothing); extract with imageio-ffmpeg's ffmpeg. `SR_GLTEXDUMP=<copy addr>` +
+  `SR_GXDEBUG=<frame>` dumps a copy texture (maps 0/1 only). Python with Pillow: `py` (not the setup tool's).
 - `GFX.Settings.DumpTextures` via `-C` dumped nothing.
 
 **Hardware over Wi-Fi:** the switch-remote MCP (buttons, screenshots, FTP, nxlink). The game's log is locked while

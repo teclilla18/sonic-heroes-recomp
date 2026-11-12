@@ -137,3 +137,24 @@ Dated sessions and hardware tests, oldest first. The Sonic Riders port's history
   perfect [accepted]. 4 new shader keys merged (21).
 - User's visual goal: Wind Waker HD-like look; agreed order fog + terrain colours -> bloom/grade on Switch ->
   own SSAO -> sun shadows (research), then the same for Riders.
+
+## 2026-11-11 (night): fog was already there; purple/dark Seaside Hill terrain fixed
+
+- **Fog**: implemented since Riders (gx.frag, Dolphin's WriteFog); only the `[perf]` label still said "not
+  implemented". Seaside Hill's fog starts far away (SR_TEVDEBUG=10: fog 0 on near geometry; on/off differ by ~1
+  level). New counter: fog draws with range adjust (BP 0xE8 bit 10): 0 in Seaside Hill [confirmed PC, Eden].
+- **Purple/dark ground**: found by matched comparison: SR_DFF=5000,3 (SR_GX_SYNC=1) played in Dolphin 2609a drew
+  the frame right, so the state was right and our rendering wrong. SR_SKIPSAME (blocks of 200, then 20) found
+  the bridge deck: 4 TEV stages, stages 1-3 subtract three 128x128 EFB copies (RGB565, exec 0x010843) weighted by
+  K0.r/g/b: projected character shadows (texgen from position, clamp). SR_GLTEXDUMP of a copy: black with the
+  shadow, but a green left column and light top row. Clamp smeared those edge texels over the ground, minus green
+  = purple. SR_SCALE=1 was right (mean 93/108/88 vs Dolphin 92/106/87) [confirmed].
+- **Cause** [confirmed]: the game clears the shadow corner with an untextured ortho quad from 0.5 to 128.5 (z
+  always + update); its shadow renders are scissored to 2..125. On the GameCube (pixel centre 7/12) the quad
+  covers pixel 0; at 2x the edge falls at internal 1.0 and column/row 0 keep the old picture. In widescreen the
+  quad was also anchored 4:3 by wide_anchor while the 3D shadow render and the copies are stretched.
+- **Fix**: gx.vert: untextured ortho draws snap their edges to the native pixel grid (`ceil(x - 7/12)`), both
+  backends. gx_render.c wide_anchor: a clear (no texture, z compare always with update) is anchored STRETCH.
+  Tested: PC 2x and 4x (4:3) and 16:9 match Dolphin; Eden v0.1.1 (16:9) clean, 17078 of 17078 states
+  specialized, 12 dksh with per_warp_scratch 0. **Not yet on hardware.** Not checked: menus/other stages with
+  the snapped untextured 2D (expected unchanged at 1x) [likely].
