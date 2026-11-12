@@ -46,18 +46,22 @@ Repo public (teclilla18/sonic-heroes-recomp). Local `user.email` is the GitHub n
 
 1. **Alpha feedback**: read GitHub issues from testers. The PC release is unpacked at
    <home>/Desktop/SonicHeroes-PC-0.1.0-alpha.1 (not yet installed or played; the user may try the launcher).
-2. **Fit HUD layout** (user, hw12 shots build/hw12/shot_6435, 12977): pause menu off-centre everywhere; the team
+2. **Remove the Chaos Emerald gear option** (user, 2026-11-12: a Sonic Riders feature): the launcher's checkbox
+   (launcher/launcher.cpp ~1011, setting chaos_emerald_shop), g_settings.chaos_emerald (settings.c, game_mods.c,
+   GAME_GEAR_* in game_addrs.h) and other Riders gear leftovers (mods_data.c gear names). Keep shared files
+   cherry-pickable (game-specific code clearly marked, CLAUDE.md fork rules).
+3. **Fit HUD layout** (user, hw12 shots build/hw12/shot_6435, 12977): pause menu off-centre everywhere; the team
    switch icon and Team Blast gauge stay near the centre instead of the right edge. Heroes' stage HUD is placed from
    the widened stage camera when the stage loads (not per-piece 2D: SR_ANCHORLOG sees only the shadow corner), so
    it needs the HUD objects' position code (re-investigator) and a Dolphin 4:3 reference of the pause menu.
    The gx_render.c "edges only in manager state 5" change is implemented; saving box after a stage (hw11
    shot_17183, split in three) not re-checked.
-3. **Stage sweep** with SR_DEVSTAGE (keys: notes/re/stage-select.md): every story stage + bosses on PC, then Eden /
+4. **Stage sweep** with SR_DEVSTAGE (keys: notes/re/stage-select.md): every story stage + bosses on PC, then Eden /
    console; crashes, shader keys, rendering vs Dolphin (special stage looks very bright even without bloom).
-4. Camera tilt direction in scripted runs: CY=+110 raised the camera (looks down) in build/run1/cam; the user chose
+5. Camera tilt direction in scripted runs: CY=+110 raised the camera (looks down) in build/run1/cam; the user chose
    "stick up = view up" on hardware. Check the SR_INPUT CY sign vs a real pad before relying on it [uncertain].
-5. If the Pause -> Quit crash returns (build/hw6/atmo_crash.log): same stack? Then record_backtrace.
-6. Later: HD look, widescreen menus, Android. Guard --history still lists 5 pre-fork Riders pictures.
+6. If the Pause -> Quit crash returns (build/hw6/atmo_crash.log): same stack? Then record_backtrace.
+7. Later: HD look, widescreen menus, Android. Guard --history still lists 5 pre-fork Riders pictures.
 
 ## Hardware / console notes
 
@@ -92,7 +96,8 @@ Local git also holds Riders' tags (v0.1.0..v0.8.0, never pushed): dev builds rep
 
 ```
 Continue Sonic Heroes (STATE.md). First check GitHub issues on 0.1.0-alpha.1 (gh issue list) and triage them.
-Then the Fit HUD layout: team icon, Team Blast gauge and pause menu (open item 2). Start in plan mode: ask
+Then take the Chaos Emerald gear option out (a Sonic Riders feature): the launcher's checkbox and the setting
+behind it (open item 2); check the launcher and the F1 menu after. Then the Fit HUD layout: team icon, Team Blast gauge and pause menu (open item 2). Start in plan mode: ask
 re-investigator for the HUD objects' position code, and get a Dolphin 4:3 reference of the pause menu (/ref-compare).
 Verify with PC shots in Fit (SR_SCREEN=3 SR_WINDOW=1280x720, fresh SR_CARD), then a console check with /hw-test.
 After that: the stage sweep with SR_DEVSTAGE. Next release: ask me for the launcher background image.
