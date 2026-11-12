@@ -628,9 +628,20 @@ void tab_controls() {
 void tab_gameplay() {
     heading("Controls");
     if (check("Modern controls", &g_settings.modern_controls,
-              "On by default. L and R switch the leader (the GameCube X and Y), the right stick turns the "
-              "camera (the GameCube L and R). Off: the original GameCube layout."))
+              "On by default. L and R switch the leader (the GameCube Y and X), the right stick turns the "
+              "camera (the GameCube R and L), up and down tilt it. In the pause menu A confirms too. Off: the "
+              "original GameCube layout."))
         settings_apply();
+    heading("Camera speed");
+    ImGui::SetNextItemWidth(ImGui::GetFontSize() * 14);
+    ImGui::SliderInt("##camspeed", &g_settings.cam_speed, CAM_SPEED_MIN, CAM_SPEED_MAX, "%d%%");
+    help("How fast the camera turns (L / R, or the right stick); 100% is the game's own speed.");
+    if (ImGui::IsItemDeactivatedAfterEdit()) settings_apply();
+    ImGui::SameLine();
+    if (ImGui::Button("Reset##camspeed") && g_settings.cam_speed != 100) {
+        g_settings.cam_speed = 100;
+        settings_apply();
+    }
 }
 
 void tab_mods() {

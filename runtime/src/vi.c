@@ -318,6 +318,20 @@ static int vi_thread(void* arg) {
         g_field_start = next;
         g_fields++;
         { void gx_tl(char type, uint32_t a); gx_tl('V', g_fields); }
+        {   /* SR_RAMDUMPFIELD=<field>[,...]: all of guest RAM at that VI field (the SR_INPUT clock) to
+             * build/ramfield_<field>.bin, to find variables by comparing dumps (games without the
+             * frame_end hook that SR_RAMDUMPAT needs; taken off the game thread, so a word may be mid-update) */
+            static const char* d;
+            static int init;
+            if (!init) { init = 1; d = getenv("SR_RAMDUMPFIELD"); }
+            for (const char* q = d; q && *q; q = strchr(q, ',') ? strchr(q, ',') + 1 : NULL) {
+                if ((uint32_t)atoi(q) != g_fields) continue;
+                char path[64];
+                snprintf(path, sizeof path, "build/ramfield_%u.bin", g_fields);
+                FILE* f = fopen(path, "wb");
+                if (f) { fwrite(mem_phys(0), 1, GUEST_RAM_SIZE, f); fclose(f); }
+            }
+        }
         /* SR_DETCLOCK: retraces are handed to the game where its main thread waits (vi_det_frame_wait) */
         int ppc_detclock(void); uint32_t ppc_detclock_steps(void);
         if (ppc_detclock() && g_fields % 600 == 0) {

@@ -8,8 +8,15 @@
 #include "settings.h"
 
 /* the Chaos Emerald unlock starts off: players who want to earn it themselves (user, 2026-11-07) */
-Settings g_settings = {SCREEN_4_3, 0, RES_1X, 0, 0, FR_AUTO, 1, 0, 100, 2, 1, 0, 0, 100, 100, 0, 0, 0, 1, 0, 1, 1};
+Settings g_settings = {SCREEN_4_3, 0, RES_1X, 0, 0, FR_AUTO, 1, 0, 100, 2, 1, 0, 0, 100, 100, 0, 0, 0, 1, 0, 1, 1, 100};
 volatile double g_aspect_scale = 1.0;
+/* Sonic Heroes camera (config/G9SE8P/patches.txt, docs/notes/re/camera.md): turn speed factor (setting
+ * cam_speed) and the right stick's up/down (-127..127, si.c modern_controls; + = stick down) */
+volatile double g_cam_turn_scale = 1.0;
+volatile int g_cam_pitch_in;
+volatile double g_cam_pitch_deg;  /* the tilt in degrees (+-40) from the right stick (patches.txt) */
+volatile double g_cam_view_add;   /* this frame's view pitch change (the orbit actually applied) */
+volatile int g_cam_tilt_on;       /* set while fn_80050AB8 builds the stage camera's view */
 volatile double g_fov_scale = 1.0;
 static volatile float g_window_aspect = 16.0f / 9.0f;
 static volatile float g_wide_k = 1.0f;
@@ -80,6 +87,7 @@ static void apply_view(void) {
     g_wide_k = g_fixed_k >= 1.0f ? g_fixed_k : wide ? settings_display_aspect() / (4.0f / 3.0f) : 1.0f;
     g_aspect_scale = g_wide_k;
     g_fov_scale = g_settings.fov / 100.0;
+    g_cam_turn_scale = g_settings.cam_speed / 100.0;
 }
 
 static void apply(void) {
@@ -125,6 +133,7 @@ void settings_load(void) {
             else if (!strcmp(line, "sharpness") && v >= 0 && v <= 100) g_settings.sharpness = v;
             else if (!strcmp(line, "update_check")) g_settings.update_check = v != 0;
             else if (!strcmp(line, "modern_controls")) g_settings.modern_controls = v != 0;
+            else if (!strcmp(line, "cam_speed") && v >= CAM_SPEED_MIN && v <= CAM_SPEED_MAX) g_settings.cam_speed = v;
         }
         fclose(f);
     } else if (settings_handheld_pc()) {
@@ -186,12 +195,12 @@ void settings_apply(void) {
         rt_log("[settings] cannot write %s", platform_settings_path());
         return;
     }
-    fprintf(f, "screen=%d\nshow_fps=%d\nresolution=%d\nchaos_emerald_shop=%d\nfullscreen=%d\nframerate=%d\nhandheld_gpu=%d\nhud_stretch=%d\nfov=%d\npc_scale=%d\nmsaa=%d\nbloom=%d\ngrade_bright=%d\ngrade_contrast=%d\ngrade_sat=%d\ngrade_warm=%d\nchar_light=%d\npc_fps=%d\npad_background=%d\nsharpness=%d\nupdate_check=%d\nmodern_controls=%d\n",
+    fprintf(f, "screen=%d\nshow_fps=%d\nresolution=%d\nchaos_emerald_shop=%d\nfullscreen=%d\nframerate=%d\nhandheld_gpu=%d\nhud_stretch=%d\nfov=%d\npc_scale=%d\nmsaa=%d\nbloom=%d\ngrade_bright=%d\ngrade_contrast=%d\ngrade_sat=%d\ngrade_warm=%d\nchar_light=%d\npc_fps=%d\npad_background=%d\nsharpness=%d\nupdate_check=%d\nmodern_controls=%d\ncam_speed=%d\n",
             g_settings.screen,
             g_settings.show_fps, g_settings.resolution, g_settings.chaos_emerald, g_settings.fullscreen, g_settings.framerate,
             g_settings.handheld_gpu, g_settings.hud_stretch, g_settings.fov, g_settings.pc_scale, g_settings.msaa,
             g_settings.bloom, g_settings.grade_bright, g_settings.grade_contrast, g_settings.grade_sat, g_settings.grade_warm,
             g_settings.char_light, g_settings.pc_fps, g_settings.pad_background, g_settings.sharpness, g_settings.update_check,
-            g_settings.modern_controls);
+            g_settings.modern_controls, g_settings.cam_speed);
     fclose(f);
 }

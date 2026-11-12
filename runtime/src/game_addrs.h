@@ -21,6 +21,11 @@
 #define OS_RUNQUEUE_HINT    0x8042CB9Cu
 #define OS_RESCHEDULE       0x8042CBA0u
 
+/* Sonic Heroes game state (DOL bss; found 2026-11-11 by RAM dumps at VI fields, running vs paused in
+ * Seaside Hill, 3 + 2 dumps): 0 while a stage runs, 1 while its pause menu is open [likely]. Next to it
+ * 8029C31C went 5 -> 6 (a game state number?) [uncertain]. */
+#define HEROES_PAUSED        0x8029C334u
+
 /* Sonic Riders' game data (GXEE8P), not found for Heroes: inert here (GAME_UNKNOWN).
  * Riders: _Main.rel: the unlock data (REL bss at the runtime's fixed 819FF380; a GameCube runs it from 805FB080,
  * where these are 806A9048 / 806A90A0). One status byte per Extreme Gear (0 locked, 1 the default gear,

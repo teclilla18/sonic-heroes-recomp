@@ -35,6 +35,7 @@ typedef struct Settings {
     int sharpness;      /* PC: FSR 1 RCAS sharpening of the final picture in percent, 0 (off)..100 */
     int update_check;   /* PC: ask GitHub at start-up whether a newer release exists (update_check.c) */
     int modern_controls; /* Sonic Heroes: L/R switch the leader (X/Y), right stick turns the camera (L/R) (si.c) */
+    int cam_speed;      /* Sonic Heroes: camera turn and tilt speed in percent (CAM_SPEED_MIN..MAX, 100 = the game's) */
 } Settings;
 
 enum { FR_60, FR_AUTO, FR_30, FR_MODES };
@@ -47,6 +48,7 @@ int settings_pc_fps_valid(int v);
 enum { RES_1X, RES_1_5X, RES_2X, RES_MODES };
 
 enum { FOV_MIN = 80, FOV_MAX = 130 };
+enum { CAM_SPEED_MIN = 50, CAM_SPEED_MAX = 200 };
 enum { PC_SCALE_MIN = 1, PC_SCALE_MAX = 4 };  /* 5x-6x tanked the fps on the maintainer's PC (2026-11-07) */
 
 extern Settings g_settings;

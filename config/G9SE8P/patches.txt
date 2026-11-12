@@ -10,3 +10,27 @@
 # render-to-texture cameras (reflections) keep theirs. 2026-11-11.
 decl extern volatile double g_aspect_scale;
 8019D0F0 before { double k = g_aspect_scale; uint32_t fb = ld32(c->r[3] + 0x60); if (k != 1.0 && fb && (int32_t)ld32(fb + 0xC) >= 512) st32(c->r[3] + 0x68, f32_as_u32((float)(u32_as_f32(ld32(c->r[3] + 0x68)) * k))); }
+
+# ---- Camera (docs/notes/re/camera.md; settings cam_speed and modern_controls, 2026-11-11).
+# Turn speed: the follow cameras turn by 5 x the analog trigger per frame (mulli 5 in SARATOGA fn_801348D0 and
+# JONES fn_80131600, one per trigger); the result is scaled by g_cam_turn_scale (setting cam_speed / 100).
+decl extern volatile double g_cam_turn_scale;
+80134F34 after { if (g_cam_turn_scale != 1.0) c->r[0] = (uint32_t)(int32_t)((int32_t)c->r[0] * g_cam_turn_scale); }
+80134F44 after { if (g_cam_turn_scale != 1.0) c->r[3] = (uint32_t)(int32_t)((int32_t)c->r[3] * g_cam_turn_scale); }
+80131A30 after { if (g_cam_turn_scale != 1.0) c->r[0] = (uint32_t)(int32_t)((int32_t)c->r[0] * g_cam_turn_scale); }
+80131A40 after { if (g_cam_turn_scale != 1.0) c->r[3] = (uint32_t)(int32_t)((int32_t)c->r[3] * g_cam_turn_scale); }
+# Tilt (modern controls: the right stick's up/down, g_cam_pitch_in from si.c), as an orbit around the camera's
+# look-at point. The game keeps no pitch between frames (fn_800516E4 recomputes it from the eye -> look-at
+# vector), so the tilt goes into the view only: fn_8004E7EC copies the eye to the block r3 and calls fn_80050AB8
+# (8004EA74), which builds the stage camera's frame (pitch in degrees in f1 at 80050B78; then it moves the frame to
+# the block's eye). Here the block's eye is swung up/down about the look-at point (the per-screen camera copy at
+# *0x8042C208: +0x24 look-at) by the tilt, elevation kept within -5..75 deg (lower went under the floor), and the view pitched by the same
+# angle, so the team stays in the middle. The tilt grows ~2 deg/frame at full stick and 100% speed, +-40 deg, and
+# stays where it is left. Gameplay state is untouched. [confirmed PC 2026-11-11 for the view pitch; orbit: see
+# HISTORY] (docs/notes/re/camera.md)
+decl extern volatile int g_cam_pitch_in;
+decl extern volatile double g_cam_pitch_deg, g_cam_view_add;
+decl extern volatile int g_cam_tilt_on;
+8004EA74 before { double o = g_cam_pitch_deg + g_cam_pitch_in * (2.0 / 127.0) * g_cam_turn_scale; o = o > 40.0 ? 40.0 : o < -40.0 ? -40.0 : o; g_cam_pitch_deg = o; g_cam_view_add = 0.0; g_cam_tilt_on = 1; if (o != 0.0) { uint32_t cp = ld32(0x8042C208u), b = c->r[3]; double tx = ldf32(cp + 0x24), ty = ldf32(cp + 0x28), tz = ldf32(cp + 0x2C); double vx = ldf32(b) - tx, vy = ldf32(b + 4) - ty, vz = ldf32(b + 8) - tz; double h = __builtin_sqrt(vx * vx + vz * vz), dist = __builtin_sqrt(h * h + vy * vy); if (h > 0.001) { double e = __builtin_atan2(vy, h) * 57.29578, e2 = e - o; if (e2 > 75.0) e2 = e > 75.0 ? e : 75.0; if (e2 < -5.0) e2 = e < -5.0 ? e : -5.0; double k = dist * __builtin_cos(e2 / 57.29578) / h; stf32(b, tx + vx * k); stf32(b + 4, ty + dist * __builtin_sin(e2 / 57.29578)); stf32(b + 8, tz + vz * k); g_cam_view_add = e - e2; } } }
+8004EA74 after { g_cam_tilt_on = 0; }
+80050B78 after { if (g_cam_tilt_on) c->f[1].ps0 += g_cam_view_add; }
