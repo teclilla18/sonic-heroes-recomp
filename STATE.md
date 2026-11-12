@@ -1,4 +1,4 @@
-# State (2026-11-12, late: alpha.1 prepared, Switch bug report button works; user runs /release)
+# State (2026-11-12, night: 0.1.0-alpha.1 released as a GitHub pre-release)
 
 Read this at the start of every session. Rewrite it in place at the end of each session (never append). Stories
 behind each line: `grep` the date or topic in [docs/HISTORY.md](docs/HISTORY.md) (Riders' history:
@@ -19,10 +19,11 @@ Repo public (teclilla18/sonic-heroes-recomp). Local `user.email` is the GitHub n
 
 ## Releases (user's decisions, 2026-11-12)
 
-- **0.1.0-alpha.1 test build: ready for the user's `/release`** (PC + Switch, GitHub pre-release, for bug/crash
-  reports, NOT for playing; no dev stage select). Page text: docs/releases/0.1.0-alpha.1.md; README has the big
-  TEST BUILD warning + how to report; alpha zips get the banner in README-FIRST.txt. Switch "Save a bug report"
-  [confirmed on console, handheld]. Cold Windows Sandbox test before publishing (ask before launching).
+- **0.1.0-alpha.1 released** 2026-11-12 (GitHub pre-release, tag v0.1.0-alpha.1 = 2fcaac6c; PC + Switch zips;
+  page = docs/releases/0.1.0-alpha.1.md with the controls section and pictures). Tests before publishing: cold Windows
+  Sandbox PC zip PASS (2 installs, ~4 min; the first run FAILED: setup still had Riders' disc SHA-1, fixed f21d407c);
+  Switch zip setup -NoSd PASS on this PC (warm toolchain). Launcher: Reckoman12 banner, Nibroc.Rock icon (credited).
+  Release NRO is on the user's console (verified); the son's SD (F:) has the hw13 NRO (same code) + disc copy.
 - First real release later: "decently runnable" on Switch + PC (criteria: memory first-release-scope).
 
 ## Done 2026-11-12 (HISTORY "2026-11-12 (evening)")
@@ -38,7 +39,7 @@ Repo public (teclilla18/sonic-heroes-recomp). Local `user.email` is the GitHub n
 
 ## Open items, in order
 
-1. **Alpha 0.1.0-alpha.1**: the user's `/release` (Sandbox test PC, hardware test from the Switch zip).
+1. **Alpha feedback**: read GitHub issues from testers; the PC launcher at <home>/Desktop/SonicHeroes-PC-0.1.0-alpha.1 is not yet installed/played.
 2. **Fit HUD layout** (user, hw12 shots build/hw12/shot_6435, 12977): pause menu off-centre everywhere; the team
    switch icon and Team Blast gauge stay near the centre instead of the right edge. Heroes' stage HUD is placed from
    the widened stage camera when the stage loads (not per-piece 2D: SR_ANCHORLOG sees only the shadow corner), so

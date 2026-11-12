@@ -256,3 +256,14 @@ Dated sessions and hardware tests, oldest first. The Sonic Riders port's history
 - README + docs/releases/0.1.0-alpha.1.md: big TEST BUILD warning and how to report; alpha/beta zips get the banner
   in README-FIRST.txt (make_release.py). SD env.txt cleared (old SR_PROFILE/SR_DEVMENU in build/hw13/env.txt.old).
 - Dev builds report "v0.8.0-..." (git describe sees the inherited Riders tags); release zips use their VERSION file.
+
+## 2026-11-12 (night): 0.1.0-alpha.1 released
+
+- Release page: controls section (modern vs GameCube, pictures from scripted PC runs on a fresh memory card; the PC
+  card's save starts Casino Park, so tests need SR_CARD=<fresh>). Pictures pinned in the guard's OWN_ART.
+- The first cold Sandbox run FAILED: setup.ps1 / setup_linux.py still checked Sonic Riders' disc SHA-1 from the fork
+  (every install would have stopped) [confirmed]; fixed, rerun PASS (2 installs). Switch zip setup -NoSd PASS.
+- make_release needs the tools under LOCALAPPDATA/SonicHeroesSetup/tools: on this PC a scratch LOCALAPPDATA with a
+  junction to SonicRidersSetup/tools was used. Launcher art: Reckoman12 banner (1800x519 crop), Nibroc.Rock icon.
+- Published v0.1.0-alpha.1 (pre-release, 2fcaac6c). The --history guard scan still lists 5 old Riders pictures
+  (docs/images/compare/*, settings-display.jpg) from before the fork [pre-existing].
