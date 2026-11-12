@@ -61,6 +61,7 @@ const uint8_t* disc_fst(uint32_t* size);
 PpcFunc hle_orig(const char* name);  /* hle_misc.c: the game's code behind an hle.txt NAME */
 void load_game(void);   /* DOL sections, boot info, FST, every REL module linked at its fixed base */
 struct RecompModule;
+int rel_stage_active(void);  /* rel.c: a stage REL (Sonic Heroes stageNND) is linked */
 void rel_link_module(const struct RecompModule* mod);  /* loader.c: (re)link one RecompModule from the disc, bss cleared */
 
 /* cpu.c */

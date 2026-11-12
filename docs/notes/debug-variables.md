@@ -38,7 +38,7 @@ to 8 KB). "PC" = desktop build only. Details: grep the variable in this file and
 - `SR_INPUT="1500:START,1510:-START,7300:2.START,4000:SX=50,..."`: scripted buttons/stick at VI field counts, port prefix `N.`; up to 1024 steps; PC and Switch (input_script.c). Prefix `M.` = the settings menu's buttons
   (MENU UP DOWN LEFT RIGHT ACCEPT BACK TABL TABR; MENU held 0.5 s opens it), e.g. `600:M.MENU,660:-M.MENU`.
 - `SR_BUGREPORT=1` (PC/Linux): write the menu's bug-report zip at start-up (test).
-- `SR_PADS=N`: connect ports 1..N without gamepads (PC). `SR_CARD=<path>`: memory card image (both targets).
+- `SR_PADS=N`: connect ports 1..N without gamepads (PC). `SR_CARD=<path>`: memory card image (both targets). `SR_NOGAMEPAD=1` (PC): never open real gamepads (automatic in `SR_INPUT` runs, so background tests ignore the user's controller).
 - `SR_TEST_MENU=1` / `<tab>` / `mods`: start with the settings menu open on that tab.
 - `SR_FRAMERATE=0/1/2`: 60 fps / 30 fps / Auto for tests. `SR_TEST_GAME_LOAD_MS=DRAW[:LOGIC]`: busy-wait on the game thread to imitate a slow console.
 - `SR_HANDHELD_GPU=0` (Switch): don't apply the 384 MHz handheld GPU profile.

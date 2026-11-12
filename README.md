@@ -14,7 +14,7 @@ Play **Sonic Heroes** (GameCube, USA) natively, with no emulator, on a modded **
 
 ## Road to v1.0
 
-<p align="center"><img src="docs/images/progress.svg" width="720" alt="Road to v1.0: 25% done"></p>
+<p align="center"><img src="docs/images/progress.svg" width="720" alt="Road to v1.0: 26% done"></p>
 
 <details>
 <summary><b>What v1.0 means, and what each bar still needs</b></summary>
@@ -31,7 +31,7 @@ v0.5.0, comes once the game is playable on the Switch and Android. The overall n
 | Switch performance | 45 % | Seaside Hill at 60 fps (handheld; ~60 at 1.5x with an overclock, user-tested); left: shaders for the rest of the game, big stages, movies, docked checks |
 | Platforms | 25 % | PC and Switch boot and play; left: Android, Linux / Steam Deck, iPhone / iPad, the setup tool |
 | 2-player modes | 0 % | Split-screen versus and battle modes not tried yet |
-| Features and polish | 25 % | HOME-screen forwarder and game icon done; left: settings for Heroes (Riders' game options are switched off), widescreen, launcher, installers |
+| Features and polish | 30 % | HOME-screen forwarder and game icon done; widescreen 3D (Hor+) and modern controls (L/R = leader, right stick = camera) tested on PC and Eden; left: menus and HUD in widescreen, launcher, installers |
 
 </details>
 

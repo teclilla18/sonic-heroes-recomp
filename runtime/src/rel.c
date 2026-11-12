@@ -11,6 +11,11 @@
 #include "runtime.h"
 
 static const RecompModule* g_linked_mod;  /* the module OSLink last linked (for the log) */
+/* Sonic Heroes: the module id of the stage REL (stageNND) that is linked, 0 when none. The wide screen
+ * HUD goes to the screen edges while a stage is in (gx_render.c); Riders' modules have no such names. */
+static volatile uint32_t g_stage_id;
+
+int rel_stage_active(void) { return g_stage_id != 0; }
 
 /* the game's header -> our module: same ID, fixSize (+0x48) and bss size (+0x20). Heroes' stale
  * stage00D shares ID 3 with stage01D but has other sizes, so it is refused here. */
@@ -37,6 +42,7 @@ void hle_OSLink(Cpu* c) {
     rt_log("[rel] field %u: OSLink(%08X, bss %08X): %s (id %u) runs from its fixed image at %08X (prolog %08X)",
            vi_field_count(), m, bss, r->name, r->id, r->base, r->prolog);
     g_linked_mod = r;
+    if (!strncmp(r->name, "stage", 5)) g_stage_id = r->id;
     if (!strcmp(r->name, "_Main")) game_mods_linked();  /* Sonic Riders' gameplay options; Heroes has none yet */
     c->r[3] = 1;
 }
@@ -45,6 +51,7 @@ void hle_OSLink(Cpu* c) {
  * the module's epilog. */
 void hle_OSUnlink(Cpu* c) {
     uint32_t m = c->r[3];
+    if (g_stage_id && ld32(m + 0x00) == g_stage_id) g_stage_id = 0;
     rt_log("[rel] OSUnlink(%08X): module %u%s%s", m, ld32(m + 0x00), g_linked_mod ? ", last linked " : "",
            g_linked_mod ? g_linked_mod->name : "");
     c->r[3] = 1;

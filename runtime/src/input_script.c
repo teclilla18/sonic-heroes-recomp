@@ -3,7 +3,7 @@
  * SR_INPUT="900:START,910:-START,1500:A" presses (or releases, "-") buttons at the given VI field
  * counts (with SR_DETCLOCK, game frames, so a script gives the same input on the same frame in every
  * run and on every machine); names: A B X Y START L R Z UP DOWN LEFT RIGHT, prefixed "2." .. "4." for
- * ports 2-4 ("1500:2.START"); "SX=<n>" / "SY=<n>" set the main stick's offset from centre. Prefix "M." for the
+ * ports 2-4 ("1500:2.START"); "SX=<n>" / "SY=<n>" set the main stick's offset from centre ("CX=" / "CY=": the C stick). Prefix "M." for the
  * settings menu's buttons (overlay.h): M.MENU (hold 0.5 s to open) M.UP M.DOWN M.LEFT M.RIGHT M.ACCEPT M.BACK
  * M.TABL M.TABR, e.g. "600:M.MENU,640:-M.MENU,700:M.DOWN,705:-M.DOWN". */
 #include <stdio.h>
@@ -17,11 +17,11 @@ enum { B_LEFT = 0x1, B_RIGHT = 0x2, B_DOWN = 0x4, B_UP = 0x8, B_Z = 0x10, B_R = 
        B_A = 0x100, B_B = 0x200, B_X = 0x400, B_Y = 0x800, B_START = 0x1000 };
 
 #define PORTS 4
-typedef struct { uint32_t field; uint16_t mask; int press, port, axis, value; } Step;  /* axis 1/2: SX=/SY= */
+typedef struct { uint32_t field; uint16_t mask; int press, port, axis, value; } Step;  /* axis 1/2: SX=/SY=, 3/4: CX=/CY= */
 static Step g_script[1024];
 static int g_nscript;
 static uint16_t g_script_held[PORTS];
-static int g_script_stick[PORTS][2];
+static int g_script_stick[PORTS][4];
 static volatile unsigned g_script_menu;  /* M. buttons held (OV_*), read by the platform's menu input */
 
 unsigned long long gx_frames_presented(void);
@@ -63,7 +63,8 @@ void input_script_init(void) {
         if (*name == '-') { press = 0; name++; }
         if (name[0] >= '1' && name[0] <= '4' && name[1] == '.') { port = name[0] - '1'; name += 2; }
         else if (name[0] == 'M' && name[1] == '.') { port = -1; name += 2; }
-        int axis = (name[0] == 'S' && (name[1] == 'X' || name[1] == 'Y') && name[2] == '=') ? 1 + (name[1] == 'Y') : 0;
+        int axis = ((name[0] == 'S' || name[0] == 'C') && (name[1] == 'X' || name[1] == 'Y') && name[2] == '=')
+                       ? 1 + (name[1] == 'Y') + 2 * (name[0] == 'C') : 0;
         g_script[g_nscript++] = (Step){(uint32_t)atoi(tok), axis ? 0 : port < 0 ? menu_mask(name) : button_mask(name), press, port, axis, axis ? atoi(name + 3) : 0};
     }
     rt_log("[input] scripted input: %d steps", g_nscript);
@@ -93,5 +94,9 @@ void input_script_apply(int chan, GcPad* out) {
     if (g_script_stick[chan][0] || g_script_stick[chan][1]) {
         out->stick_x = (uint8_t)(0x80 + g_script_stick[chan][0]);
         out->stick_y = (uint8_t)(0x80 + g_script_stick[chan][1]);
+    }
+    if (g_script_stick[chan][2] || g_script_stick[chan][3]) {
+        out->c_x = (uint8_t)(0x80 + g_script_stick[chan][2]);
+        out->c_y = (uint8_t)(0x80 + g_script_stick[chan][3]);
     }
 }

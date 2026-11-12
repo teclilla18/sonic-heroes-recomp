@@ -7,6 +7,7 @@
 #include <string.h>
 
 #include "runtime.h"
+#include "settings.h"
 
 #define OS_INTERRUPT_PI_SI 20
 
@@ -20,11 +21,31 @@ void si_det_latch(void) {
     void netplay_latch(GcPad* pads);
     netplay_latch(g_det_latch);  /* live, recorded, replayed or exchanged with another machine (netplay.c) */
 }
+/* Sonic Heroes, setting modern_controls: the shoulders switch the leader (L -> X, R -> Y) and the right
+ * stick turns the camera (left/right -> the L/R triggers, digital and analog); the game sees a centred
+ * C stick (its own C stick look is not used). Off: the GameCube layout. */
+static void modern_controls(GcPad* p) {
+    uint16_t b = p->buttons & ~(0x40 | 0x20);
+    if (p->buttons & 0x40) b |= 0x400;
+    if (p->buttons & 0x20) b |= 0x800;
+    int dx = (int)p->c_x - 0x80;
+    int mag = dx < 0 ? -dx : dx;
+    uint8_t an = mag > 0x18 ? (uint8_t)(mag * 2 > 255 ? 255 : mag * 2) : 0;
+    p->trig_l = dx < 0 ? an : 0;
+    p->trig_r = dx > 0 ? an : 0;
+    if (mag > 0x30) b |= dx < 0 ? 0x40 : 0x20;
+    p->buttons = b;
+    p->c_x = p->c_y = 0x80;
+}
+
 static void get_pad(int ch, GcPad* p) {
     int ppc_detclock(void); int perftest_on(void); void perftest_pad(GcPad* p);
     if (perftest_on()) perftest_pad(p);  /* SR_PERFTEST: no controllers (perftest.c) */
     else if (ppc_detclock()) *p = g_det_latch[ch & 3];
-    else input_get_pad(ch, p);
+    else {
+        input_get_pad(ch, p);
+        if (g_settings.modern_controls) modern_controls(p);
+    }
 }
 
 static uint32_t g_out[4];        /* SICnOUTBUF: the poll command (0x40 0x03 motor) */

@@ -626,13 +626,11 @@ void tab_controls() {
 }
 
 void tab_gameplay() {
-    heading("Unlocks");
-    if (check("Chaos Emerald gear in the Shop for 0 rings", &g_settings.chaos_emerald,
-              "Off by default. When on, the Chaos Emerald gear (Super Sonic) shows up in the Shop for 0 rings: "
-              "buy it there once and it is yours, also in that save. Nothing else is "
-              "unlocked."))
+    heading("Controls");
+    if (check("Modern controls", &g_settings.modern_controls,
+              "On by default. L and R switch the leader (the GameCube X and Y), the right stick turns the "
+              "camera (the GameCube L and R). Off: the original GameCube layout."))
         settings_apply();
-    note("Buy it in the Shop, then pick it for Sonic in Player Entry.");
 }
 
 void tab_mods() {

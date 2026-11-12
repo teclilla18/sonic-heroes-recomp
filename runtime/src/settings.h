@@ -34,6 +34,7 @@ typedef struct Settings {
     int pad_background; /* PC: controllers keep working while the window is not focused (SDL hint) */
     int sharpness;      /* PC: FSR 1 RCAS sharpening of the final picture in percent, 0 (off)..100 */
     int update_check;   /* PC: ask GitHub at start-up whether a newer release exists (update_check.c) */
+    int modern_controls; /* Sonic Heroes: L/R switch the leader (X/Y), right stick turns the camera (L/R) (si.c) */
 } Settings;
 
 enum { FR_60, FR_AUTO, FR_30, FR_MODES };

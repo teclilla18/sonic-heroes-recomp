@@ -7,7 +7,9 @@
  * Gamepad (SDL layout): A/B/X/Y, Start, left stick, right stick = C, triggers = L/R (analog, click calibrated
  *           per pad: trigger()), RB = Z, D-pad.
  * Testing: SR_INPUT scripts buttons (input_script.c).
- *          SR_PADS=N connects ports 1..N even without gamepads (scripted multiplayer tests). */
+ *          SR_PADS=N connects ports 1..N even without gamepads (scripted multiplayer tests).
+ *          Scripted runs (SR_INPUT) and SR_NOGAMEPAD=1 never open real gamepads, so a test running in the
+ *          background cannot be driven by (or take) the controller the user is playing with. */
 #include <SDL.h>
 #include <stdatomic.h>
 #include <stdio.h>
@@ -27,6 +29,7 @@ static _Atomic int g_attached[PORTS];
 static SDL_GameController* g_ctl[PORTS];
 static volatile int g_rumble[PORTS];
 static int g_forced_ports = 1;  /* SR_PADS */
+static int g_no_gamepads;       /* SR_INPUT / SR_NOGAMEPAD: tests ignore real gamepads */
 
 static uint64_t pack(const GcPad* p) {
     return (uint64_t)p->buttons | (uint64_t)p->stick_x << 16 | (uint64_t)p->stick_y << 24 | (uint64_t)p->c_x << 32 |
@@ -63,6 +66,8 @@ static void controls_load(void);
 void input_init(void) {
     input_script_init();
     controls_load();
+    g_no_gamepads = getenv("SR_INPUT") || getenv("SR_NOGAMEPAD");
+    if (g_no_gamepads) rt_log("[input] scripted/test run: real gamepads ignored");
     const char* n = getenv("SR_PADS");
     if (n) {
         g_forced_ports = atoi(n);
@@ -231,7 +236,7 @@ static void update_gamepads(void) {
     uint32_t now = SDL_GetTicks();
     if (now - last_scan < 1000 && last_scan) return;
     last_scan = now;
-    for (int j = 0; j < SDL_NumJoysticks(); j++) {
+    for (int j = 0; !g_no_gamepads && j < SDL_NumJoysticks(); j++) {
         if (!SDL_IsGameController(j)) continue;
         SDL_JoystickID id = SDL_JoystickGetDeviceInstanceID(j);
         int used = 0, free_port = -1;

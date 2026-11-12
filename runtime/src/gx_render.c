@@ -69,16 +69,18 @@ static GxFrame* frame(void) {
         static unsigned menu_frames;
         /* after the finish line (results screen: menu flag 0) the rank/name/time rows must stay together */
         menu_frames = ld32(GAME_MENU_FLAG) || ld32(GAME_RACE_PHASE) == GAME_RACE_FINISHED ? menu_frames + 1 : 0;
-        int racing = ld32(GAME_TOP_MODE) == GAME_TOP_MODE_RACE && menu_frames < 8;
-        g_frame->in_race = ld32(GAME_TOP_MODE) == GAME_TOP_MODE_RACE;
+        /* Sonic Heroes: "in a race" = a stage REL is linked (rel.c); its game-state words are unknown */
+        int in_race = ld32(GAME_TOP_MODE) == GAME_TOP_MODE_RACE || rel_stage_active();
+        int racing = in_race && menu_frames < 8;
+        g_frame->in_race = in_race;
         g_gx.xf_reg[GX_XR_WIDE_FLAGS] =
             g_settings.screen == SCREEN_FIT ? GX_WIDE_HUD_43 | (racing ? GX_WIDE_HUD_EDGES : 0u)
             : g_settings.hud_stretch ? 0u : GX_WIDE_HUD_43;
         {
             static uint32_t last_fl = ~0u;
             if (g_gx.xf_reg[GX_XR_WIDE_FLAGS] != last_fl && k > 1.0f)
-                rt_log("[wide] frame %llu: game mode %u, menu flag %u, race phase %X, HUD flags %u", g_frames,
-                       ld32(GAME_TOP_MODE), ld32(GAME_MENU_FLAG), ld32(GAME_RACE_PHASE), g_gx.xf_reg[GX_XR_WIDE_FLAGS]);
+                rt_log("[wide] frame %llu: game mode %u, stage %d, menu flag %u, race phase %X, HUD flags %u", g_frames,
+                       ld32(GAME_TOP_MODE), rel_stage_active(), ld32(GAME_MENU_FLAG), ld32(GAME_RACE_PHASE), g_gx.xf_reg[GX_XR_WIDE_FLAGS]);
             last_fl = g_gx.xf_reg[GX_XR_WIDE_FLAGS];
         }
         float fov = (float)g_fov_scale;
