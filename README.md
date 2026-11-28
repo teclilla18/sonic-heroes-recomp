@@ -5,6 +5,7 @@
 <p align="center">
   <a href="https://decompbuddy.com/games/sonic-heroes-gamecube"><img src="https://decompbuddy.com/badge.svg" alt="Listed on Decomp Buddy"></a>
   <a href="https://decompbuddy.com/games/sonic-heroes-gamecube?install"><img src="https://decompbuddy.com/install-button.svg" alt="Install With Decomp Buddy"></a>
+  <a href="https://recomplauncher.com"><picture><source media="(prefers-color-scheme: dark)" srcset="https://recomplauncher.com/assets/press/launcher/badge-light.svg"><img alt="Get it on RecompLauncher" src="https://recomplauncher.com/assets/press/launcher/badge-dark.svg" height="48"></picture></a>
 </p>
 
 <p align="center">

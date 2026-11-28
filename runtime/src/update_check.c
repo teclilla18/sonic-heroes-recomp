@@ -49,7 +49,7 @@ static int update_thread(void* arg) {
 void update_check_start(void) {
 #ifdef _WIN32
     int forced = getenv("SR_UPDATECHECK") != NULL;  /* testing: check even in a scripted run */
-    if (!g_settings.update_check || getenv("SR_NOUPDATECHECK") || (!forced && (getenv("SR_INPUT") || getenv("SR_PERFTEST")))) return;
+    if (!g_settings.update_check || getenv("SR_NOUPDATECHECK") || getenv("RECOMPLAUNCHER") || (!forced && (getenv("SR_INPUT") || getenv("SR_PERFTEST")))) return;
     int v[3];
     if (!update_parse_version(g_build_version, v)) return;  /* a build without a release tag */
     rt_thread_start(update_thread, NULL);

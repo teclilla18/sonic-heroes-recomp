@@ -1,0 +1,23 @@
+{
+  "$schema": "https://recomplauncher.com/schema/recomplauncher.json",
+  "format": 1,
+  "name": "Sonic Heroes Recomp",
+  "inputs": [
+    {
+      "id": "game",
+      "role": "game",
+      "label": "Sonic Heroes (USA) disc image, G9SE8P (.iso)",
+      "formats": [
+        { "type": "file", "extensions": ["iso", "gcm"] }
+      ]
+    }
+  ],
+  "start": {
+    "program": ["SonicHeroesLauncher.exe"],
+    "args": ["--iso", "{input:game}"]
+  },
+  "folders": {
+    "saves": [{ "path": "{install}/saves" }]
+  },
+  "saves": ["{install}/saves"]
+}

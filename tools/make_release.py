@@ -391,6 +391,8 @@ def main():
         elif args.flavor == "pc":
             files = [(n, d) for n, d in files if n not in ("SonicHeroesSetup.bat", "SonicHeroesSetup.sh")]
             files.append(("Install Sonic Heroes (%s).bat" % plat, launcher(args.flavor)))
+            # RecompLauncher reads its manifest next to the program it starts
+            files.append(("recomplauncher.json", [d for n, d in files if n == "setup/recomplauncher.json"][0]))
         else:  # Switch, Android: the launcher in installer mode (chosen by its name) + the console setup as a fallback
             files = [(n, d) for n, d in files if n not in ("SonicHeroesSetup.bat", "SonicHeroesSetup.sh")]
             files.append(("Install Sonic Heroes (%s) - command line.bat" % plat, launcher(args.flavor)))

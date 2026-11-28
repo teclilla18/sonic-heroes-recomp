@@ -1294,6 +1294,7 @@ void start_update_check() {
     std::string ini = read_text(path(L"saves\\settings.ini"));
     int v[3];
     if (ini.find("update_check=0") != std::string::npos || !update_parse_version(g_version.c_str(), v)) return;
+    if (getenv("RECOMPLAUNCHER")) return;  /* started by RecompLauncher: it installs the updates (no Update page) */
     g_update_done = false;
     std::thread([]() {
         char fmt[64];
@@ -1885,6 +1886,17 @@ int WINAPI wWinMain(HINSTANCE inst, HINSTANCE, PWSTR, int show) {
         if (name.find("switch") != std::string::npos) g_mode = M_SWITCH;
         else if (name.find("android") != std::string::npos) g_mode = M_ANDROID;
         if (g_mode == M_SWITCH) find_sd_cards();
+        /* --iso <path> or --iso=<path>: pre-selects the disc image (RecompLauncher passes the player's copy) */
+        int argc = 0;
+        if (wchar_t** argv = CommandLineToArgvW(GetCommandLineW(), &argc)) {
+            for (int i = 1; i < argc; i++) {
+                std::wstring a = argv[i], d;
+                if (a == L"--iso" && i + 1 < argc) d = argv[++i];
+                else if (a.rfind(L"--iso=", 0) == 0) d = a.substr(6);
+                if (!d.empty() && exists(d)) g_disc_choice = d;
+            }
+            LocalFree(argv);
+        }
     }
     start_update_check();
     DeleteFileW((self_exe() + L".old").c_str());  /* left by an update (the exe that ran it) */
